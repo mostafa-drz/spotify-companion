@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎵 Playlist Companion
 
-## Getting Started
+A minimal web application that enhances your music listening experience by providing educational insights about your Spotify playlist tracks.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Connect your Spotify account
+- Select any of your playlists
+- Enter custom learning prompts
+- Get AI-generated educational blurbs about each track
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠 Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend**: Next.js 15, TypeScript, TailwindCSS
+- **Backend**: Firebase (Auth, Firestore)
+- **AI**: Google Vertex AI
+- **APIs**: Spotify Web API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🏗️ Development Setup
 
-## Learn More
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/playlist-companion.git
+   cd playlist-companion
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Set up environment variables**
+   Create a `.env.local` file in the root directory with the following variables:
+   ```env
+   # Firebase
+   NEXT_PUBLIC_FIREBASE_API_KEY=
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+   NEXT_PUBLIC_FIREBASE_APP_ID=
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   # Spotify
+   SPOTIFY_CLIENT_ID=
+   SPOTIFY_CLIENT_SECRET=
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=
 
-## Deploy on Vercel
+   # Google Cloud
+   GOOGLE_CLOUD_PROJECT=
+   GOOGLE_APPLICATION_CREDENTIALS=
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5. **Open [http://localhost:3000](http://localhost:3000)**
+
+## 📚 Documentation
+
+- [Product Plan](docs/PRODUCT_PLAN.md)
+- [API Documentation](docs/API.md) (Coming soon)
+- [Contributing Guidelines](docs/CONTRIBUTING.md) (Coming soon)
+
+## 🔒 Privacy & Security
+
+- We only request necessary Spotify permissions
+- Your data is stored securely in Firebase
+- We don't share your information with third parties
+
+## 📝 License
+
+MIT License - see [LICENSE](LICENSE) for details
