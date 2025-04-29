@@ -1,5 +1,6 @@
 import { PageLayout } from '@/app/components/layout/PageLayout';
 import { Button } from '@/app/components/ui/Button';
+import Link from 'next/link';
 
 export default function PlaylistsPage() {
   // Placeholder data for playlists
@@ -34,13 +35,15 @@ export default function PlaylistsPage() {
               <div className="p-4">
                 <h3 className="font-medium text-lg">{playlist.name}</h3>
                 <p className="text-secondary text-sm">{playlist.trackCount} tracks</p>
-                <Button 
-                  variant="primary" 
-                  size="sm" 
-                  className="mt-3 w-full"
-                >
-                  Analyze Playlist
-                </Button>
+                <Link href={`/playlists/${playlist.id}/analysis`}>
+                  <Button 
+                    variant="primary" 
+                    size="sm" 
+                    className="mt-3 w-full"
+                  >
+                    Analyze Playlist
+                  </Button>
+                </Link>
               </div>
             </div>
           ))}

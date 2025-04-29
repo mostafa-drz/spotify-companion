@@ -1,7 +1,7 @@
 import { PageLayout } from '@/app/components/layout/PageLayout';
 import { Button } from '@/app/components/ui/Button';
 
-export default function AnalysisPage({ params }: { params: { playlistId: string } }) {
+export default function AnalysisPage({ params }: { params: { id: string } }) {
   // Placeholder data for tracks
   const tracks = [
     { 
