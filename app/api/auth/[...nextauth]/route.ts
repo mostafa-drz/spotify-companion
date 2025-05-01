@@ -1,18 +1,8 @@
-import NextAuth, { DefaultSession, Session } from 'next-auth';
+import NextAuth from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
+import type { Session } from 'next-auth';
+import type { Account, User } from 'next-auth';
 import SpotifyProvider from 'next-auth/providers/spotify';
-
-declare module 'next-auth' {
-  interface Session extends DefaultSession {
-    accessToken?: string;
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT {
-    accessToken?: string;
-  }
-}
 
 const handler = NextAuth({
   providers: [
@@ -27,16 +17,20 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token as string;
+    async jwt({ token, account, user }) {
+      if (account && user) {
+        token.accessToken = account.access_token;
       }
       return token;
     },
-    async session({ session, token }: { session: Session; token: JWT }) {
+    async session({ session, token }) {
       session.accessToken = token.accessToken;
       return session;
     },
+  },
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
   },
 });
 
