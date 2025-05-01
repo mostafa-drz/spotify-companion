@@ -12,8 +12,11 @@ A minimal web application that enhances your music listening experience by provi
 ## 🛠 Tech Stack
 
 - **Frontend**: Next.js 15, TypeScript, TailwindCSS
-- **Backend**: Firebase (Auth, Firestore)
-- **AI**: Google Vertex AI
+- **Server Components**: Next.js 15 server components for improved performance
+- **Server Actions**: Next.js server actions for form submissions
+- **Authentication**: NextAuth.js with Spotify provider
+- **Database**: Firebase Firestore (client SDK)
+- **AI**: Google Vertex AI via Firebase client SDK
 - **APIs**: Spotify Web API
 
 ## 🏗️ Development Setup
@@ -48,7 +51,6 @@ A minimal web application that enhances your music listening experience by provi
 
    # Google Cloud
    GOOGLE_CLOUD_PROJECT=
-   GOOGLE_APPLICATION_CREDENTIALS=
    ```
 
 4. **Run the development server**

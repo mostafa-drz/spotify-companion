@@ -23,7 +23,7 @@ Create a seamless, educational experience that helps users discover the rich his
 
 3. **AI Integration**
    - Custom prompt input for users
-   - Integration with Google Vertex AI
+   - Integration with Google Vertex AI via Firebase client SDK
    - Generate 1-minute educational blurbs per track
 
 4. **User Interface**
@@ -39,12 +39,15 @@ Create a seamless, educational experience that helps users discover the rich his
 - **Styling**: TailwindCSS
 - **UI Components**: Custom components with Heroicons
 - **State Management**: React Context + Hooks
+- **Server Components**: Leveraging Next.js 15 server components for improved performance
+- **Server Actions**: Using Next.js server actions for form submissions and data mutations
 
 ### Backend
-- **Authentication**: Firebase Auth
-- **Database**: Firestore
-- **AI Service**: Google Vertex AI
+- **Authentication**: NextAuth.js with Spotify provider
+- **Database**: Firebase Firestore (client SDK)
+- **AI Service**: Google Vertex AI via Firebase client SDK
 - **External API**: Spotify Web API
+- **Architecture**: Serverless-first approach with minimal API routes
 
 ### Development Tools
 - **Package Manager**: npm
@@ -58,19 +61,19 @@ Create a seamless, educational experience that helps users discover the rich his
 - [x] Initialize Next.js project
 - [x] Configure TypeScript
 - [x] Set up TailwindCSS
-- [x] Configure Firebase
+- [x] Configure Firebase client SDK
 - [x] Basic project structure
 
 ### Phase 2: Authentication & Spotify Integration
-- [ ] Set up Spotify OAuth
+- [ ] Set up Spotify OAuth with NextAuth.js
 - [ ] Implement login/logout flow
-- [ ] Create user profile storage
+- [ ] Create user profile storage in Firestore
 - [ ] Fetch user playlists
 - [ ] Build playlist selection UI
 
 ### Phase 3: AI Integration
-- [ ] Set up Google Vertex AI
-- [ ] Create prompt input interface
+- [ ] Set up Google Vertex AI via Firebase client SDK
+- [ ] Create prompt input interface with server actions
 - [ ] Implement track analysis
 - [ ] Build results display
 - [ ] Add loading states
@@ -101,7 +104,6 @@ NEXTAUTH_SECRET=
 
 # Google Cloud
 GOOGLE_CLOUD_PROJECT=
-GOOGLE_APPLICATION_CREDENTIALS=
 ```
 
 ## 🎨 UI/UX Guidelines
@@ -162,6 +164,6 @@ GOOGLE_APPLICATION_CREDENTIALS=
 ## 🎯 Next Steps
 1. Complete Spotify OAuth integration
 2. Implement playlist fetching
-3. Set up Vertex AI integration
-4. Build prompt interface
+3. Set up Vertex AI integration via Firebase client SDK
+4. Build prompt interface with server actions
 5. Deploy MVP version 
