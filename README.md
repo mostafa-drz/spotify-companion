@@ -46,8 +46,10 @@ A minimal web application that enhances your music listening experience by provi
    # Spotify
    SPOTIFY_CLIENT_ID=
    SPOTIFY_CLIENT_SECRET=
-   NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=
+
+   # Auth.js
+   AUTH_SECRET=
+   AUTH_URL=http://127.0.0.1:3000
 
    # Google Cloud
    GOOGLE_CLOUD_PROJECT=
