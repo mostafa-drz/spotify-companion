@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import SpotifyProvider from 'next-auth/providers/spotify';
 
-const scope = "user-read-email user-read-private";
+const scope = "user-read-email playlist-read-private playlist-read-collaborative";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
