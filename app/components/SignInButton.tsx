@@ -1,7 +1,12 @@
 
-import { signIn } from "@/app/auth"
+import { signIn, auth } from "@/app/auth"
  
-export default function SignIn() {
+export default async function SignIn() {
+  const session = await auth()
+  if (session) {
+    return <p>Signed in as {session.user?.email}</p>
+  }
+
   return (
     <form
       action={async () => {
