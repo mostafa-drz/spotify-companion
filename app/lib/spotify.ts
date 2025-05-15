@@ -34,6 +34,30 @@ export interface SpotifyPlaylistsResponse {
   previous: string | null;
 }
 
+export interface SpotifyTrack {
+  id: string;
+  name: string;
+  artists: {
+    id: string;
+    name: string;
+  }[];
+  album: {
+    id: string;
+    name: string;
+    images: SpotifyImage[];
+  };
+  duration_ms: number;
+  uri: string;
+}
+
+export interface SpotifyPlaylistTracksResponse {
+  items: {
+    added_at: string;
+    track: SpotifyTrack;
+  }[];
+  total: number;
+}
+
 // API Functions
 async function getAccessToken() {
   const session = await auth();
@@ -43,11 +67,11 @@ async function getAccessToken() {
   return session.accessToken;
 }
 
-async function fetchFromSpotify<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
+async function fetchFromSpotify<T>(endpoint: string, params?: Record<string, string | number>): Promise<T> {
   const token = await getAccessToken();
   
   const queryString = params 
-    ? '?' + new URLSearchParams(params).toString()
+    ? '?' + new URLSearchParams(params as Record<string, string>).toString()
     : '';
 
   const response = await fetch(
@@ -79,6 +103,24 @@ export async function getCurrentUserPlaylists(
     });
   } catch (error) {
     console.error('Failed to fetch playlists:', error);
+    throw error;
+  }
+}
+
+export async function getPlaylist(playlistId: string): Promise<SpotifyPlaylist> {
+  try {
+    return await fetchFromSpotify<SpotifyPlaylist>(`/playlists/${playlistId}`);
+  } catch (error) {
+    console.error('Failed to fetch playlist:', error);
+    throw error;
+  }
+}
+
+export async function getPlaylistTracks(playlistId: string): Promise<SpotifyPlaylistTracksResponse> {
+  try {
+    return await fetchFromSpotify<SpotifyPlaylistTracksResponse>(`/playlists/${playlistId}/tracks`);
+  } catch (error) {
+    console.error('Failed to fetch playlist tracks:', error);
     throw error;
   }
 } 
