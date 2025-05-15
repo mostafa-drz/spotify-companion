@@ -2,18 +2,18 @@ import { ButtonHTMLAttributes, forwardRef } from 'react';
 import { cn } from '@/app/lib/utils';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 disabled:pointer-events-none disabled:opacity-50';
+    const baseStyles = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-opacity-50 disabled:pointer-events-none disabled:opacity-50';
     
     const variants = {
-      primary: 'bg-green-600 text-white hover:bg-green-700',
-      secondary: 'bg-gray-600 text-white hover:bg-gray-700',
-      outline: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50',
+      primary: 'bg-primary text-white hover:bg-primary-dark focus-visible:ring-primary',
+      secondary: 'bg-secondary text-white hover:bg-secondary-light focus-visible:ring-secondary',
+      ghost: 'bg-transparent text-neutral hover:bg-neutral-light focus-visible:ring-neutral',
     };
 
     const sizes = {

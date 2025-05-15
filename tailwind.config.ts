@@ -10,23 +10,47 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#16a34a', // Green-600
-          dark: '#15803d',    // Green-700
+          DEFAULT: '#1DB954', // Spotify Green
+          dark: '#1ed760',    // Spotify Green (hover)
         },
         secondary: {
-          DEFAULT: '#4b5563', // Gray-600
-          light: '#6b7280',   // Gray-500
+          DEFAULT: '#8B5CF6', // Accent Purple
+          light: '#A78BFA',   // Lighter Purple
         },
-        background: '#f9fafb', // Gray-50
+        neutral: {
+          DEFAULT: '#4B5563', // Neutral Gray
+          light: '#F3F4F6',   // Light Gray
+        },
+        semantic: {
+          success: '#10B981',
+          error: '#EF4444',
+          info: '#3B82F6',
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       spacing: {
-        '4': '1rem',
-        '8': '2rem',
-        '12': '3rem',
-        '16': '4rem',
+        '1': '0.25rem',  /* 4px */
+        '2': '0.5rem',   /* 8px */
+        '3': '0.75rem',  /* 12px */
+        '4': '1rem',     /* 16px */
+        '5': '1.25rem',  /* 20px */
+        '6': '1.5rem',   /* 24px */
+        '8': '2rem',     /* 32px */
+        '10': '2.5rem',  /* 40px */
+        '12': '3rem',    /* 48px */
+      },
+      borderRadius: {
+        'lg': '0.5rem',
+        'xl': '0.75rem',
+      },
+      boxShadow: {
+        'sm': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        'md': '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+      },
+      transitionDuration: {
+        '200': '200ms',
       },
     },
   },

@@ -13,18 +13,24 @@ export function PageLayout({
   showFooter = true 
 }: PageLayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#121212]">
       {showHeader && (
-        <header className="bg-white shadow-sm">
+        <header className="bg-white dark:bg-[#121212] shadow-sm border-b border-neutral-light dark:border-neutral">
           <div className="container py-4 flex justify-between items-center">
-            <Link href="/" className="text-2xl font-bold text-primary">
+            <Link href="/" className="text-2xl font-bold text-primary hover:text-primary-dark transition-colors">
               Playlist Companion
             </Link>
             <nav className="flex items-center space-x-4">
-              <Link href="/playlists" className="text-secondary hover:text-primary">
+              <Link 
+                href="/playlists" 
+                className="text-neutral hover:text-primary transition-colors"
+              >
                 My Playlists
               </Link>
-              <Link href="/profile" className="text-secondary hover:text-primary">
+              <Link 
+                href="/profile" 
+                className="text-neutral hover:text-primary transition-colors"
+              >
                 Profile
               </Link>
             </nav>
@@ -37,8 +43,8 @@ export function PageLayout({
       </main>
       
       {showFooter && (
-        <footer className="bg-gray-50 border-t">
-          <div className="container py-6 text-center text-secondary">
+        <footer className="bg-white dark:bg-[#121212] border-t border-neutral-light dark:border-neutral">
+          <div className="container py-6 text-center text-neutral">
             <p>© {new Date().getFullYear()} Playlist Companion</p>
           </div>
         </footer>
