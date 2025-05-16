@@ -9,9 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/firebase-adapter": "^2.9.1",
+    "@genkit-ai/googleai": "^1.9.0",
     "@heroicons/react": "^2.1.1",
     "axios": "^1.9.0",
     "clsx": "^2.1.0",
+    "firebase": "^11.7.3",
+    "firebase-admin": "^12.7.0",
+    "genkit": "^1.9.0",
     "next": "15.3.1",
     "next-auth": "^5.0.0-beta.3",
     "react": "^19.0.0",

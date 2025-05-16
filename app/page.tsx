@@ -1,4 +1,5 @@
 import LoginButton from "@/app/components/SignInButton";
+import TestGenKitButton from "@/app/components/TestGenKitButton";
 
 export default function Home() {
   return (
@@ -15,8 +16,9 @@ export default function Home() {
           Your personal Spotify playlist assistant
         </p>
 
-        <div className="mt-8">
+        <div className="mt-8 space-y-4">
           <LoginButton />
+          <TestGenKitButton />
         </div>
       </main>
     </div>
