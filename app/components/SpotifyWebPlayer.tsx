@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { useSpotifyPlayer } from '@/app/contexts/SpotifyPlayerContext';
 
 const DEFAULT_ALBUM_ART = '/track-placeholder.png';
 
@@ -29,13 +29,7 @@ declare global {
 }
 
 export default function SpotifyWebPlayer() {
-  const [deviceId, setDeviceId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [playerReady, setPlayerReady] = useState(false);
-  const { data: session } = useSession();
-  const playerRef = useRef<any>(null);
-
-  // --- Player Controls State ---
+  const { player, deviceId, isReady } = useSpotifyPlayer();
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [track, setTrack] = useState<{
@@ -55,108 +49,64 @@ export default function SpotifyWebPlayer() {
   };
 
   useEffect(() => {
-    if (!session?.accessToken) return;
-
-    // Load the Spotify Web Playback SDK script
-    const script = document.createElement('script');
-    script.src = 'https://sdk.scdn.co/spotify-player.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      if (!window.Spotify) return;
-      const player = new window.Spotify.Player({
-        name: 'Playlist Companion Player',
-        getOAuthToken: (cb: (token: string) => void) => { cb(session.accessToken as string); },
-        volume: 0.5,
-      });
-      playerRef.current = player;
-
-      player.addListener('ready', ({ device_id }: { device_id: string }) => {
-        setDeviceId(device_id);
-        setPlayerReady(true);
-      });
-
-      player.addListener('not_ready', () => {
-        setPlayerReady(false);
-        setDeviceId(null);
-      });
-
-      player.addListener('initialization_error', ({ message }: { message: string }) => {
-        setError(message);
-      });
-      player.addListener('authentication_error', ({ message }: { message: string }) => {
-        setError(message);
-      });
-      player.addListener('account_error', ({ message }: { message: string }) => {
-        setError(message);
-      });
-      player.addListener('playback_error', ({ message }: { message: string }) => {
-        setError(message);
-      });
-
-      player.addListener('player_state_changed', (state: SpotifyPlayerState) => {
-        if (!state || !state.track_window.current_track) {
-          setTrack(null);
-          setIsPlaying(false);
-          setPosition(0);
-          setDuration(0);
-          return;
-        }
-        setIsPlaying(!state.paused);
-        setVolume(state.volume);
-        setPosition(state.position);
-        setDuration(state.duration);
-        const t = state.track_window.current_track;
-        setTrack({
-          title: t.name,
-          artist: t.artists.map((a) => a.name).join(', '),
-          albumArt: t.album.images[0]?.url || DEFAULT_ALBUM_ART,
-        });
-      });
-
-      player.connect();
-    };
-
-    return () => {
-      script.remove();
-      if (playerRef.current) {
-        playerRef.current.disconnect();
+    if (!player) return;
+    // Listen for player state changes
+    const stateListener = (state: any) => {
+      if (!state || !state.track_window.current_track) {
+        setTrack(null);
+        setIsPlaying(false);
+        setPosition(0);
+        setDuration(0);
+        return;
       }
+      setIsPlaying(!state.paused);
+      setVolume(state.volume);
+      setPosition(state.position);
+      setDuration(state.duration);
+      const t = state.track_window.current_track;
+      setTrack({
+        title: t.name,
+        artist: t.artists.map((a: any) => a.name).join(', '),
+        albumArt: t.album.images[0]?.url || DEFAULT_ALBUM_ART,
+      });
     };
-  }, [session?.accessToken]);
+    player.addListener('player_state_changed', stateListener);
+    return () => {
+      player.removeListener('player_state_changed', stateListener);
+    };
+  }, [player]);
 
   // --- Control Handlers ---
   const handlePlayPause = async () => {
-    if (playerRef.current) {
-      await playerRef.current.togglePlay();
+    if (player) {
+      await player.togglePlay();
     }
   };
   const handleNext = async () => {
-    if (playerRef.current) {
-      await playerRef.current.nextTrack();
+    if (player) {
+      await player.nextTrack();
     }
   };
   const handlePrevious = async () => {
-    if (playerRef.current) {
-      await playerRef.current.previousTrack();
+    if (player) {
+      await player.previousTrack();
     }
   };
   const handleVolume = async (v: number) => {
     setVolume(v);
-    if (playerRef.current) {
-      await playerRef.current.setVolume(v);
+    if (player) {
+      await player.setVolume(v);
     }
   };
   const handleSeek = async (ms: number) => {
     setPosition(ms);
-    if (playerRef.current) {
-      await playerRef.current.seek(ms);
+    if (player) {
+      await player.seek(ms);
     }
   };
 
-  if (error) return <div className="text-semantic-error">Spotify Player Error: {error}</div>;
-  if (!session?.accessToken) return <div>Please sign in with Spotify.</div>;
+  if (!isReady) return <div className="text-neutral">Spotify player is loading...</div>;
+  if (!deviceId) return <div className="text-semantic-error">Spotify player not ready.</div>;
 
   return (
     <div className="music-card max-w-xl mx-auto mt-8 flex flex-col items-center">
@@ -247,7 +197,7 @@ export default function SpotifyWebPlayer() {
       </div>
       {/* Player status */}
       <div className="mt-4 text-sm text-neutral">
-        {playerReady ? (
+        {isReady ? (
           <span>Spotify Web Player is ready! Device ID: <span className="font-mono">{deviceId}</span></span>
         ) : (
           <span>Loading Spotify Web Player...</span>
