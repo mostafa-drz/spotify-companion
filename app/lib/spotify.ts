@@ -58,11 +58,23 @@ export interface SpotifyPlaylistTracksResponse {
   total: number;
 }
 
+// Error types
+export class SpotifyError extends Error {
+  constructor(
+    message: string,
+    public status?: number,
+    public code?: string
+  ) {
+    super(message);
+    this.name = 'SpotifyError';
+  }
+}
+
 // API Functions
 async function getAccessToken() {
   const session = await auth();
   if (!session?.accessToken) {
-    throw new Error('Not authenticated');
+    throw new SpotifyError('Not authenticated', 401, 'UNAUTHENTICATED');
   }
   return session.accessToken;
 }
@@ -85,7 +97,11 @@ async function fetchFromSpotify<T>(endpoint: string, params?: Record<string, str
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error?.message || 'Failed to fetch from Spotify');
+    throw new SpotifyError(
+      error.error?.message || 'Failed to fetch from Spotify',
+      response.status,
+      error.error?.status
+    );
   }
 
   return response.json();
@@ -102,8 +118,11 @@ export async function getCurrentUserPlaylists(
       offset,
     });
   } catch (error) {
+    if (error instanceof SpotifyError) {
+      throw error;
+    }
     console.error('Failed to fetch playlists:', error);
-    throw error;
+    throw new SpotifyError('Failed to fetch playlists');
   }
 }
 
@@ -111,8 +130,11 @@ export async function getPlaylist(playlistId: string): Promise<SpotifyPlaylist> 
   try {
     return await fetchFromSpotify<SpotifyPlaylist>(`/playlists/${playlistId}`);
   } catch (error) {
+    if (error instanceof SpotifyError) {
+      throw error;
+    }
     console.error('Failed to fetch playlist:', error);
-    throw error;
+    throw new SpotifyError('Failed to fetch playlist');
   }
 }
 
@@ -120,7 +142,94 @@ export async function getPlaylistTracks(playlistId: string): Promise<SpotifyPlay
   try {
     return await fetchFromSpotify<SpotifyPlaylistTracksResponse>(`/playlists/${playlistId}/tracks`);
   } catch (error) {
+    if (error instanceof SpotifyError) {
+      throw error;
+    }
     console.error('Failed to fetch playlist tracks:', error);
-    throw error;
+    throw new SpotifyError('Failed to fetch playlist tracks');
+  }
+}
+
+// Player control functions
+export async function playTrack(deviceId: string, trackUri: string): Promise<void> {
+  try {
+    const token = await getAccessToken();
+    const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uris: [trackUri] }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new SpotifyError(
+        error.error?.message || 'Failed to play track',
+        response.status,
+        error.error?.status
+      );
+    }
+  } catch (error) {
+    if (error instanceof SpotifyError) {
+      throw error;
+    }
+    console.error('Failed to play track:', error);
+    throw new SpotifyError('Failed to play track');
+  }
+}
+
+export async function pausePlayback(deviceId: string): Promise<void> {
+  try {
+    const token = await getAccessToken();
+    const response = await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new SpotifyError(
+        error.error?.message || 'Failed to pause playback',
+        response.status,
+        error.error?.status
+      );
+    }
+  } catch (error) {
+    if (error instanceof SpotifyError) {
+      throw error;
+    }
+    console.error('Failed to pause playback:', error);
+    throw new SpotifyError('Failed to pause playback');
+  }
+}
+
+export async function resumePlayback(deviceId: string): Promise<void> {
+  try {
+    const token = await getAccessToken();
+    const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new SpotifyError(
+        error.error?.message || 'Failed to resume playback',
+        response.status,
+        error.error?.status
+      );
+    }
+  } catch (error) {
+    if (error instanceof SpotifyError) {
+      throw error;
+    }
+    console.error('Failed to resume playback:', error);
+    throw new SpotifyError('Failed to resume playback');
   }
 } 

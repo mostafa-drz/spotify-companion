@@ -10,15 +10,11 @@ export default function TestGenKitButton() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; error?: string } | null>(null);
 
-  if (!session) {
-    return null;
-  }
-
   const handleClick = async () => {
     setIsLoading(true);
     setResult(null);
     try {
-      const response = await testHelloFlow(session.user?.name || 'Anonymous');
+      const response = await testHelloFlow(session?.user?.name || 'Anonymous');
       setResult(response);
     } catch (error) {
       setResult({ success: false, error: 'An unexpected error occurred' });

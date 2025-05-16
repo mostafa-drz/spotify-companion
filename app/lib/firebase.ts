@@ -1,7 +1,7 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAnalytics, type Analytics } from 'firebase/analytics';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 
+// Firebase Client SDK initialization
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -11,11 +11,19 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase app (singleton)
-export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// Initialize Firebase client app
+const app = initializeApp(firebaseConfig);
 
-// Export Firestore instance
-export const db: Firestore = getFirestore(app);
+// Export Firebase client auth
+export const clientAuth = getAuth(app);
 
-// Export Analytics instance (only if window is defined)
-export const analytics: Analytics | null = typeof window !== 'undefined' ? getAnalytics(app) : null; 
+// Export Firebase user type
+export type FirebaseUser = {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+};
+
+// Auth state change listener type
+export type AuthStateChangeCallback = (user: FirebaseUser | null) => void; 

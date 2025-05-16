@@ -5,6 +5,32 @@ rules_version = '2';
 //    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profile images
+    match /users/{userId}/profile/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) 
+        && request.resource.size < 5 * 1024 * 1024 // 5MB
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Playlist cover images
+    match /playlists/{playlistId}/cover/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() 
+        && request.resource.size < 5 * 1024 * 1024 // 5MB
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Default deny
     match /{allPaths=**} {
       allow read, write: if false;
     }
