@@ -14,6 +14,8 @@ export interface TrackPlayback {
   introDuration: number;
   trackDuration: number;
   hasIntro: boolean;
+  playlistId: string;
+  playlistName?: string;
 }
 
 export interface PlaybackError {
@@ -30,6 +32,7 @@ export interface PlaybackEvent {
 
 export interface PlaybackAnalytics {
   trackId: string;
+  playlistId: string;
   introPlayed: boolean;
   introSkipped: boolean;
   introDuration: number;

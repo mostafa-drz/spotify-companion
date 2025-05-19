@@ -1,5 +1,6 @@
 import { PlaybackState, TrackPlayback, PlaybackError, PlaybackEvent, PlaybackAnalytics } from '../types/Playback';
 import { adminDb } from './firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 class PlaybackService {
   private audio: HTMLAudioElement | null = null;
@@ -32,6 +33,7 @@ class PlaybackService {
       // Initialize analytics
       this.analytics = {
         trackId: track.trackId,
+        playlistId: track.playlistId,
         introPlayed: false,
         introSkipped: false,
         introDuration: track.introDuration,
@@ -52,28 +54,46 @@ class PlaybackService {
 
     // Track audio events
     this.audio.addEventListener('timeupdate', () => {
-      this.emitEvent('seek', { currentTime: this.audio?.currentTime });
+      this.emitEvent('seek', { 
+        currentTime: this.audio?.currentTime,
+        playlistId: this.currentTrack?.playlistId
+      });
     });
 
     this.audio.addEventListener('volumechange', () => {
-      this.emitEvent('volume', { volume: this.audio?.volume });
+      this.emitEvent('volume', { 
+        volume: this.audio?.volume,
+        playlistId: this.currentTrack?.playlistId
+      });
     });
 
     this.audio.addEventListener('ratechange', () => {
-      this.emitEvent('rate', { rate: this.audio?.playbackRate });
+      this.emitEvent('rate', { 
+        rate: this.audio?.playbackRate,
+        playlistId: this.currentTrack?.playlistId
+      });
     });
 
     this.audio.addEventListener('ended', () => {
-      this.emitEvent('end', { type: 'track' });
+      this.emitEvent('end', { 
+        type: 'track',
+        playlistId: this.currentTrack?.playlistId
+      });
     });
 
     // Intro audio events
     this.introAudio.addEventListener('ended', () => {
-      this.emitEvent('end', { type: 'intro' });
+      this.emitEvent('end', { 
+        type: 'intro',
+        playlistId: this.currentTrack?.playlistId
+      });
       if (this.audio) {
         this.audio.play().catch(error => {
           console.error('Error playing track after intro:', error);
-          this.emitEvent('error', { error });
+          this.emitEvent('error', { 
+            error,
+            playlistId: this.currentTrack?.playlistId
+          });
         });
       }
     });
@@ -92,7 +112,10 @@ class PlaybackService {
         await this.audio.play();
       }
 
-      this.emitEvent('play', { timestamp: Date.now() });
+      this.emitEvent('play', { 
+        timestamp: Date.now(),
+        playlistId: this.currentTrack.playlistId
+      });
     } catch (error) {
       console.error('Error playing track:', error);
       throw this.createError('PLAYBACK_FAILED', 'Failed to play track');
@@ -106,7 +129,10 @@ class PlaybackService {
     if (this.audio) {
       this.audio.pause();
     }
-    this.emitEvent('pause', { timestamp: Date.now() });
+    this.emitEvent('pause', { 
+      timestamp: Date.now(),
+      playlistId: this.currentTrack?.playlistId
+    });
   }
 
   skipIntro(): void {
@@ -117,7 +143,10 @@ class PlaybackService {
       if (this.audio) {
         this.audio.play().catch(error => {
           console.error('Error playing track after skipping intro:', error);
-          this.emitEvent('error', { error });
+          this.emitEvent('error', { 
+            error,
+            playlistId: this.currentTrack?.playlistId
+          });
         });
       }
     }
@@ -126,21 +155,30 @@ class PlaybackService {
   seek(time: number): void {
     if (this.audio) {
       this.audio.currentTime = time;
-      this.emitEvent('seek', { time });
+      this.emitEvent('seek', { 
+        time,
+        playlistId: this.currentTrack?.playlistId
+      });
     }
   }
 
   setVolume(volume: number): void {
     if (this.audio) {
       this.audio.volume = Math.max(0, Math.min(1, volume));
-      this.emitEvent('volume', { volume });
+      this.emitEvent('volume', { 
+        volume,
+        playlistId: this.currentTrack?.playlistId
+      });
     }
   }
 
   setPlaybackRate(rate: number): void {
     if (this.audio) {
       this.audio.playbackRate = rate;
-      this.emitEvent('rate', { rate });
+      this.emitEvent('rate', { 
+        rate,
+        playlistId: this.currentTrack?.playlistId
+      });
     }
   }
 
@@ -222,7 +260,7 @@ class PlaybackService {
     try {
       await adminDb.collection('playbackAnalytics').add({
         ...this.analytics,
-        timestamp: adminDb.FieldValue.serverTimestamp()
+        timestamp: FieldValue.serverTimestamp()
       });
     } catch (error) {
       console.error('Error saving playback analytics:', error);
