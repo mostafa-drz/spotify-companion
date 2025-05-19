@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import type { TrackListItem } from '@/app/types/TrackListItem';
 import TracksListClient from './TracksListClient';
+import PlaylistSettingsInlineClient from '@/app/components/playlists/PlaylistSettingsInlineClient';
 
 export default async function PlaylistPage({ params }: { params: { id: string } }) {
   const playlistId = params.id;
@@ -12,11 +13,11 @@ export default async function PlaylistPage({ params }: { params: { id: string } 
       getPlaylistTracks(playlistId)
     ]);
 
-    const formattedTracks: TrackListItem[] = tracks.items.map((item: any) => ({
+    const formattedTracks: TrackListItem[] = tracks.items.map((item: { track: { id: string; name: string; uri: string; artists: { name: string }[]; album: { name: string; images: { url: string }[] }; duration_ms: number } }) => ({
       id: item.track.id,
       name: item.track.name,
       uri: item.track.uri,
-      artists: item.track.artists.map((a: any) => a.name).join(', '),
+      artists: item.track.artists.map((a: { name: string }) => a.name).join(', '),
       album: item.track.album.name,
       duration: item.track.duration_ms,
       imageUrl: item.track.album.images[2]?.url || item.track.album.images[0]?.url || '/track-placeholder.png',
@@ -46,6 +47,9 @@ export default async function PlaylistPage({ params }: { params: { id: string } 
               </p>
             </div>
           </div>
+
+          {/* Inline Playlist Settings */}
+          <PlaylistSettingsInlineClient playlistId={playlistId} />
 
           {/* Tracks List */}
           <Suspense fallback={<div>Loading tracks...</div>}>
