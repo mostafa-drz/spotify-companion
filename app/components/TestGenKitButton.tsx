@@ -1,9 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { testHelloFlow } from '@/app/actions/genkit';
-import Button from './ui/Button';
 import { useState } from 'react';
+import { testHelloFlow } from '@/app/actions/genkit';
 
 export default function TestGenKitButton() {
   const { data: session } = useSession();
@@ -14,28 +13,37 @@ export default function TestGenKitButton() {
     setIsLoading(true);
     setResult(null);
     try {
-      const response = await testHelloFlow(session?.user?.name || 'Anonymous');
-      setResult(response);
+      const result = await testHelloFlow('test');
+      setResult(result);
     } catch (error) {
-      setResult({ success: false, error: 'An unexpected error occurred' });
+      setResult({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to call helloFlow' 
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (!session) {
+    return null;
+  }
+
   return (
-    <div className="flex flex-col items-center gap-4">
-      <Button
+    <div className="flex flex-col gap-4">
+      <button
         onClick={handleClick}
         disabled={isLoading}
-        variant="primary"
+        className="btn-primary"
       >
-        {isLoading ? 'Testing...' : 'Test GenKit Flow'}
-      </Button>
+        {isLoading ? 'Loading...' : 'Test GenKit'}
+      </button>
       {result && (
-        <p className={`text-sm ${result.success ? 'text-green-600' : 'text-red-600'}`}>
-          {result.success ? 'Successfully called helloFlow!' : result.error}
-        </p>
+        <div className={`p-4 rounded-lg ${result.success ? 'bg-green-50' : 'bg-red-50'}`}>
+          <p className={result.success ? 'text-green-700' : 'text-red-700'}>
+            {result.success ? 'Success!' : result.error}
+          </p>
+        </div>
       )}
     </div>
   );
