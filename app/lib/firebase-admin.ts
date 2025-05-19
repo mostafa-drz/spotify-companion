@@ -1,6 +1,7 @@
 import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 import { auth } from '@/app/auth';
 
 // Firebase Admin SDK initialization
@@ -13,6 +14,7 @@ if (!getApps().length) {
 // Export Firebase Admin instances
 export const adminAuth = getAuth();
 export const adminDb = getFirestore();
+export const adminStorage = getStorage();
 
 // Utility function to generate custom token
 export async function generateCustomToken(uid: string): Promise<string> {
