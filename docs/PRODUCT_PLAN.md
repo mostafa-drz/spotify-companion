@@ -20,16 +20,21 @@ Create a seamless, educational experience that helps users discover the rich his
    - Fetch and display user's Spotify playlists
    - Allow playlist selection
    - Display track information
+   - Manage playlist-specific intro settings
+   - Configure prompt templates per playlist
 
 3. **AI Integration**
    - Custom prompt input for users
    - Integration with Google Vertex AI via Firebase client SDK
    - Generate 1-minute educational blurbs per track
+   - Store and manage prompt templates
 
 4. **User Interface**
    - Clean, minimal design using TailwindCSS
    - Responsive layout
    - Loading states and error handling
+   - Playlist settings panel
+   - Prompt template selection UI
 
 ## 🛠 Technical Stack
 
@@ -128,14 +133,20 @@ GOOGLE_CLOUD_PROJECT=
    - Create custom collections
 
 3. **Advanced AI Features**
-   - Multiple prompt templates
+   - Multiple prompt templates per playlist
    - Focus on specific aspects (instruments, history, etc.)
    - Custom prompt suggestions
+   - Template categories and tags
 
 4. **Analytics & Insights**
    - Track usage patterns
    - Popular prompts
    - User engagement metrics
+
+5. **User Preferences**
+   - Global settings for default behavior
+   - Cross-playlist preferences
+   - User-specific defaults
 
 ## 📊 Success Metrics
 - User engagement (time spent per session)
@@ -143,18 +154,21 @@ GOOGLE_CLOUD_PROJECT=
 - User retention
 - Prompt variety and usage
 - Error rates and performance metrics
+- Playlist-specific intro engagement
 
 ## 🔒 Privacy & Security
 - Secure OAuth implementation
 - Data minimization
 - Clear privacy policy
 - Regular security audits
+- Playlist-level access control
 
 ## 💰 Cost Considerations
 - Firebase usage limits
 - Vertex AI API costs
 - Spotify API rate limits
 - Hosting and bandwidth
+- Storage for playlist settings
 
 ## 📝 Development Workflow
 1. Feature branches from `main`
@@ -167,5 +181,5 @@ GOOGLE_CLOUD_PROJECT=
 1. Complete Spotify OAuth integration
 2. Implement playlist fetching
 3. Set up Vertex AI integration via Firebase client SDK
-4. Build prompt interface with server actions
+4. Build playlist settings and prompt interface
 5. Deploy MVP version 

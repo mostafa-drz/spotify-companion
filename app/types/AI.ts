@@ -13,6 +13,8 @@ export interface AIRequest {
   trackMetadata: TrackMetadata;
   promptTemplate: string;
   customPrompt?: string;
+  playlistId: string;
+  playlistName?: string;
 }
 
 export interface AIResponse {
@@ -36,6 +38,7 @@ export interface AIGenerationResult {
   metadata: {
     trackId: string;
     promptId: string;
+    playlistId: string;
     timestamp: Date;
     attempt: number;
   };

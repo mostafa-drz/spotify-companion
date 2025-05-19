@@ -20,13 +20,20 @@ export class AIService {
     return AIService.instance;
   }
 
-  private formatPrompt(template: string, metadata: AIRequest['trackMetadata']): string {
-    return template
+  private formatPrompt(template: string, metadata: AIRequest['trackMetadata'], playlistName?: string): string {
+    let formattedPrompt = template
       .replace('{trackName}', metadata.name)
       .replace('{artists}', metadata.artists.join(', '))
       .replace('{album}', metadata.album)
       .replace('{releaseDate}', metadata.releaseDate || 'unknown')
       .replace('{genres}', metadata.genres?.join(', ') || 'unknown');
+
+    // Add playlist context if available
+    if (playlistName) {
+      formattedPrompt = formattedPrompt.replace('{playlistName}', playlistName);
+    }
+
+    return formattedPrompt;
   }
 
   private async generateWithRetry(
@@ -37,7 +44,7 @@ export class AIService {
       // TODO: Replace with actual Vertex AI call
       // This is a mock implementation
       const response: AIResponse = {
-        text: `This is a mock intro for ${request.trackMetadata.name} by ${request.trackMetadata.artists.join(', ')}.`,
+        text: `This is a mock intro for ${request.trackMetadata.name} by ${request.trackMetadata.artists.join(', ')} in playlist ${request.playlistName || request.playlistId}.`,
         duration: 60,
         tokens: 100,
         model: 'gemini-pro'
@@ -49,6 +56,7 @@ export class AIService {
         metadata: {
           trackId: request.trackMetadata.id,
           promptId: request.customPrompt || 'template',
+          playlistId: request.playlistId,
           timestamp: new Date(),
           attempt
         }
@@ -71,6 +79,7 @@ export class AIService {
         metadata: {
           trackId: request.trackMetadata.id,
           promptId: request.customPrompt || 'template',
+          playlistId: request.playlistId,
           timestamp: new Date(),
           attempt
         }
@@ -80,9 +89,12 @@ export class AIService {
 
   public async generateIntro(
     trackMetadata: AIRequest['trackMetadata'],
-    promptTemplate: PromptTemplate | string
+    promptTemplate: PromptTemplate | string,
+    playlistId: string,
+    playlistName?: string
   ): Promise<AIGenerationResult> {
-    const cacheKey = `${trackMetadata.id}-${typeof promptTemplate === 'string' ? promptTemplate : promptTemplate.id}`;
+    // Create cache key that includes playlist context
+    const cacheKey = `${playlistId}-${trackMetadata.id}-${typeof promptTemplate === 'string' ? promptTemplate : promptTemplate.id}`;
     
     // Check cache first
     const cachedResponse = this.cache.get(cacheKey);
@@ -93,6 +105,7 @@ export class AIService {
         metadata: {
           trackId: trackMetadata.id,
           promptId: typeof promptTemplate === 'string' ? promptTemplate : promptTemplate.id,
+          playlistId,
           timestamp: new Date(),
           attempt: 0
         }
@@ -105,7 +118,9 @@ export class AIService {
 
     const request: AIRequest = {
       trackMetadata,
-      promptTemplate: this.formatPrompt(template, trackMetadata)
+      promptTemplate: this.formatPrompt(template, trackMetadata, playlistName),
+      playlistId,
+      playlistName
     };
 
     const result = await this.generateWithRetry(request);
