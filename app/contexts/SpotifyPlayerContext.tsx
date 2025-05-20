@@ -68,11 +68,7 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<SpotifyError | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<{
-    name: string;
-    artists: string[];
-    albumArt: string;
-  } | null>(null);
+  const [currentTrack, setCurrentTrack] = useState(null);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(0.5);
@@ -150,11 +146,7 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
         setVolumeState(state.volume);
         if (state.track_window?.current_track) {
           const track = state.track_window.current_track;
-          setCurrentTrack({
-            name: track.name,
-            artists: track.artists.map(a => a.name),
-            albumArt: track.album.images[0]?.url || '/track-placeholder.png',
-          });
+          setCurrentTrack(track);
         }
       });
 

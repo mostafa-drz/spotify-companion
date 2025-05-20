@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useSpotifyPlayer } from "@/app/contexts/SpotifyPlayerContext";
 import { useState } from "react";
+import type { SpotifyTrack } from "@/app/types/Spotify";
 
 export default function NowPlayingPage() {
   const { data: session, status } = useSession();
@@ -18,15 +19,6 @@ export default function NowPlayingPage() {
   } = useSpotifyPlayer();
   const [transferring, setTransferring] = useState(false);
   const [transferError, setTransferError] = useState<string | null>(null);
-
-  console.log({
-    currentTrack,
-    isPlaying,
-    position,
-    duration,
-    playerError,
-    isReady,
-  });
 
   if (status === "loading") {
     return <div className="p-8 text-neutral">Loading...</div>;
@@ -96,18 +88,23 @@ export default function NowPlayingPage() {
 
   // Progress bar width
   const progressPercent = duration > 0 ? Math.min(100, Math.round((position / duration) * 100)) : 0;
+  const track = currentTrack as SpotifyTrack;
 
   return (
     <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818]">
       <div className="flex items-center gap-6">
         <img
-          src={currentTrack.albumArt}
-          alt={currentTrack.name}
+          src={track.album.images[0]?.url || "/track-placeholder.png"}
+          alt={track.album.name}
           className="w-28 h-28 rounded-lg shadow border border-gray-200 dark:border-gray-700 object-cover"
         />
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold text-primary truncate mb-1">{currentTrack.name}</h2>
-          <div className="text-neutral text-base truncate mb-1">{currentTrack.artists.join(", ")}</div>
+          <h2 className="text-2xl font-bold text-primary truncate mb-1">{track.name}</h2>
+          <div className="text-neutral text-base truncate mb-1">{track.artists.map(a => a.name).join(", ")}</div>
+          <div className="text-neutral text-sm truncate">{track.album.name}</div>
+          <div className="text-xs text-neutral mt-2">Track ID: {track.id ?? '—'}</div>
+          <div className="text-xs text-neutral">Playable: {track.is_playable ? 'Yes' : 'No'}</div>
+          <div className="text-xs text-neutral">Type: {track.type} ({track.media_type})</div>
         </div>
       </div>
       <div className="mt-6">
