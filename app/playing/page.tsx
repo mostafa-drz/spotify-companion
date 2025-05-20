@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useSpotifyPlayer } from "@/app/contexts/SpotifyPlayerContext";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { SpotifyTrack } from "@/app/types/Spotify";
 
 export default function NowPlayingPage() {
@@ -19,6 +19,64 @@ export default function NowPlayingPage() {
   } = useSpotifyPlayer();
   const [transferring, setTransferring] = useState(false);
   const [transferError, setTransferError] = useState<string | null>(null);
+  const [introsEnabled, setIntrosEnabled] = useState(true);
+  const [introStatus, setIntroStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
+  const [introScript, setIntroScript] = useState<string | null>(null);
+  const [introError, setIntroError] = useState<string | null>(null);
+  const lastTrackIdRef = useRef<string | null>(null);
+
+  // Effect: Generate intro script on track change if enabled
+  useEffect(() => {
+    const userId = session?.user?.id;
+    const track = currentTrack as SpotifyTrack;
+    if (
+      introsEnabled &&
+      userId &&
+      track &&
+      track.id &&
+      track.is_playable &&
+      track.id !== lastTrackIdRef.current
+    ) {
+      setIntroStatus('generating');
+      setIntroScript(null);
+      setIntroError(null);
+      fetch('/api/intro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          trackId: track.id,
+          track: {
+            name: track.name,
+            artists: track.artists.map(a => a.name),
+            album: track.album.name,
+          },
+        }),
+      })
+        .then(async (res) => {
+          const data = await res.json();
+          if (res.ok && data.success) {
+            setIntroScript(data.script);
+            setIntroStatus('ready');
+            lastTrackIdRef.current = track.id;
+          } else {
+            setIntroStatus('error');
+            setIntroError(data.error || 'Failed to generate intro.');
+          }
+        })
+        .catch((err) => {
+          setIntroStatus('error');
+          setIntroError(err?.message || 'Failed to generate intro.');
+        });
+    }
+    // If toggle is off or track is not playable, reset
+    if (!introsEnabled || !track?.is_playable) {
+      setIntroStatus('idle');
+      setIntroScript(null);
+      setIntroError(null);
+      lastTrackIdRef.current = null;
+    }
+  }, [introsEnabled, currentTrack, session?.user?.id]);
 
   if (status === "loading") {
     return <div className="p-8 text-neutral">Loading...</div>;
@@ -92,6 +150,19 @@ export default function NowPlayingPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818]">
+      {/* Intros toggle */}
+      <div className="flex items-center gap-3 mb-6">
+        <label className="flex items-center cursor-pointer gap-2">
+          <input
+            type="checkbox"
+            checked={introsEnabled}
+            onChange={e => setIntrosEnabled(e.target.checked)}
+            className="form-checkbox h-5 w-5 text-primary"
+            aria-label="Enable AI intros for now playing"
+          />
+          <span className="text-base font-medium text-foreground">Enable AI Intros for Now Playing</span>
+        </label>
+      </div>
       <div className="flex items-center gap-6">
         <img
           src={track.album.images[0]?.url || "/track-placeholder.png"}
@@ -121,6 +192,18 @@ export default function NowPlayingPage() {
       </div>
       <div className="mt-4 flex items-center gap-4">
         <span className={`text-sm font-medium ${isPlaying ? 'text-primary' : 'text-neutral'}`}>{isPlaying ? 'Playing' : 'Paused'}</span>
+      </div>
+      {/* Intro script status and display */}
+      <div className="mt-8">
+        {introStatus === 'generating' && <div className="text-neutral">Generating intro...</div>}
+        {introStatus === 'ready' && introScript && (
+          <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 text-foreground text-base shadow-inner">
+            <span className="font-semibold text-primary">Intro:</span> {introScript}
+          </div>
+        )}
+        {introStatus === 'error' && (
+          <div className="text-semantic-error">{introError}</div>
+        )}
       </div>
     </div>
   );

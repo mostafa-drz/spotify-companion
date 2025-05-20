@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { SpotifyError } from '@/app/lib/spotify';
+import type { WebPlaybackTrack } from '@/app/types/Spotify';
 
 // Spotify Player types
 interface SpotifyPlayer {
@@ -40,11 +41,7 @@ interface SpotifyPlayerContextType {
   isReady: boolean;
   error: SpotifyError | null;
   isPlaying: boolean;
-  currentTrack: {
-    name: string;
-    artists: string[];
-    albumArt: string;
-  } | null;
+  currentTrack: WebPlaybackTrack | null;
   position: number;
   duration: number;
   volume: number;
@@ -68,7 +65,7 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<SpotifyError | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState(null);
+  const [currentTrack, setCurrentTrack] = useState<WebPlaybackTrack | null>(null);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(0.5);
@@ -145,8 +142,7 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
         setDuration(state.duration);
         setVolumeState(state.volume);
         if (state.track_window?.current_track) {
-          const track = state.track_window.current_track;
-          setCurrentTrack(track);
+          setCurrentTrack(state.track_window.current_track as WebPlaybackTrack);
         }
       });
 
