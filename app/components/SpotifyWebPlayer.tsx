@@ -2,36 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { useSpotifyPlayer } from '@/app/contexts/SpotifyPlayerContext';
+import { WebPlaybackPlayer, WebPlaybackState, SpotifyArtist } from '@/app/types/Spotify';
 
 const DEFAULT_ALBUM_ART = '/track-placeholder.png';
-
-// Types for Spotify SDK state
-interface SpotifyTrack {
-  name: string;
-  artists: { name: string }[];
-  album: { images: { url: string }[] };
-}
-interface SpotifyPlayerState {
-  paused: boolean;
-  position: number;
-  duration: number;
-  volume: number;
-  track_window: {
-    current_track: SpotifyTrack;
-  };
-}
 
 declare global {
   interface Window {
     onSpotifyWebPlaybackSDKReady?: () => void;
-    Spotify?: { Player: any };
+    Spotify?: { Player: WebPlaybackPlayer };
   }
 }
 
 export default function SpotifyWebPlayer() {
   const { player, deviceId, isReady } = useSpotifyPlayer();
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.5);
   const [track, setTrack] = useState<{
     title: string;
     artist: string;
@@ -51,7 +35,7 @@ export default function SpotifyWebPlayer() {
   useEffect(() => {
     if (!player) return;
     // Listen for player state changes
-    const stateListener = (state: any) => {
+    const stateListener = (state: WebPlaybackState) => {
       if (!state || !state.track_window.current_track) {
         setTrack(null);
         setIsPlaying(false);
@@ -60,13 +44,10 @@ export default function SpotifyWebPlayer() {
         return;
       }
       setIsPlaying(!state.paused);
-      setVolume(state.volume);
-      setPosition(state.position);
-      setDuration(state.duration);
       const t = state.track_window.current_track;
       setTrack({
         title: t.name,
-        artist: t.artists.map((a: any) => a.name).join(', '),
+        artist: t.artists.map((a: SpotifyArtist) => a.name).join(', '),
         albumArt: t.album.images[0]?.url || DEFAULT_ALBUM_ART,
       });
     };
@@ -92,12 +73,7 @@ export default function SpotifyWebPlayer() {
       await player.previousTrack();
     }
   };
-  const handleVolume = async (v: number) => {
-    setVolume(v);
-    if (player) {
-      await player.setVolume(v);
-    }
-  };
+
   const handleSeek = async (ms: number) => {
     setPosition(ms);
     if (player) {
@@ -113,6 +89,7 @@ export default function SpotifyWebPlayer() {
       {/* Track Info */}
       {track ? (
         <div className="flex items-center gap-4 mb-4 w-full">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={track.albumArt}
             alt={track.title ? `${track.title} album art` : 'Album art'}
@@ -127,6 +104,7 @@ export default function SpotifyWebPlayer() {
         </div>
       ) : (
         <div className="flex items-center gap-4 mb-4 w-full">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={DEFAULT_ALBUM_ART}
             alt="No track playing"
@@ -189,8 +167,6 @@ export default function SpotifyWebPlayer() {
           min={0}
           max={1}
           step={0.01}
-          value={volume}
-          onChange={e => handleVolume(Number(e.target.value))}
           className="input-primary w-full max-w-xs"
           aria-label="Volume"
         />

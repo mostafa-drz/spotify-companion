@@ -1,27 +1,69 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { generateTrackIntro } from '@/app/lib/ai-service';
 import { adminDb } from '@/app/lib/firebase-admin';
+import { verifyAuth } from '@/app/lib/firebase-admin';
+import { SpotifyTrack } from '@/app/types/Spotify';
 
-export async function POST(req: NextRequest) {
+
+interface RequestBody {
+  track: SpotifyTrack;
+  trackId: string;
+}
+
+export async function POST(request: Request) {
   try {
-    const { userId, trackId, track } = await req.json();
-    if (!userId || !trackId || !track) {
-      return NextResponse.json({ success: false, error: 'Missing parameters' }, { status: 400 });
+    // Verify authentication
+    const userId = await verifyAuth();
+    const { track, trackId } = await request.json() as RequestBody;
+    console.log('track', track);
+    if (!track) {
+      return NextResponse.json(
+        { error: 'Missing track information' },
+        { status: 400 }
+      );
     }
-    // Placeholder: Replace with actual AI/Genkit call
-    const script = `Did you know? "${track.name}" by ${track.artists.join(", ")} from the album "${track.album}" is a great track!`;
 
-    const docRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(trackId);
-    await docRef.set({
-      introText: script,
-      trackId,
-      updatedAt: new Date(),
-      trackName: track.name,
-      artists: track.artists,
-      album: track.album,
-    }, { merge: true });
+    // Construct the path to the track intro document
+    const trackIntrosRef = adminDb
+      .collection('users')
+      .doc(userId)
+      .collection('trackIntros');
 
-    return NextResponse.json({ success: true, script });
-  } catch (err) {
-    return NextResponse.json({ success: false, error: (err as Error).message || 'Server error' }, { status: 500 });
+    // Check if intro already exists
+    const introDoc = await trackIntrosRef.doc(trackId).get();
+
+    if (introDoc.exists) {
+      return NextResponse.json({
+        status: 'ready',
+        intro: introDoc.data()
+      });
+    }
+
+    const introText = await generateTrackIntro(track);
+
+    // Save to Firestore
+    const introData = {
+      trackId: track.id,
+      userId,
+      introText,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: 'ready'
+    };
+
+    console.log('introData', introData);
+
+    await trackIntrosRef.doc(trackId).set(introData);
+
+    return NextResponse.json({
+      status: 'ready',
+      intro: introData
+    });
+  } catch (error) {
+    console.error('Error generating intro:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate intro' },
+      { status: 500 }
+    );
   }
 } 

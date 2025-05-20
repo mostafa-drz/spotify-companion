@@ -3,36 +3,19 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { SpotifyError } from '@/app/lib/spotify';
-import type { WebPlaybackTrack } from '@/app/types/Spotify';
+import type { WebPlaybackTrack, WebPlaybackState } from '@/app/types/Spotify';
 
 // Spotify Player types
 interface SpotifyPlayer {
   connect: () => Promise<boolean>;
   disconnect: () => void;
-  addListener: (event: string, callback: (state: SpotifyPlayerState) => void) => void;
-  removeListener: (event: string, callback: (state: SpotifyPlayerState) => void) => void;
+  addListener: (event: string, callback: (state: WebPlaybackState) => void) => void;
+  removeListener: (event: string, callback: (state: WebPlaybackState) => void) => void;
   activateElement: () => Promise<void>;
   togglePlay: () => Promise<void>;
   nextTrack: () => Promise<void>;
   previousTrack: () => Promise<void>;
   seek: (position_ms: number) => Promise<void>;
-  setVolume: (volume: number) => Promise<void>;
-}
-
-interface SpotifyPlayerState {
-  paused: boolean;
-  position: number;
-  duration: number;
-  volume: number;
-  track_window: {
-    current_track: {
-      name: string;
-      artists: Array<{ name: string }>;
-      album: {
-        images: Array<{ url: string }>;
-      };
-    };
-  };
 }
 
 interface SpotifyPlayerContextType {
@@ -43,8 +26,6 @@ interface SpotifyPlayerContextType {
   isPlaying: boolean;
   currentTrack: WebPlaybackTrack | null;
   position: number;
-  duration: number;
-  volume: number;
   play: (uri: string) => Promise<void>;
   pause: () => Promise<void>;
   resume: () => Promise<void>;
@@ -52,7 +33,6 @@ interface SpotifyPlayerContextType {
   nextTrack: () => Promise<void>;
   previousTrack: () => Promise<void>;
   seek: (position_ms: number) => Promise<void>;
-  setVolume: (volume: number) => Promise<void>;
   transferPlayback: (play: boolean) => Promise<void>;
 }
 
@@ -67,8 +47,6 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<WebPlaybackTrack | null>(null);
   const [position, setPosition] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolumeState] = useState(0.5);
   const playerRef = useRef<SpotifyPlayer | null>(null);
 
   useEffect(() => {
@@ -128,19 +106,16 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
         setError(new SpotifyError(`Playback error: ${message}`));
       });
 
-      playerInstance.addListener('player_state_changed', (state: SpotifyPlayerState) => {
+      playerInstance.addListener('player_state_changed', (state: WebPlaybackState) => {
         if (!state) {
           setIsPlaying(false);
           setCurrentTrack(null);
           setPosition(0);
-          setDuration(0);
           return;
         }
 
         setIsPlaying(!state.paused);
         setPosition(state.position);
-        setDuration(state.duration);
-        setVolumeState(state.volume);
         if (state.track_window?.current_track) {
           setCurrentTrack(state.track_window.current_track as WebPlaybackTrack);
         }
@@ -271,20 +246,6 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
     }
   };
 
-  const setVolume = async (volume: number) => {
-    if (!playerRef.current || !isReady) {
-      throw new SpotifyError('Player not ready');
-    }
-    try {
-      await playerRef.current.setVolume(volume);
-    } catch (error) {
-      if (error instanceof SpotifyError) {
-        throw error;
-      }
-      throw new SpotifyError('Failed to set volume');
-    }
-  };
-
   // Transfer playback to this device
   const transferPlayback = async (play: boolean = true): Promise<void> => {
     if (!deviceId || !session?.accessToken) throw new SpotifyError('No device or access token');
@@ -316,8 +277,6 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
     isPlaying,
     currentTrack,
     position,
-    duration,
-    volume,
     play,
     pause,
     resume,
@@ -325,7 +284,6 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
     nextTrack,
     previousTrack,
     seek,
-    setVolume,
     transferPlayback,
   };
 

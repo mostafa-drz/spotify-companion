@@ -4,6 +4,9 @@ import { useSession } from "next-auth/react";
 import { useSpotifyPlayer } from "@/app/contexts/SpotifyPlayerContext";
 import { useState, useEffect, useRef } from "react";
 import type { SpotifyTrack } from "@/app/types/Spotify";
+import { clientDb } from "@/app/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+
 
 export default function NowPlayingPage() {
   const { data: session, status } = useSession();
@@ -29,34 +32,34 @@ export default function NowPlayingPage() {
   useEffect(() => {
     const userId = session?.user?.id;
     const track = currentTrack as SpotifyTrack;
-    if (
-      introsEnabled &&
-      userId &&
-      track &&
-      track.id &&
-      track.is_playable &&
-      track.id !== lastTrackIdRef.current
-    ) {
+
+    async function getIntroFromDb() {
+      if (!userId || !track?.id) return null;
+      const introDoc = await getDoc(doc(clientDb, 'users', userId, 'trackIntros', track.id));
+      return introDoc.exists() ? introDoc.data()?.introText : null;
+    }
+
+    function generateIntro() {
+      if (!userId || !track?.id) return;
+      
       setIntroStatus('generating');
       setIntroScript(null);
       setIntroError(null);
+      
       fetch('/api/intro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId,
           trackId: track.id,
           track: {
-            name: track.name,
-            artists: track.artists.map(a => a.name),
-            album: track.album.name,
+            ...track,
           },
         }),
       })
         .then(async (res) => {
           const data = await res.json();
-          if (res.ok && data.success) {
-            setIntroScript(data.script);
+          if (res.ok && data.status === 'ready') {
+            setIntroScript(data.intro.introText);
             setIntroStatus('ready');
             lastTrackIdRef.current = track.id;
           } else {
@@ -69,13 +72,28 @@ export default function NowPlayingPage() {
           setIntroError(err?.message || 'Failed to generate intro.');
         });
     }
-    // If toggle is off or track is not playable, reset
+
+    async function updateIntro() {
+      const intro = await getIntroFromDb();
+      if (intro) {
+        setIntroScript(intro);
+        setIntroStatus('ready');
+      } else {
+        generateIntro();
+      }
+    }
+
+    if (introsEnabled && userId && track && track.id && track.is_playable && track.id !== lastTrackIdRef.current) {
+      updateIntro();
+    }
+
     if (!introsEnabled || !track?.is_playable) {
       setIntroStatus('idle');
       setIntroScript(null);
       setIntroError(null);
       lastTrackIdRef.current = null;
     }
+
   }, [introsEnabled, currentTrack, session?.user?.id]);
 
   if (status === "loading") {
@@ -164,6 +182,7 @@ export default function NowPlayingPage() {
         </label>
       </div>
       <div className="flex items-center gap-6">
+        
         <img
           src={track.album.images[0]?.url || "/track-placeholder.png"}
           alt={track.album.name}
