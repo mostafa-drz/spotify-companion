@@ -1,4 +1,7 @@
+'use client';
+
 import { useState } from 'react';
+import { usePlaylistSettings } from '@/app/hooks/usePlaylistSettings';
 import SettingsSection from '../ui/SettingsSection';
 import Toggle from '../ui/Toggle';
 import PromptSelector from '../prompts/PromptSelector';
@@ -17,7 +20,7 @@ export default function PlaylistSettings({
   templates,
   onPromptSaved
 }: PlaylistSettingsProps) {
-  const [introEnabled, setIntroEnabled] = useState(true);
+  const { settings, loading, error, saving, saveSettings } = usePlaylistSettings(playlistId);
   const [expandedSections, setExpandedSections] = useState({
     intro: true,
     prompt: true,
@@ -30,6 +33,29 @@ export default function PlaylistSettings({
       [section]: !prev[section]
     }));
   };
+
+  const handleIntroToggle = async (enabled: boolean) => {
+    await saveSettings({ 
+      introsEnabled: enabled,
+      prompt: settings?.prompt || 'Give me a fun fact about this song.'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="p-4 text-neutral" role="status" aria-label="Loading playlist settings">
+        Loading settings...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-semantic-error" role="alert" aria-label="Error loading settings">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 px-4 sm:px-6 lg:px-8">
@@ -60,10 +86,11 @@ export default function PlaylistSettings({
               <Toggle
                 label="Enable Intros"
                 description="Generate and play educational intros before each track"
-                checked={introEnabled}
-                onChange={setIntroEnabled}
+                checked={settings?.introsEnabled ?? true}
+                onChange={handleIntroToggle}
                 className="py-2 sm:py-3"
                 aria-label="Enable educational intros"
+                disabled={saving}
               />
             </SettingsSection>
 

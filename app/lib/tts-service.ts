@@ -1,8 +1,66 @@
+import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import { adminStorage } from './firebase-admin';
+import { verifyAuth } from '@/app/lib/firebase-admin';
 import { TTSRequest, TTSResponse, TTSGenerationError, TTSGenerationResult } from '../types/TTS';
+
+const ttsClient = new TextToSpeechClient();
 
 // Simple cache for generated audio
 const audioCache = new Map<string, TTSResponse>();
+
+export interface GenerateTTSOptions {
+  languageCode?: string;
+  voiceName?: string;
+  speakingRate?: number;
+}
+
+export async function generateTTS(
+  trackId: string,
+  text: string,
+  options: GenerateTTSOptions = {}
+): Promise<string> {
+  const userId = await verifyAuth();
+  const {
+    languageCode = 'en-US',
+    voiceName = 'en-US-Standard-B',
+    speakingRate = 1.0
+  } = options;
+
+  // Synthesize speech
+  const [response] = await ttsClient.synthesizeSpeech({
+    input: { text },
+    voice: { languageCode, name: voiceName },
+    audioConfig: { audioEncoding: 'MP3', speakingRate }
+  });
+
+  if (!response.audioContent) {
+    throw new Error('No audio content returned from TTS');
+  }
+
+  // Store in Firebase Storage
+  const filePath = `users/${userId}/tts/${trackId}.mp3`;
+  const file = adminStorage.bucket().file(filePath);
+  await file.save(response.audioContent as Buffer, {
+    metadata: {
+      contentType: 'audio/mpeg',
+      metadata: {
+        trackId,
+        userId,
+        languageCode,
+        voiceName,
+        speakingRate: speakingRate.toString(),
+      }
+    }
+  });
+
+  // Get a signed URL for the audio file
+  const [url] = await file.getSignedUrl({
+    action: 'read',
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7 // 7 days
+  });
+
+  return url;
+}
 
 export async function generateAudio(request: TTSRequest): Promise<TTSGenerationResult> {
   // Create cache key that includes playlist context

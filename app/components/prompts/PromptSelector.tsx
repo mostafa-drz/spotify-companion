@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { PromptTemplate } from '@/app/types/Prompt';
-import { saveUserPrompt } from '@/app/actions/prompts';
+import { usePlaylistSettings } from '@/app/hooks/usePlaylistSettings';
 
 interface PromptSelectorProps {
   playlistId: string;
@@ -10,91 +10,44 @@ interface PromptSelectorProps {
   onPromptSaved?: () => void;
 }
 
-export default function PromptSelector({ 
-  playlistId, 
-  templates,
-  onPromptSaved 
-}: PromptSelectorProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
-  const [customPrompt, setCustomPrompt] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function PromptSelector({ playlistId, templates, onPromptSaved }: PromptSelectorProps) {
+  const { settings, saving, saveSettings } = usePlaylistSettings(playlistId);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await saveUserPrompt(
-        playlistId,
-        selectedTemplate || undefined,
-        customPrompt || undefined
-      );
-      onPromptSaved?.();
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to save prompt');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleTemplateSelect = async (template: PromptTemplate) => {
+    setSelectedTemplate(template.id);
+    await saveSettings({
+      introsEnabled: settings?.introsEnabled ?? true,
+      prompt: template.template
+    });
+    onPromptSaved?.();
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-foreground">Choose a Prompt Template</h3>
-        <div className="grid gap-4">
-          {templates.map((template) => (
-            <label
-              key={template.id}
-              className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors
-                ${selectedTemplate === template.id 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border hover:border-primary/50'}`}
-            >
-              <input
-                type="radio"
-                name="template"
-                value={template.id}
-                checked={selectedTemplate === template.id}
-                onChange={(e) => setSelectedTemplate(e.target.value)}
-                className="mt-1"
-              />
-              <div className="ml-3">
-                <p className="font-medium text-foreground">{template.title}</p>
-                <p className="text-sm text-foreground-secondary mt-1">
-                  {template.description}
-                </p>
-              </div>
-            </label>
-          ))}
-        </div>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {templates.map((template) => (
+          <button
+            key={template.id}
+            onClick={() => handleTemplateSelect(template)}
+            disabled={saving}
+            className={`p-4 rounded-lg border text-left transition-colors ${
+              selectedTemplate === template.id
+                ? 'border-primary bg-primary/5'
+                : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
+            }`}
+            aria-label={`Select ${template.title} prompt template`}
+          >
+            <h4 className="font-medium mb-1">{template.title}</h4>
+            <p className="text-sm text-neutral">{template.description}</p>
+          </button>
+        ))}
       </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-foreground">Or Create Custom Prompt</h3>
-        <textarea
-          value={customPrompt}
-          onChange={(e) => setCustomPrompt(e.target.value)}
-          placeholder="Enter your custom prompt..."
-          className="w-full h-32 p-3 rounded-lg border border-border focus:border-primary focus:ring-1 focus:ring-primary"
-        />
-      </div>
-
-      {error && (
-        <div className="p-4 rounded-lg bg-semantic-error/10 border border-semantic-error">
-          <p className="text-sm text-semantic-error">{error}</p>
+      {saving && (
+        <div className="text-sm text-neutral" role="status" aria-label="Saving prompt">
+          Saving prompt...
         </div>
       )}
-
-      <button
-        type="submit"
-        onClick={handleSubmit}
-        disabled={isLoading || (!selectedTemplate && !customPrompt)}
-        className="btn-primary w-full"
-      >
-        {isLoading ? 'Saving...' : 'Save Prompt'}
-      </button>
     </div>
   );
 } 

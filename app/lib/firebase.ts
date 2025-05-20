@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 // Firebase Client SDK initialization
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,7 +17,8 @@ const app = initializeApp(firebaseConfig);
 
 // Export Firebase client auth
 export const clientAuth = getAuth(app);
-
+export const clientDb = getFirestore(app);
+export const clientStorage = getStorage(app);
 // Export Firebase user type
 export type FirebaseUser = {
   uid: string;

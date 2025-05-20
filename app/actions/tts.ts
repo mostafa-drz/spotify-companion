@@ -1,7 +1,7 @@
 'use server';
 
 import { verifyAuth } from '@/app/lib/firebase-admin';
-import { generateAudio, getAvailableVoices } from '@/app/lib/tts-service';
+import { generateAudio, getAvailableVoices, generateTTS, GenerateTTSOptions } from '@/app/lib/tts-service';
 import { TTSRequest } from '@/app/types/TTS';
 import { AuthError } from '@/app/lib/AuthError';
 
@@ -35,5 +35,19 @@ export async function getVoices() {
   } catch (error) {
     console.error('Error getting voices:', error);
     throw new AuthError('Failed to get available voices', 'TTS_FAILED');
+  }
+}
+
+export async function generateTrackTTS(
+  trackId: string,
+  text: string,
+  options: GenerateTTSOptions = {}
+): Promise<{ url?: string; error?: string }> {
+  try {
+    const url = await generateTTS(trackId, text, options);
+    return { url };
+  } catch (error) {
+    console.error('Error generating TTS:', error);
+    return { error: error instanceof Error ? error.message : 'Failed to generate TTS' };
   }
 } 

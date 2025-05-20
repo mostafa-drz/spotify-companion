@@ -1,4 +1,6 @@
 import { adminDb } from './firebase-admin';
+import { verifyAuth } from '@/app/lib/firebase-admin';
+import { generateTextWithGemini } from '@/app/lib/genKit';
 
 // Types
 export interface TrackMetadata {
@@ -7,6 +9,7 @@ export interface TrackMetadata {
   artists: string[];
   album: string;
   duration: number;
+  playlistId?: string;
 }
 
 export interface AIResponse {
@@ -14,53 +17,54 @@ export interface AIResponse {
   duration: number; // in seconds
 }
 
-// Simple cache for generated intros
-const introCache = new Map<string, AIResponse>();
 
+// Generate or fetch intro for a track
 export async function generateIntro(
   trackMetadata: TrackMetadata,
   promptTemplate: string
 ): Promise<AIResponse> {
-  const cacheKey = `${trackMetadata.id}-${promptTemplate}`;
-  
-  // Check cache first
-  const cachedResponse = introCache.get(cacheKey);
-  if (cachedResponse) {
-    return cachedResponse;
+  const userId = await verifyAuth();
+
+  // Check Firestore for existing intro
+  const docRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(trackMetadata.id);
+  const doc = await docRef.get();
+  const docData = doc.exists ? doc.data() : undefined;
+  if (docData && docData.introText && docData.prompt === promptTemplate) {
+    const response: AIResponse = {
+      text: docData.introText,
+      duration: docData.duration || 60
+    };
+    return response;
   }
 
+  // Format the prompt with track metadata
+  const formattedPrompt = promptTemplate
+    .replace('{trackName}', trackMetadata.name)
+    .replace('{artists}', trackMetadata.artists.join(', '))
+    .replace('{album}', trackMetadata.album);
+
+  // Call Genkit/Gemini for text generation
+  let aiText = '';
   try {
-    // Format the prompt with track metadata
-    const formattedPrompt = promptTemplate
-      .replace('{trackName}', trackMetadata.name)
-      .replace('{artists}', trackMetadata.artists.join(', '))
-      .replace('{album}', trackMetadata.album);
-
-    // TODO: Replace with actual Vertex AI call
-    // This is a mock implementation
-    const response: AIResponse = {
-      text: `This is a mock intro for ${trackMetadata.name} by ${trackMetadata.artists.join(', ')}.`,
-      duration: 60
-    };
-
-    // Cache the response
-    introCache.set(cacheKey, response);
-
-    // Log the generation
-    await adminDb.collection('aiGenerations').add({
-      trackId: trackMetadata.id,
-      prompt: formattedPrompt,
-      response,
-      timestamp: new Date()
-    });
-
-    return response;
+    aiText = await generateTextWithGemini(formattedPrompt);
   } catch (error) {
-    console.error('Error generating intro:', error);
+    console.error('Error generating intro with Genkit:', error);
     throw new Error('Failed to generate intro');
   }
-}
 
-export function clearCache(): void {
-  introCache.clear();
-} 
+  const response: AIResponse = {
+    text: aiText,
+    duration: 60 // Placeholder, can be improved
+  };
+
+  // Save to Firestore
+  await docRef.set({
+    introText: aiText,
+    prompt: promptTemplate,
+    updatedAt: new Date(),
+    playlistId: trackMetadata.playlistId || null,
+    duration: response.duration
+  }, { merge: true });
+
+  return response;
+}

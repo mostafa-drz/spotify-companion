@@ -7,7 +7,8 @@ import { auth } from '@/app/auth';
 // Firebase Admin SDK initialization
 if (!getApps().length) {
   initializeApp({
-    credential: applicationDefault()
+    credential: applicationDefault(),
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET_URI
   });
 }
 
