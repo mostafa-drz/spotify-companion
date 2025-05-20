@@ -56,6 +56,7 @@ interface SpotifyPlayerContextType {
   previousTrack: () => Promise<void>;
   seek: (position_ms: number) => Promise<void>;
   setVolume: (volume: number) => Promise<void>;
+  transferPlayback: (play: boolean) => Promise<void>;
 }
 
 const SpotifyPlayerContext = createContext<SpotifyPlayerContextType | undefined>(undefined);
@@ -296,6 +297,29 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
     }
   };
 
+  // Transfer playback to this device
+  const transferPlayback = async (play: boolean = true): Promise<void> => {
+    if (!deviceId || !session?.accessToken) throw new SpotifyError('No device or access token');
+    try {
+      const res = await fetch('https://api.spotify.com/v1/me/player', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          device_ids: [deviceId],
+          play,
+        }),
+      });
+      if (!res.ok) {
+        throw new SpotifyError('Failed to transfer playback');
+      }
+    } catch (err) {
+      throw new SpotifyError((err as Error).message || 'Failed to transfer playback');
+    }
+  };
+
   const value = {
     player,
     deviceId,
@@ -314,6 +338,7 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
     previousTrack,
     seek,
     setVolume,
+    transferPlayback,
   };
 
   return (

@@ -1,14 +1,14 @@
-# 🎵 Playlist Companion — Product Plan
+# 🎵 nowtune.ai — Product Plan
 
 ## 📋 Overview
-Playlist Companion is a minimal web application that enhances users' music listening experience by providing educational insights about their Spotify playlist tracks. Users can connect their Spotify account, select a playlist, and receive AI-generated educational blurbs about each track.
+nowtune.ai is a minimal web application that enhances users' music listening experience by providing educational insights about their Spotify playlist tracks. Users can connect their Spotify account and receive AI-generated educational intros about the track currently playing on their Spotify device.
 
 ## 🎯 Product Vision
-Create a seamless, educational experience that helps users discover the rich history and context behind their favorite music. The app focuses on being:
+nowtune.ai creates a seamless, educational experience that helps users discover the rich history and context behind their favorite music. The app focuses on being:
 - **Educational**: Provide meaningful insights about music
 - **Fun**: Make learning about music engaging and enjoyable
 - **Fast**: Quick, 1-minute blurbs that don't interrupt the listening experience
-- **Integrated**: Works directly with users' existing Spotify playlists
+- **Integrated**: Seamlessly enhances the experience of whatever is currently playing on Spotify
 
 ## 🚀 v0.1 MVP Objectives
 1. **User Authentication**
@@ -16,12 +16,13 @@ Create a seamless, educational experience that helps users discover the rich his
    - Secure user session management
    - Basic user profile storage
 
-2. **Playlist Management**
-   - Fetch and display user's Spotify playlists
-   - Allow playlist selection
-   - Display track information
-   - Manage playlist-specific intro settings
-   - Configure prompt templates per playlist
+2. **Now Playing Integration**
+   - Use Spotify Web Playback SDK for real-time playback state, control, and event listening
+   - App acts as a playback controller and intro injector
+   - On play/track change, intercept playback, play intro, then resume track
+   - Only use Spotify API for initial device transfer or fallback
+   - Manage track-specific intro settings
+   - Allow user to customize prompt template per track
 
 3. **AI Integration**
    - Custom prompt input for users
@@ -33,8 +34,8 @@ Create a seamless, educational experience that helps users discover the rich his
    - Clean, minimal design using TailwindCSS
    - Responsive layout
    - Loading states and error handling
-   - Playlist settings panel
-   - Prompt template selection UI
+   - Real-time track display and intro controls
+   - Prompt template selection and audio intro controls
 
 ## 🛠 Technical Stack
 
@@ -51,7 +52,7 @@ Create a seamless, educational experience that helps users discover the rich his
 - **Authentication**: NextAuth.js with Spotify provider
 - **Database**: Firebase Firestore (client SDK)
 - **AI Service**: Google Vertex AI via Firebase client SDK
-- **External API**: Spotify Web API
+- **External API**: Spotify Web API (for device transfer/fallback only)
 - **Architecture**: Serverless-first approach with minimal API routes
 
 ### Development Tools
@@ -62,19 +63,19 @@ Create a seamless, educational experience that helps users discover the rich his
 
 ## 📅 Development Phases
 
-### Phase 1: Project Setup ✅
+### Phase 1: Project Setup for nowtune.ai ✅
 - [x] Initialize Next.js project
 - [x] Configure TypeScript
 - [x] Set up TailwindCSS
 - [x] Configure Firebase client SDK
 - [x] Basic project structure
 
-### Phase 2: Authentication & Spotify Integration
+### Phase 2: Authentication & Real-Time Track Integration
 - [ ] Set up Spotify OAuth with NextAuth.js
 - [ ] Implement login/logout flow
 - [ ] Create user profile storage in Firestore
-- [ ] Fetch user playlists
-- [ ] Build playlist selection UI
+- [ ] Integrate Spotify Web Playback SDK for real-time playback state and control
+- [ ] Display track metadata and playback controls
 
 ### Phase 3: AI Integration
 - [ ] Set up Google Vertex AI via Firebase client SDK
@@ -122,7 +123,7 @@ GOOGLE_CLOUD_PROJECT=
 - **Spacing**: Consistent 4px grid
 - **Components**: Minimal, clean design with clear hierarchy
 
-## 🔄 Future Enhancements (Post-MVP)
+## 🔄 Future Enhancements for nowtune.ai (Post-MVP)
 1. **Audio Integration**
    - Text-to-Speech for blurbs
    - Audio preview of tracks
@@ -133,7 +134,7 @@ GOOGLE_CLOUD_PROJECT=
    - Create custom collections
 
 3. **Advanced AI Features**
-   - Multiple prompt templates per playlist
+   - Multiple prompt templates per track or genre
    - Focus on specific aspects (instruments, history, etc.)
    - Custom prompt suggestions
    - Template categories and tags
@@ -150,11 +151,11 @@ GOOGLE_CLOUD_PROJECT=
 
 ## 📊 Success Metrics
 - User engagement (time spent per session)
-- Number of playlists analyzed
+- Number of tracks analyzed
 - User retention
 - Prompt variety and usage
 - Error rates and performance metrics
-- Playlist-specific intro engagement
+- Intro playback rate per track
 
 ## 🔒 Privacy & Security
 - Secure OAuth implementation
@@ -168,7 +169,6 @@ GOOGLE_CLOUD_PROJECT=
 - Vertex AI API costs
 - Spotify API rate limits
 - Hosting and bandwidth
-- Storage for playlist settings
 
 ## 📝 Development Workflow
 1. Feature branches from `main`
@@ -179,7 +179,7 @@ GOOGLE_CLOUD_PROJECT=
 
 ## 🎯 Next Steps
 1. Complete Spotify OAuth integration
-2. Implement playlist fetching
+2. Integrate Spotify Web Playback SDK for real-time playback
 3. Set up Vertex AI integration via Firebase client SDK
-4. Build playlist settings and prompt interface
+4. Build real-time prompt interface and intro player
 5. Deploy MVP version 
