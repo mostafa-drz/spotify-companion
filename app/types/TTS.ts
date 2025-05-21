@@ -3,8 +3,6 @@ export interface TTSRequest {
   voice?: string;
   language?: string;
   speed?: number;
-  playlistId: string;
-  playlistName?: string;
 }
 
 export interface TTSResponse {
@@ -32,7 +30,6 @@ export interface TTSGenerationResult {
   data?: TTSResponse;
   error?: TTSGenerationError;
   metadata: {
-    playlistId: string;
     timestamp: Date;
     attempt: number;
   };

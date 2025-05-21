@@ -71,8 +71,8 @@ export async function generateTTSAudio({ text, userId, trackId, voice }: TTSOpti
 }
 
 export async function generateAudio(request: TTSRequest): Promise<TTSGenerationResult> {
-  // Create cache key that includes playlist context
-  const cacheKey = `${request.playlistId}-${request.text}-${request.voice}-${request.language}-${request.speed}`;
+  // Create cache key that includes only track context
+  const cacheKey = `${request.text}-${request.voice}-${request.language}-${request.speed}`;
   
   // Check cache first
   const cachedResponse = audioCache.get(cacheKey);
@@ -81,7 +81,6 @@ export async function generateAudio(request: TTSRequest): Promise<TTSGenerationR
       success: true, 
       data: cachedResponse,
       metadata: {
-        playlistId: request.playlistId,
         timestamp: new Date(),
         attempt: 0
       }
@@ -92,7 +91,7 @@ export async function generateAudio(request: TTSRequest): Promise<TTSGenerationR
     // TODO: Replace with actual TTS service call
     // This is a mock implementation
     const mockResponse: TTSResponse = {
-      audioUrl: `https://example.com/mock-audio-${request.playlistId}.mp3`,
+      audioUrl: `https://example.com/mock-audio.mp3`,
       duration: 60,
       format: 'mp3',
       size: 1024 * 1024 // 1MB
@@ -102,7 +101,7 @@ export async function generateAudio(request: TTSRequest): Promise<TTSGenerationR
     audioCache.set(cacheKey, mockResponse);
 
     // Log the generation
-    await adminStorage.bucket().file(`tts/${request.playlistId}/${cacheKey}.mp3`).save(
+    await adminStorage.bucket().file(`tts/${cacheKey}.mp3`).save(
       Buffer.from('mock audio data'),
       {
         metadata: {
@@ -112,8 +111,6 @@ export async function generateAudio(request: TTSRequest): Promise<TTSGenerationR
             voice: request.voice,
             language: request.language,
             speed: request.speed?.toString(),
-            playlistId: request.playlistId,
-            playlistName: request.playlistName
           }
         }
       }
@@ -123,7 +120,6 @@ export async function generateAudio(request: TTSRequest): Promise<TTSGenerationR
       success: true, 
       data: mockResponse,
       metadata: {
-        playlistId: request.playlistId,
         timestamp: new Date(),
         attempt: 0
       }
@@ -140,7 +136,6 @@ export async function generateAudio(request: TTSRequest): Promise<TTSGenerationR
       success: false, 
       error: ttsError,
       metadata: {
-        playlistId: request.playlistId,
         timestamp: new Date(),
         attempt: 0
       }

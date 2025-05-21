@@ -73,4 +73,4 @@ export interface WebPlaybackPlayer {
 // Web Playback SDK error object
 export interface WebPlaybackError {
   message: string;
-} 
+}

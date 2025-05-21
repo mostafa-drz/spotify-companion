@@ -2,8 +2,18 @@
 
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { SpotifyError } from '@/app/lib/spotify';
 import type { WebPlaybackTrack, WebPlaybackState } from '@/app/types/Spotify';
+
+class SpotifyError extends Error {
+  constructor(
+    message: string,
+    public status?: number,
+    public code?: string
+  ) {
+    super(message);
+    this.name = 'SpotifyError';
+  }
+}
 
 // Spotify Player types
 interface SpotifyPlayer {

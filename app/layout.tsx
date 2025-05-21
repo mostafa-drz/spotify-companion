@@ -8,8 +8,8 @@ import Link from 'next/link';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Playlist Companion",
-  description: "Get educational insights about your Spotify playlist tracks",
+  title: "Nowtune AI",
+  description: "AI-powered educational intros for your currently playing Spotify track",
 };
 
 export default function RootLayout({
