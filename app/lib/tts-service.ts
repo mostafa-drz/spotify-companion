@@ -1,65 +1,73 @@
-import { TextToSpeechClient } from '@google-cloud/text-to-speech';
+import { TextToSpeechClient, protos } from '@google-cloud/text-to-speech';
+import { Storage } from '@google-cloud/storage';
 import { adminStorage } from './firebase-admin';
-import { verifyAuth } from '@/app/lib/firebase-admin';
 import { TTSRequest, TTSResponse, TTSGenerationError, TTSGenerationResult } from '../types/TTS';
 
 const ttsClient = new TextToSpeechClient();
+const storage = new Storage();
 
 // Simple cache for generated audio
 const audioCache = new Map<string, TTSResponse>();
 
-export interface GenerateTTSOptions {
-  languageCode?: string;
-  voiceName?: string;
-  speakingRate?: number;
+interface TTSOptions {
+  text: string;
+  userId: string;
+  trackId: string;
+  voice?: {
+    languageCode?: string;
+    name?: string;
+  };
 }
 
-export async function generateTTS(
-  trackId: string,
-  text: string,
-  options: GenerateTTSOptions = {}
-): Promise<string> {
-  const userId = await verifyAuth();
-  const {
-    languageCode = 'en-US',
-    voiceName = 'en-US-Standard-B',
-    speakingRate = 1.0
-  } = options;
+export async function generateTTSAudio({ text, userId, trackId, voice }: TTSOptions) {
+  try {
+    // Use Chirp 3 voice (en-US-Neural2-F for female, en-US-Neural2-D for male)
+    const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
+      input: { text },
+      voice: {
+        languageCode: voice?.languageCode || 'en-US',
+        name: voice?.name || 'en-US-Neural2-F',
+      },
+      audioConfig: {
+        audioEncoding: protos.google.cloud.texttospeech.v1.AudioEncoding.MP3,
+        speakingRate: 1.0,
+        pitch: 0,
+        // Add natural pauses and emphasis
+        effectsProfileId: ['large-home-entertainment-class-device'],
+      },
+    };
 
-  // Synthesize speech
-  const [response] = await ttsClient.synthesizeSpeech({
-    input: { text },
-    voice: { languageCode, name: voiceName },
-    audioConfig: { audioEncoding: 'MP3', speakingRate }
-  });
-
-  if (!response.audioContent) {
-    throw new Error('No audio content returned from TTS');
-  }
-
-  // Store in Firebase Storage
-  const filePath = `users/${userId}/tts/${trackId}.mp3`;
-  const file = adminStorage.bucket().file(filePath);
-  await file.save(response.audioContent as Buffer, {
-    metadata: {
-      contentType: 'audio/mpeg',
-      metadata: {
-        trackId,
-        userId,
-        languageCode,
-        voiceName,
-        speakingRate: speakingRate.toString(),
-      }
+    // Generate audio
+    const [response] = await ttsClient.synthesizeSpeech(request);
+    if (!response.audioContent) {
+      throw new Error('No audio content generated');
     }
-  });
 
-  // Get a signed URL for the audio file
-  const [url] = await file.getSignedUrl({
-    action: 'read',
-    expires: Date.now() + 1000 * 60 * 60 * 24 * 7 // 7 days
-  });
+    // Upload to Firebase Storage
+    const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET_URI!);
+    const fileName = `users/${userId}/trackIntros/${trackId}/intro.mp3`;
+    const file = bucket.file(fileName);
 
-  return url;
+    await file.save(response.audioContent, {
+      metadata: {
+        contentType: 'audio/mpeg',
+      },
+    });
+
+    // Get public URL
+    const [url] = await file.getSignedUrl({
+      action: 'read',
+      expires: '03-01-2500', // Far future expiration
+    });
+
+    return {
+      audioUrl: url,
+      duration: response.audioContent.length / 16000, // Approximate duration in seconds
+    };
+  } catch (error) {
+    console.error('TTS generation failed:', error);
+    throw error;
+  }
 }
 
 export async function generateAudio(request: TTSRequest): Promise<TTSGenerationResult> {

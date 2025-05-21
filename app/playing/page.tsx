@@ -7,6 +7,24 @@ import type { SpotifyTrack } from "@/app/types/Spotify";
 import { clientDb } from "@/app/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
+interface TrackIntro {
+  trackId: string;
+  userId: string;
+  introText: string;
+  audioUrl: string;
+  duration?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+declare global {
+  interface Window {
+    spotifyPlayer?: {
+      pause: () => void;
+      resume: () => void;
+    };
+  }
+}
 
 export default function NowPlayingPage() {
   const { data: session, status } = useSession();
@@ -14,19 +32,27 @@ export default function NowPlayingPage() {
     currentTrack,
     isPlaying,
     position,
-    duration,
     error: playerError,
     isReady,
     deviceId,
     transferPlayback,
+    pause,
+    resume,
   } = useSpotifyPlayer();
   const [transferring, setTransferring] = useState(false);
   const [transferError, setTransferError] = useState<string | null>(null);
   const [introsEnabled, setIntrosEnabled] = useState(true);
   const [introStatus, setIntroStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
-  const [introScript, setIntroScript] = useState<string | null>(null);
+  const [introScript, setIntroScript] = useState<TrackIntro | null>(null);
   const [introError, setIntroError] = useState<string | null>(null);
   const lastTrackIdRef = useRef<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isIntroAudioPlaying, setIsIntroAudioPlaying] = useState(false);
+  const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
+
+  // Fallback for duration if not in context
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const duration = (currentTrack as any)?.duration_ms ?? 0;
 
   // Effect: Generate intro script on track change if enabled
   useEffect(() => {
@@ -36,7 +62,7 @@ export default function NowPlayingPage() {
     async function getIntroFromDb() {
       if (!userId || !track?.id) return null;
       const introDoc = await getDoc(doc(clientDb, 'users', userId, 'trackIntros', track.id));
-      return introDoc.exists() ? introDoc.data()?.introText : null;
+      return introDoc.exists() ? introDoc.data() as TrackIntro : null;
     }
 
     function generateIntro() {
@@ -59,7 +85,7 @@ export default function NowPlayingPage() {
         .then(async (res) => {
           const data = await res.json();
           if (res.ok && data.status === 'ready') {
-            setIntroScript(data.intro.introText);
+            setIntroScript(data.intro);
             setIntroStatus('ready');
             lastTrackIdRef.current = track.id;
           } else {
@@ -95,6 +121,39 @@ export default function NowPlayingPage() {
     }
 
   }, [introsEnabled, currentTrack, session?.user?.id]);
+
+  // Effect: Orchestrate Spotify player pause/resume based on intro audio
+  useEffect(() => {
+    const handlePauseResume = async () => {
+      if (isIntroAudioPlaying) {
+        if (isPlaying) {
+          setWasSpotifyPlaying(true);
+          try {
+            await pause();
+          } catch {
+            // Optionally handle error
+          }
+        } else {
+          setWasSpotifyPlaying(false);
+        }
+      } else {
+        if (wasSpotifyPlaying) {
+          try {
+            await resume();
+          } catch {
+            // Optionally handle error
+          }
+          setWasSpotifyPlaying(false);
+        }
+      }
+    };
+    handlePauseResume();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isIntroAudioPlaying]);
+
+  // Handler for audio events
+  const handleIntroAudioPlay = () => setIsIntroAudioPlaying(true);
+  const handleIntroAudioPauseOrEnd = () => setIsIntroAudioPlaying(false);
 
   if (status === "loading") {
     return <div className="p-8 text-neutral">Loading...</div>;
@@ -163,7 +222,7 @@ export default function NowPlayingPage() {
   }
 
   // Progress bar width
-  const progressPercent = duration > 0 ? Math.min(100, Math.round((position / duration) * 100)) : 0;
+  const progressPercent = typeof duration === 'number' && duration > 0 ? Math.min(100, Math.round((position / duration) * 100)) : 0;
   const track = currentTrack as SpotifyTrack;
 
   return (
@@ -217,7 +276,47 @@ export default function NowPlayingPage() {
         {introStatus === 'generating' && <div className="text-neutral">Generating intro...</div>}
         {introStatus === 'ready' && introScript && (
           <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 text-foreground text-base shadow-inner">
-            <span className="font-semibold text-primary">Intro:</span> {introScript}
+            <span className="font-semibold text-primary">Intro:</span> {introScript.introText}
+            {/* Audio playback controls */}
+            {introScript.audioUrl && (
+              <div className="mt-4 flex items-center gap-3">
+                <audio
+                  ref={audioRef}
+                  src={introScript.audioUrl}
+                  controls
+                  onPlay={handleIntroAudioPlay}
+                  onPause={handleIntroAudioPauseOrEnd}
+                  onEnded={handleIntroAudioPauseOrEnd}
+                  preload="auto"
+                  style={{ width: '100%' }}
+                />
+                <button
+                  className="btn btn-secondary px-3 py-1 rounded"
+                  onClick={() => audioRef.current?.play()}
+                  disabled={isIntroAudioPlaying}
+                >
+                  Play
+                </button>
+                <button
+                  className="btn btn-secondary px-3 py-1 rounded"
+                  onClick={() => {
+                    if (audioRef.current) {
+                      audioRef.current.currentTime = 0;
+                      audioRef.current.play();
+                    }
+                  }}
+                >
+                  Replay
+                </button>
+                <button
+                  className="btn btn-secondary px-3 py-1 rounded"
+                  onClick={() => audioRef.current?.pause()}
+                  disabled={!isIntroAudioPlaying}
+                >
+                  Pause
+                </button>
+              </div>
+            )}
           </div>
         )}
         {introStatus === 'error' && (

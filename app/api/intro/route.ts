@@ -1,68 +1,74 @@
 import { NextResponse } from 'next/server';
-import { generateTrackIntro } from '@/app/lib/ai-service';
-import { adminDb } from '@/app/lib/firebase-admin';
 import { verifyAuth } from '@/app/lib/firebase-admin';
-import { SpotifyTrack } from '@/app/types/Spotify';
-
+import { generateTrackIntro } from '@/app/lib/ai-service';
+import { generateTTSAudio } from '@/app/lib/tts-service';
+import { adminDb } from '@/app/lib/firebase-admin';
 
 interface RequestBody {
-  track: SpotifyTrack;
   trackId: string;
+  track: {
+    name: string;
+    artists: Array<{ name: string }>;
+    album: { name: string };
+    // ... other track fields
+  };
 }
 
 export async function POST(request: Request) {
   try {
-    // Verify authentication
     const userId = await verifyAuth();
-    const { track, trackId } = await request.json() as RequestBody;
-    console.log('track', track);
-    if (!track) {
-      return NextResponse.json(
-        { error: 'Missing track information' },
-        { status: 400 }
-      );
-    }
-
-    // Construct the path to the track intro document
-    const trackIntrosRef = adminDb
-      .collection('users')
-      .doc(userId)
-      .collection('trackIntros');
+    const { trackId, track } = (await request.json()) as RequestBody;
 
     // Check if intro already exists
-    const introDoc = await trackIntrosRef.doc(trackId).get();
+    const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(trackId);
+    const introDoc = await introRef.get();
 
     if (introDoc.exists) {
+      const intro = introDoc.data();
       return NextResponse.json({
         status: 'ready',
-        intro: introDoc.data()
+        intro,
       });
     }
 
-    const introText = await generateTrackIntro(track);
+    // Generate intro text
+    const introText = await generateTrackIntro({
+      trackName: track.name,
+      artistName: track.artists.map(a => a.name).join(', '),
+      albumName: track.album.name,
+    });
+
+    // Generate TTS audio
+    const { audioUrl, duration } = await generateTTSAudio({
+      text: introText,
+      userId,
+      trackId,
+    });
 
     // Save to Firestore
-    const introData = {
-      trackId: track.id,
+    const intro = {
+      trackId,
       userId,
       introText,
+      audioUrl,
+      duration,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      status: 'ready'
     };
 
-    console.log('introData', introData);
-
-    await trackIntrosRef.doc(trackId).set(introData);
+    await introRef.set(intro);
 
     return NextResponse.json({
       status: 'ready',
-      intro: introData
+      intro,
     });
   } catch (error) {
-    console.error('Error generating intro:', error);
+    console.error('Intro generation failed:', error);
     return NextResponse.json(
-      { error: 'Failed to generate intro' },
+      {
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Failed to generate intro',
+      },
       { status: 500 }
     );
   }
