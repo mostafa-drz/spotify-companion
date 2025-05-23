@@ -22,6 +22,8 @@ export interface SpotifyTrack {
   is_playable: boolean;
   album: SpotifyAlbum;
   artists: SpotifyArtist[];
+  duration_ms: number;
+  playlistId?: string;
 }
 
 // Web Playback SDK types

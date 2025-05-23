@@ -36,18 +36,52 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
 - **Tooling**: Visual Developer UI for live prompt testing and debugging
 - **Serverless Ready**: Pairs well with Firebase and frontend-first architectures
 
-We use Genkit to:
-- Run **educational prompt flows** based on Spotify track data
-- Generate structured AI responses (Markdown + SSML)
-- Support multiple customization options (tone, language, interest)
-- Cache responses per track to optimize cost and performance
+### ⚙️ Implementation Details
 
-### ⚙️ How It Works in This Project
+1. **Prompt Definition** (`app/lib/prompts/intro.prompt`):
+   ```yaml
+   ---
+   model: googleai/gemini-2.0-flash
+   input:
+     schema:
+       trackDetailsJSON: string
+       userAreaOfInterest: string
+       language: string
+       tone?: "casual" | "academic" | "storytelling" | "conversational" | "professional"
+       length?: number
+     default:
+       tone: "conversational"
+       length: 60
+   output:
+     schema:
+       markdown: string
+       ssml: string
+       duration: number
+   ---
+   ```
 
-1. Prompts are defined in `prompts/*.prompt` using Dotprompt format (YAML + Handlebars).
-2. Inputs like `trackName`, `tone`, or `interest` are passed to Vertex AI via Firebase SDK.
-3. Genkit generates both **text** and **audio** intros for each track.
-4. Responses are cached for reuse and stored in Firebase Firestore.
+2. **GenKit Configuration** (`app/lib/genKit.ts`):
+   ```typescript
+   const ai = genkit({
+     plugins: [googleAI()],
+     model: gemini15Flash,
+     promptDir: './app/lib/prompts'
+   });
+   ```
+
+3. **Service Layer** (`app/lib/ai.ts`):
+   - Single entry point for AI interactions
+   - Parameter-based caching with Firestore
+   - Type-safe input/output handling
+
+4. **Caching Strategy**:
+   - Cache invalidation based on:
+     - Language
+     - Tone
+     - Length
+     - User preferences
+   - Automatic regeneration when parameters change
+   - Firestore for persistent storage
 
 ### 🧪 Local Dev Guide
 

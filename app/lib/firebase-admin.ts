@@ -40,17 +40,17 @@ export async function verifyCustomToken(token: string): Promise<string> {
 
 // Utility function to verify authentication
 export async function verifyAuth() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized: No valid session');
-  }
-
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      throw new Error('Unauthorized: No valid session');
+    }
+
     // Verify the user exists in Firebase
     await adminAuth.getUser(session.user.id);
     return session.user.id;
   } catch (error) {
-    console.error('Error verifying Firebase user:', error);
-    throw new Error('Unauthorized: Invalid Firebase user');
+    console.error('Error verifying authentication:', error);
+    throw new Error('Unauthorized: Invalid user session');
   }
 } 

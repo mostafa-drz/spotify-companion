@@ -3,7 +3,10 @@ import { verifyAuth } from '@/app/lib/firebase-admin';
 import { generateTrackIntro } from './genKit';
 import { IntroPromptInput, IntroPromptOutput } from '@/app/types/Prompt';
 
-// Types
+/**
+ * Track metadata interface for intro generation
+ * Contains essential information about a Spotify track
+ */
 export interface TrackMetadata {
   id: string;
   name: string;
@@ -13,7 +16,30 @@ export interface TrackMetadata {
   playlistId?: string;
 }
 
-// Generate or fetch intro for a track
+/**
+ * Generate or fetch intro for a track
+ * 
+ * This function:
+ * 1. Verifies user authentication
+ * 2. Checks Firestore for cached intro
+ * 3. Generates new intro if cache miss or parameters changed
+ * 4. Caches the result in Firestore
+ * 
+ * Cache invalidation is based on:
+ * - Language
+ * - Tone
+ * - Length
+ * - User preferences
+ * 
+ * @param trackMetadata - Track information from Spotify
+ * @param userAreaOfInterest - User's preferred area of interest
+ * @param language - Language code (default: 'en')
+ * @param tone - Optional tone for the intro
+ * @param length - Optional duration in seconds
+ * 
+ * @returns Promise<IntroPromptOutput> - Structured output with markdown and SSML
+ * @throws Error if generation fails or user is not authenticated
+ */
 export async function generateIntro(
   trackMetadata: TrackMetadata,
   userAreaOfInterest: string,
@@ -28,7 +54,11 @@ export async function generateIntro(
   const doc = await docRef.get();
   const docData = doc.exists ? doc.data() : undefined;
   
-  if (docData?.introText) {
+  // Return cached intro if it exists and matches our input parameters
+  if (docData?.introText && 
+      docData.language === language && 
+      docData.tone === tone && 
+      docData.length === length) {
     return {
       markdown: docData.introText,
       ssml: docData.ssml || '',
@@ -49,11 +79,14 @@ export async function generateIntro(
     // Generate intro using GenKit
     const output = await generateTrackIntro(input);
 
-    // Save to Firestore
+    // Save to Firestore with metadata for cache invalidation
     await docRef.set({
       introText: output.markdown,
       ssml: output.ssml,
       duration: output.duration,
+      language,
+      tone,
+      length,
       updatedAt: new Date(),
       playlistId: trackMetadata.playlistId || null
     }, { merge: true });

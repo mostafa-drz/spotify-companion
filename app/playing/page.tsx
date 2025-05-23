@@ -11,8 +11,12 @@ interface TrackIntro {
   trackId: string;
   userId: string;
   introText: string;
+  ssml: string;
   audioUrl: string;
-  duration?: number;
+  duration: number;
+  language: string;
+  tone: string;
+  length: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -138,6 +142,10 @@ export default function NowPlayingPage() {
           track: {
             ...track,
           },
+          language: 'en',
+          tone: 'conversational',
+          length: 60,
+          userAreaOfInterest: 'music'
         }),
       })
         .then(async (res) => {
