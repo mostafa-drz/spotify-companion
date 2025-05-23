@@ -5,7 +5,7 @@ import { useSpotifyPlayer } from "@/app/contexts/SpotifyPlayerContext";
 import { useState, useEffect, useRef } from "react";
 import type { SpotifyTrack } from "@/app/types/Spotify";
 import { clientDb } from "@/app/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 interface TrackIntro {
   trackId: string;
@@ -24,6 +24,63 @@ declare global {
       resume: () => void;
     };
   }
+}
+
+function DefaultPromptEditor({ userId }: { userId: string }) {
+  const [prompt, setPrompt] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    setLoading(true);
+    getDoc(doc(clientDb, "users", userId)).then((snap) => {
+      setPrompt(snap.exists() ? snap.data().defaultTrackPrompt || "" : "");
+      setLoading(false);
+    });
+  }, [userId]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      await setDoc(doc(clientDb, "users", userId), { defaultTrackPrompt: prompt }, { merge: true });
+      setSuccess(true);
+    } catch (e) {
+      console.error(e);
+      setError("Failed to save prompt");
+    } finally {
+      setSaving(false);
+      setTimeout(() => setSuccess(false), 2000);
+    }
+  };
+
+  if (loading) return <div className="mb-4">Loading prompt…</div>;
+
+  return (
+    <div className="mb-6 p-4 bg-white/60 dark:bg-[#222]/60 rounded-lg border border-gray-200 dark:border-gray-800">
+      <label htmlFor="defaultPrompt" className="block font-semibold mb-2">Default AI Prompt</label>
+      <textarea
+        id="defaultPrompt"
+        value={prompt}
+        onChange={e => setPrompt(e.target.value)}
+        rows={3}
+        className="w-full border rounded p-2 text-sm bg-white dark:bg-[#181818]"
+        placeholder="e.g. Tell me more about this track, its history, and cultural impact."
+        disabled={saving}
+      />
+      <div className="flex items-center gap-2 mt-2">
+        <button onClick={handleSave} className="btn btn-primary px-4 py-1.5 rounded" disabled={saving}>
+          {saving ? "Saving…" : "Save Prompt"}
+        </button>
+        {success && <span className="text-green-600 text-sm">Saved!</span>}
+        {error && <span className="text-red-600 text-sm">{error}</span>}
+      </div>
+    </div>
+  );
 }
 
 export default function NowPlayingPage() {
@@ -49,6 +106,7 @@ export default function NowPlayingPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isIntroAudioPlaying, setIsIntroAudioPlaying] = useState(false);
   const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
+  const [defaultPrompt, setDefaultPrompt] = useState("");
 
   // Fallback for duration if not in context
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -155,6 +213,49 @@ export default function NowPlayingPage() {
   const handleIntroAudioPlay = () => setIsIntroAudioPlaying(true);
   const handleIntroAudioPauseOrEnd = () => setIsIntroAudioPlaying(false);
 
+  // Fetch the default prompt when session.user.id changes
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    getDoc(doc(clientDb, "users", session.user.id)).then((snap) => {
+      setDefaultPrompt(snap.exists() ? snap.data().defaultTrackPrompt || "" : "");
+    });
+  }, [session?.user?.id]);
+
+  // Add a handler to regenerate the intro using the current prompt
+  const handleRegenerateIntro = () => {
+    if (!session?.user?.id || !currentTrack?.id || !defaultPrompt) return;
+    setIntroStatus('generating');
+    setIntroScript(null);
+    setIntroError(null);
+    fetch('/api/intro', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        trackId: currentTrack.id,
+        track: {
+          ...currentTrack,
+          prompt: defaultPrompt,
+        },
+        regenerate: true,
+      }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.ok && data.status === 'ready') {
+          setIntroScript(data.intro);
+          setIntroStatus('ready');
+          lastTrackIdRef.current = currentTrack.id;
+        } else {
+          setIntroStatus('error');
+          setIntroError(data.error || 'Failed to generate intro.');
+        }
+      })
+      .catch((err) => {
+        setIntroStatus('error');
+        setIntroError(err?.message || 'Failed to generate intro.');
+      });
+  };
+
   if (status === "loading") {
     return <div className="p-8 text-neutral">Loading...</div>;
   }
@@ -227,6 +328,7 @@ export default function NowPlayingPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818]">
+      <DefaultPromptEditor userId={session.user.id} />
       {/* Intros toggle */}
       <div className="flex items-center gap-3 mb-6">
         <label className="flex items-center cursor-pointer gap-2">
@@ -322,6 +424,13 @@ export default function NowPlayingPage() {
         {introStatus === 'error' && (
           <div className="text-semantic-error">{introError}</div>
         )}
+        <button
+          className="btn btn-primary mt-4"
+          onClick={handleRegenerateIntro}
+          disabled={introStatus === 'generating' || !currentTrack || !defaultPrompt}
+        >
+          {introStatus === 'generating' ? 'Regenerating…' : 'Regenerate Intro'}
+        </button>
       </div>
     </div>
   );

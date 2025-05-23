@@ -10,6 +10,14 @@ const ai = genkit({
 });
 
 export async function generateTextWithGemini(prompt: string): Promise<string> {
+  ai.defineSchema({
+    track: {
+      name: 'string',
+      artists: 'string',
+      album: 'string',
+    }
+  })
   const { text } = await ai.generate(prompt);
+  
   return text;
 }

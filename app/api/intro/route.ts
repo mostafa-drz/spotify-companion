@@ -3,27 +3,23 @@ import { verifyAuth } from '@/app/lib/firebase-admin';
 import { generateTrackIntro } from '@/app/lib/ai-service';
 import { generateTTSAudio } from '@/app/lib/tts-service';
 import { adminDb } from '@/app/lib/firebase-admin';
-
+import { SpotifyTrack } from '@/app/types/Spotify';
 interface RequestBody {
   trackId: string;
-  track: {
-    name: string;
-    artists: Array<{ name: string }>;
-    album: { name: string };
-    // ... other track fields
-  };
+  track: SpotifyTrack;
+  regenerate?: boolean;
 }
 
 export async function POST(request: Request) {
   try {
     const userId = await verifyAuth();
-    const { trackId, track } = (await request.json()) as RequestBody;
+    const { trackId, track, regenerate } = (await request.json()) as RequestBody;
 
-    // Check if intro already exists
+    // Check if intro already exists, unless regenerating
     const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(trackId);
     const introDoc = await introRef.get();
 
-    if (introDoc.exists) {
+    if (introDoc.exists && !regenerate) {
       const intro = introDoc.data();
       return NextResponse.json({
         status: 'ready',
@@ -33,9 +29,8 @@ export async function POST(request: Request) {
 
     // Generate intro text
     const introText = await generateTrackIntro({
-      trackName: track.name,
-      artistName: track.artists.map(a => a.name).join(', '),
-      albumName: track.album.name,
+      track,
+      customPrompt: track.prompt,
     });
 
     // Generate TTS audio

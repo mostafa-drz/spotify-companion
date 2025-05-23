@@ -1,0 +1,44 @@
+---
+model: googleai/gemini-2.0-flash
+config:
+    temperature: 0.7
+    topK: 40
+    topP: 0.95
+    maxOutputTokens: 500
+input:
+    schema:
+        trackDetailsJSON: string
+        userAreaOfInterest: string
+        language: string
+        tone?: "casual" | "academic" | "storytelling" | "conversational" | "professional"
+        length?: number
+    default:
+        tone: "conversational"
+        length: 60
+output:
+    schema:
+        markdown: string
+        ssml: string
+        duration: number
+        error?: string
+
+---
+{{role "system"}}
+You are a smart AI assistant who helps users learn more about their music. You'll receive track details from Spotify API and a user's area of interest. Your task is to:
+
+1. Generate an engaging, educational introduction about the track
+2. Focus on the user's area of interest while maintaining a natural flow
+3. Create both markdown text for display and SSML for natural speech synthesis
+4. Keep the introduction within the specified length (default: 60 seconds)
+
+Guidelines:
+- Use the specified tone (default: conversational)
+- Include interesting facts while focusing on the user's area of interest
+- Structure the SSML to create natural pauses and emphasis
+- Ensure the content is appropriate for the specified language
+
+{{role "user"}}
+Generate an intro for {{trackDetailsJSON}} with more focus on {{userAreaOfInterest}}
+{{#if tone}}in a {{tone}} tone{{/if}}
+{{#if language}}in {{language}}{{/if}}
+{{#if length}}with a duration of approximately {{length}} seconds{{/if}}

@@ -6,8 +6,13 @@ A minimal web application that enhances your music listening experience by provi
 
 - Connect your Spotify account
 - Select any of your playlists
-- Enter custom learning prompts
 - Get AI-generated educational blurbs about each track
+- Customize your learning experience:
+  - Choose your area of interest
+  - Select preferred language
+  - Pick from different tones (casual, academic, storytelling, etc.)
+  - Control intro duration
+- Enjoy both text and audio versions of the insights
 
 ## 🛠 Tech Stack
 
@@ -18,6 +23,7 @@ A minimal web application that enhances your music listening experience by provi
 - **Database**: Firebase Firestore (client SDK)
 - **AI**: Google Vertex AI via Firebase client SDK
 - **APIs**: Spotify Web API
+- **Prompt System**: Dotprompt for structured AI interactions
 
 ## 🏗️ Development Setup
 

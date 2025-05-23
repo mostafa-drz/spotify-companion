@@ -25,10 +25,16 @@ nowtune.ai creates a seamless, educational experience that helps users discover 
    - Allow user to customize prompt template per track
 
 3. **AI Integration**
-   - Custom prompt input for users
    - Integration with Google Vertex AI via Firebase client SDK
-   - Generate 1-minute educational blurbs per track
+   - Generate educational blurbs using Dotprompt format
+   - Support for multiple output formats (markdown + SSML)
+   - Customizable parameters:
+     - User area of interest
+     - Language preference
+     - Tone selection (casual, academic, storytelling, conversational, professional)
+     - Duration control (default: 60 seconds)
    - Store and manage prompt templates
+   - Caching system for generated intros
 
 4. **User Interface**
    - Clean, minimal design using TailwindCSS
@@ -36,6 +42,7 @@ nowtune.ai creates a seamless, educational experience that helps users discover 
    - Loading states and error handling
    - Real-time track display and intro controls
    - Prompt template selection and audio intro controls
+   - Tone and language preference settings
 
 ## 🛠 Technical Stack
 
@@ -79,10 +86,11 @@ nowtune.ai creates a seamless, educational experience that helps users discover 
 
 ### Phase 3: AI Integration
 - [ ] Set up Google Vertex AI via Firebase client SDK
+- [ ] Implement Dotprompt system for intro generation
 - [ ] Create prompt input interface with server actions
-- [ ] Implement track analysis
-- [ ] Build results display
-- [ ] Add loading states
+- [ ] Build results display with markdown support
+- [ ] Implement SSML generation for TTS
+- [ ] Add loading states and error handling
 
 ### Phase 4: Polish & Deploy
 - [ ] Error handling
@@ -127,6 +135,7 @@ GOOGLE_CLOUD_PROJECT=
 1. **Audio Integration**
    - Text-to-Speech for blurbs
    - Audio preview of tracks
+   - Custom voice selection
 
 2. **Social Features**
    - Share blurbs
@@ -138,6 +147,7 @@ GOOGLE_CLOUD_PROJECT=
    - Focus on specific aspects (instruments, history, etc.)
    - Custom prompt suggestions
    - Template categories and tags
+   - Advanced tone customization
 
 4. **Analytics & Insights**
    - Track usage patterns
@@ -148,6 +158,7 @@ GOOGLE_CLOUD_PROJECT=
    - Global settings for default behavior
    - Cross-playlist preferences
    - User-specific defaults
+   - Language and tone preferences
 
 ## 📊 Success Metrics
 - User engagement (time spent per session)
