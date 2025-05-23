@@ -28,4 +28,42 @@ export interface PromptMetadata {
   updatedAt: Date;
 }
 
-export type PromptStatus = 'pending' | 'generating' | 'completed' | 'failed'; 
+export type PromptStatus = 'pending' | 'generating' | 'completed' | 'failed';
+
+// New types for Dotprompt integration
+export interface IntroPromptInput {
+  trackDetailsJSON: string;
+  userAreaOfInterest: string;
+  language: string;
+  tone?: 'casual' | 'academic' | 'storytelling' | 'conversational' | 'professional';
+  length?: number;
+}
+
+export interface IntroPromptOutput {
+  markdown: string;
+  ssml: string;
+  duration: number;
+  error?: string;
+}
+
+export interface IntroPromptConfig {
+  temperature: number;
+  topK: number;
+  topP: number;
+  maxOutputTokens: number;
+}
+
+export interface IntroPrompt {
+  model: string;
+  config: IntroPromptConfig;
+  input: {
+    schema: IntroPromptInput;
+    default: {
+      tone: string;
+      length: number;
+    };
+  };
+  output: {
+    schema: IntroPromptOutput;
+  };
+} 

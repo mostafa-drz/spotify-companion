@@ -25,6 +25,53 @@ A minimal web application that enhances your music listening experience by provi
 - **APIs**: Spotify Web API
 - **Prompt System**: Dotprompt for structured AI interactions
 
+## 🧠 GenKit Integration (AI-Powered Features)
+
+This project uses [Genkit](https://github.com/firebase/genkit), an open-source framework by Google for building full-stack AI-powered apps. It provides a streamlined way to integrate models like **Google Gemini**, **OpenAI**, **Anthropic**, and others—abstracting away the complexity of prompt engineering, model selection, and output structuring.
+
+### ✨ Why Genkit?
+
+- **Unified Interface**: One SDK, many model providers
+- **Prompt System**: `.prompt` files with structured inputs/outputs and templating
+- **Tooling**: Visual Developer UI for live prompt testing and debugging
+- **Serverless Ready**: Pairs well with Firebase and frontend-first architectures
+
+We use Genkit to:
+- Run **educational prompt flows** based on Spotify track data
+- Generate structured AI responses (Markdown + SSML)
+- Support multiple customization options (tone, language, interest)
+- Cache responses per track to optimize cost and performance
+
+### ⚙️ How It Works in This Project
+
+1. Prompts are defined in `prompts/*.prompt` using Dotprompt format (YAML + Handlebars).
+2. Inputs like `trackName`, `tone`, or `interest` are passed to Vertex AI via Firebase SDK.
+3. Genkit generates both **text** and **audio** intros for each track.
+4. Responses are cached for reuse and stored in Firebase Firestore.
+
+### 🧪 Local Dev Guide
+
+1. **Get API Access**
+   - [Generate a Gemini API key](https://makersuite.google.com/app/apikey)
+   - Set it in `.env.local` as `GEMINI_API_KEY`
+
+2. **Start Genkit Dev UI**
+   ```bash
+   genkit start -- tsx --watch src/app.ts
+   ```
+
+3. **Test & Export Prompts**
+   - Modify and test `.prompt` files interactively
+   - Export finalized versions to `prompts/`
+
+> Schema validation is powered by **Picoschema**, a concise YAML schema format optimized for AI inputs/outputs.
+
+### 🔗 Helpful Resources
+
+- 📘 [Genkit Docs](https://firebaseopensource.com/projects/firebase/genkit/)
+- 🧪 [Genkit by Example](https://firebaseopensource.com/projects/firebase/genkit/examples/)
+- 🧠 [Dotprompt Spec](https://firebaseopensource.com/projects/firebase/genkit/docs/prompts/)
+
 ## 🏗️ Development Setup
 
 1. **Clone the repository**
