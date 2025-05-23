@@ -10,7 +10,6 @@ interface FirebaseAuthContextType {
   user: FirebaseUser | null;
   isLoading: boolean;
   error: Error | null;
-  signOut: () => Promise<void>;
 }
 
 const FirebaseAuthContext = createContext<FirebaseAuthContextType | undefined>(undefined);
@@ -42,13 +41,11 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
         setIsLoading(false);
       }
     );
-
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     const signInToFirebase = async () => {
-      if (session?.user?.id && !user) {
         try {
           setIsLoading(true);
           setError(null);
@@ -60,29 +57,32 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
         } finally {
           setIsLoading(false);
         }
-      }
     };
 
-    signInToFirebase();
+    const signOutFromFirebase = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        await firebaseSignOut(clientAuth);
+        setUser(null);
+      } catch (error) {
+        console.error('Error signing out:', error);
+        setError(error as Error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (session?.user?.id && !user) {
+      signInToFirebase();
+    }
+    if (!session?.user?.id && user) {
+      signOutFromFirebase();
+    }
   }, [session?.user?.id, user]);
 
-  const signOut = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      await firebaseSignOut(clientAuth);
-      setUser(null);
-    } catch (error) {
-      console.error('Error signing out:', error);
-      setError(error as Error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <FirebaseAuthContext.Provider value={{ user, isLoading, error, signOut }}>
+    <FirebaseAuthContext.Provider value={{ user, isLoading, error }}>
       {children}
     </FirebaseAuthContext.Provider>
   );
