@@ -20,6 +20,8 @@ export const adminStorage = getStorage();
 // Utility function to generate custom token
 export async function generateCustomToken(uid: string): Promise<string> {
   try {
+    // Verify user exists (should always exist since created in NextAuth)
+    await adminAuth.getUser(uid);
     return await adminAuth.createCustomToken(uid);
   } catch (error) {
     console.error('Error generating custom token:', error);

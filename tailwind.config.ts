@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import typography from '@tailwindcss/typography';
 
 const config: Config = {
   content: [
@@ -52,9 +53,42 @@ const config: Config = {
       transitionDuration: {
         '200': '200ms',
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+            color: 'inherit',
+            a: {
+              color: 'inherit',
+              textDecoration: 'none',
+              fontWeight: '500',
+            },
+            strong: {
+              color: 'inherit',
+            },
+            code: {
+              color: 'inherit',
+            },
+            h1: {
+              color: 'inherit',
+            },
+            h2: {
+              color: 'inherit',
+            },
+            h3: {
+              color: 'inherit',
+            },
+            h4: {
+              color: 'inherit',
+            },
+          },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    typography,
+  ],
 };
 
 export default config; 

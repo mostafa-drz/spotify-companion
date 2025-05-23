@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 import SpotifyProvider from 'next-auth/providers/spotify';
 import type { JWT } from 'next-auth/jwt';
+import { adminAuth } from './lib/firebase-admin';
 
 // Extend the built-in session types
 declare module "next-auth" {
@@ -54,15 +55,39 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       // Initial sign in
-      if (account) {
-        return {
-          ...token,
-          accessToken: account.access_token,
-          refreshToken: account.refresh_token,
-          accessTokenExpires: account.expires_at ? account.expires_at * 1000 : 0,
-        };
+      if (account && user) {
+        // Create or get Firebase user using email as UID
+        try {
+          const email = user.email;
+          if (!email) {
+            throw new Error('No email provided by Spotify');
+          }
+
+          // Check if user exists in Firebase
+          try {
+            await adminAuth.getUser(email);
+          } catch (error) {
+            // User doesn't exist, create them
+            await adminAuth.createUser({
+              uid: email,
+              email: email,
+              displayName: user.name || undefined,
+              photoURL: user.image || undefined,
+            });
+          }
+
+          return {
+            ...token,
+            accessToken: account.access_token,
+            refreshToken: account.refresh_token,
+            accessTokenExpires: account.expires_at ? account.expires_at * 1000 : 0,
+          };
+        } catch (error) {
+          console.error('Error creating/getting Firebase user:', error);
+          throw error;
+        }
       }
 
       // Return previous token if the access token has not expired yet
@@ -74,7 +99,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return refreshAccessToken(token);
     },
     async session({ session, token }) {
-      session.user.id = token.sub as string;
+      // Use email as the user ID
+      session.user.id = session.user.email as string;
       session.accessToken = token.accessToken;
       return session;
     },

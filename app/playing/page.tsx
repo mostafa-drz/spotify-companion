@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import type { SpotifyTrack } from "@/app/types/Spotify";
 import { clientDb } from "@/app/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { MarkdownContent } from '@/app/components/MarkdownContent';
 
 interface TrackIntro {
   trackId: string;
@@ -386,7 +387,10 @@ export default function NowPlayingPage() {
         {introStatus === 'generating' && <div className="text-neutral">Generating intro...</div>}
         {introStatus === 'ready' && introScript && (
           <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 text-foreground text-base shadow-inner">
-            <span className="font-semibold text-primary">Intro:</span> {introScript.introText}
+            <span className="font-semibold text-primary">Intro:</span>
+            <div className="mt-2">
+              <MarkdownContent content={introScript.introText} />
+            </div>
             {/* Audio playback controls */}
             {introScript.audioUrl && (
               <div className="mt-4 flex items-center gap-3">

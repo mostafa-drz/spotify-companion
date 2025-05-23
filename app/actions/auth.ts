@@ -3,6 +3,7 @@
 import { auth, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from '@/app/auth';
 import { generateCustomToken, verifyCustomToken } from '@/app/lib/firebase-admin';
 import { AuthError } from '@/app/lib/AuthError';
+import { clientAuth } from '../lib/firebase';
 
 /**
  * Authentication Actions
