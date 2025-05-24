@@ -1,11 +1,11 @@
 export interface PromptTemplate {
   id: string;
-  title: string;
-  description: string;
-  template: string;
-  isDefault: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  name: string;
+  prompt: string;
+  userId?: string;
+  isSystem?: boolean;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface UserPrompt {
@@ -35,15 +35,14 @@ export interface IntroPromptInput {
   trackDetailsJSON: string;
   userAreaOfInterest: string;
   language: string;
-  tone?: 'casual' | 'academic' | 'storytelling' | 'conversational' | 'professional';
-  length?: number;
+  tone: string;
+  length: string;
 }
 
 export interface IntroPromptOutput {
   markdown: string;
   ssml: string;
   duration: number;
-  error?: string;
 }
 
 export interface IntroPromptConfig {
@@ -66,4 +65,26 @@ export interface IntroPrompt {
   output: {
     schema: IntroPromptOutput;
   };
+}
+
+export interface UserPromptSettings {
+  defaultPrompt: string | null;
+  templates: string[];
+}
+
+// Update TrackIntro to include prompt
+export interface TrackIntro {
+  trackId: string;
+  userId: string;
+  introText: string;
+  ssml: string;
+  audioUrl: string;
+  duration: number;
+  language: string;
+  tone: string;
+  length: string;
+  prompt: string;
+  createdAt: string;
+  updatedAt: string;
+  playlistId: string | null;
 } 

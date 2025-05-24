@@ -4,34 +4,34 @@ const PROMPT_TEMPLATES_COLLECTION = 'promptTemplates';
 
 const defaultTemplates = [
   {
-    title: 'Historical Context',
-    description: 'Learn about the historical context and cultural significance of the track.',
-    template: 'Provide a 1-minute educational overview of the historical context and cultural significance of {trackName} by {artists}. Include key events, influences, and impact on music history.',
-    isDefault: true,
+    id: 'historical',
+    name: 'Historical Context',
+    prompt: 'Focus on the historical context and cultural significance of this track. Include key events, influences, and impact on music history.',
+    isSystem: true,
     createdAt: new Date(),
     updatedAt: new Date()
   },
   {
-    title: 'Musical Analysis',
-    description: 'Understand the musical elements and composition of the track.',
-    template: 'Give a 1-minute analysis of the musical elements in {trackName} by {artists}. Cover key aspects like instrumentation, structure, and unique musical features.',
-    isDefault: true,
+    id: 'technical',
+    name: 'Technical Analysis',
+    prompt: 'Analyze the musical elements, instrumentation, and technical aspects of this track. Cover structure, composition, and unique musical features.',
+    isSystem: true,
     createdAt: new Date(),
     updatedAt: new Date()
   },
   {
-    title: 'Artist Background',
-    description: 'Discover interesting facts about the artists and their journey.',
-    template: 'Share a 1-minute story about the artists behind {trackName}, focusing on their background, influences, and journey to creating this track.',
-    isDefault: true,
+    id: 'artist',
+    name: 'Artist Background',
+    prompt: 'Share insights about the artists behind this track, focusing on their background, influences, and journey to creating this piece.',
+    isSystem: true,
     createdAt: new Date(),
     updatedAt: new Date()
   },
   {
-    title: 'Cultural Impact',
-    description: 'Explore how the track influenced culture and society.',
-    template: 'Explain in 1 minute how {trackName} by {artists} influenced culture and society. Include its impact on music, fashion, or social movements.',
-    isDefault: true,
+    id: 'cultural',
+    name: 'Cultural Impact',
+    prompt: 'Explain how this track influenced culture and society. Include its impact on music, fashion, or social movements.',
+    isSystem: true,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -41,27 +41,28 @@ async function initializePromptTemplates() {
   try {
     const batch = adminDb.batch();
     
-    // Delete existing templates
-    const existingTemplates = await adminDb
-      .collection(PROMPT_TEMPLATES_COLLECTION)
-      .get();
-    
-    existingTemplates.docs.forEach(doc => {
-      batch.delete(doc.ref);
-    });
-
-    // Add new templates
-    defaultTemplates.forEach(template => {
-      const docRef = adminDb.collection(PROMPT_TEMPLATES_COLLECTION).doc();
+    // Add system templates
+    for (const template of defaultTemplates) {
+      const docRef = adminDb.collection(PROMPT_TEMPLATES_COLLECTION).doc(template.id);
       batch.set(docRef, template);
-    });
-
+    }
+    
     await batch.commit();
     console.log('Successfully initialized prompt templates');
   } catch (error) {
     console.error('Error initializing prompt templates:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-initializePromptTemplates(); 
+// Run if this file is executed directly
+if (require.main === module) {
+  initializePromptTemplates()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
+}
+
+export { initializePromptTemplates, defaultTemplates }; 

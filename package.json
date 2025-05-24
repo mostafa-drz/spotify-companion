@@ -14,7 +14,8 @@
     "@auth/firebase-adapter": "^2.9.1",
     "@genkit-ai/googleai": "^1.9.0",
     "@google-cloud/text-to-speech": "^6.1.0",
-    "@heroicons/react": "^2.1.1",
+    "@headlessui/react": "^2.2.4",
+    "@heroicons/react": "^2.2.0",
     "axios": "^1.9.0",
     "clsx": "^2.1.0",
     "firebase": "^11.7.3",
@@ -24,6 +25,7 @@
     "next-auth": "^5.0.0-beta.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^2.2.1"

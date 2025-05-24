@@ -1,7 +1,10 @@
-import { adminDb } from './firebase-admin';
+import { adminDb } from '@/app/lib/firebase-admin';
 import { verifyAuth } from '@/app/lib/firebase-admin';
 import { generateTrackIntro } from './genKit';
 import { IntroPromptInput, IntroPromptOutput } from '@/app/types/Prompt';
+import type { TrackMetadata } from '@/app/types/Track';
+import type { TrackIntro } from '@/app/types/Prompt';
+import { getCachedIntro, saveIntroToFirestore } from '@/app/lib/firestore';
 
 /**
  * Track metadata interface for intro generation
@@ -43,55 +46,55 @@ export interface TrackMetadata {
 export async function generateIntro(
   trackMetadata: TrackMetadata,
   userAreaOfInterest: string,
-  language: string = 'en',
-  tone?: 'casual' | 'academic' | 'storytelling' | 'conversational' | 'professional',
-  length?: number
-): Promise<IntroPromptOutput> {
+  language: string = 'en-US',
+  tone: string = 'neutral',
+  length: string = 'medium'
+): Promise<TrackIntro> {
   const userId = await verifyAuth();
 
-  // Check Firestore for existing intro
-  const docRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(trackMetadata.id);
-  const doc = await docRef.get();
-  const docData = doc.exists ? doc.data() : undefined;
-  
-  // Return cached intro if it exists and matches our input parameters
-  if (docData?.introText && 
-      docData.language === language && 
-      docData.tone === tone && 
-      docData.length === length) {
-    return {
-      markdown: docData.introText,
-      ssml: docData.ssml || '',
-      duration: docData.duration || 60
-    };
-  }
-
   try {
-    // Prepare input for GenKit
-    const input: IntroPromptInput = {
+    // Check if we have a cached intro that matches all parameters
+    const cachedIntro = await getCachedIntro(trackMetadata.id, {
+      language,
+      tone,
+      length,
+      prompt: userAreaOfInterest
+    });
+
+    if (cachedIntro) {
+      console.log('Using cached intro for track:', trackMetadata.id);
+      return cachedIntro;
+    }
+
+    // Generate the intro using the AI
+    const intro = await generateTrackIntro({
       trackDetailsJSON: JSON.stringify(trackMetadata),
       userAreaOfInterest,
       language,
       tone,
       length
-    };
+    });
 
-    // Generate intro using GenKit
-    const output = await generateTrackIntro(input);
-
-    // Save to Firestore with metadata for cache invalidation
-    await docRef.set({
-      introText: output.markdown,
-      ssml: output.ssml,
-      duration: output.duration,
+    // Save the intro to Firestore
+    const introData: TrackIntro = {
+      trackId: trackMetadata.id,
+      userId: trackMetadata.userId || '',
+      introText: intro.markdown,
+      ssml: intro.ssml,
+      audioUrl: '', // This will be set by the audio generation service
+      duration: intro.duration,
       language,
       tone,
       length,
-      updatedAt: new Date(),
+      prompt: userAreaOfInterest,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       playlistId: trackMetadata.playlistId || null
-    }, { merge: true });
+    };
 
-    return output;
+    await saveIntroToFirestore(introData);
+
+    return introData;
   } catch (error) {
     console.error('Error generating intro:', error);
     throw error;

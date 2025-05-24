@@ -22,6 +22,14 @@ service cloud.firestore {
       }
     }
 
+    // Prompt templates collection
+    match /promptTemplates/{templateId} {
+      // System templates are readable by all authenticated users
+      allow read: if isAuthenticated();
+      // Only allow system templates to be created/updated by admin
+      allow write: if false;  // This will be managed through admin SDK
+    }
+
     // Default deny
     match /{document=**} {
       allow read, write: if false;

@@ -4,6 +4,7 @@ import "./globals.css";
 import ClientProviders from './ClientProviders';
 import Header from './components/Header';
 import Link from 'next/link';
+import ToastProvider from './components/ToastProvider';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,6 +35,7 @@ export default function RootLayout({
             </main>
           </div>
         </ClientProviders>
+        <ToastProvider />
       </body>
     </html>
   );
