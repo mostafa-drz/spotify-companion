@@ -11,6 +11,7 @@ import type { TrackIntro } from '@/app/types/Prompt';
 import TemplateSelector from '@/app/components/TemplateSelector';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import { getDefaultPrompt, updateDefaultPrompt, getTrackIntro, saveTrackIntro } from '@/app/lib/firestore';
+import { Switch } from '@headlessui/react';
 
 declare global {
   interface Window {
@@ -343,30 +344,40 @@ export default function NowPlayingPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818]">
-      <DefaultPromptEditor userId={session.user.id} />
+      {/* Default Prompt Section */}
+      <div className="mb-8">
+        <DefaultPromptEditor userId={session.user.id} />
+      </div>
       {/* Template selector */}
-      <div className="mb-6">
+      <div className="mb-8">
         <TemplateSelector
           onSelect={handleTemplateSelect}
           selectedTemplate={selectedTemplate}
-          variant="select"
         />
       </div>
       {/* Intros toggle */}
-      <div className="flex items-center gap-3 mb-6">
-        <label className="flex items-center cursor-pointer gap-2">
-          <input
-            type="checkbox"
+      <div className="flex items-center gap-3 mb-8">
+        <Switch.Group>
+          <Switch
             checked={introsEnabled}
-            onChange={e => setIntrosEnabled(e.target.checked)}
-            className="form-checkbox h-5 w-5 text-primary"
-            aria-label="Enable AI intros for now playing"
-          />
-          <span className="text-base font-medium text-foreground">Enable AI Intros for Now Playing</span>
-        </label>
+            onChange={setIntrosEnabled}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
+              introsEnabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-700'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                introsEnabled ? 'translate-x-5' : 'translate-x-1'
+              }`}
+            />
+          </Switch>
+          <Switch.Label className="ml-4 text-base font-medium text-foreground cursor-pointer">
+            Enable AI Intros for Now Playing
+          </Switch.Label>
+        </Switch.Group>
       </div>
-      <div className="flex items-center gap-6">
-        
+      {/* Track Info Section */}
+      <div className="flex items-center gap-6 mb-8">
         <img
           src={track.album.images[0]?.url || "/track-placeholder.png"}
           alt={track.album.name}
@@ -381,7 +392,8 @@ export default function NowPlayingPage() {
           <div className="text-xs text-neutral">Type: {track.type} ({track.media_type})</div>
         </div>
       </div>
-      <div className="mt-6">
+      {/* Progress Bar Section */}
+      <div className="mb-8">
         <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
           <div
             className="h-2 bg-primary rounded-full transition-all"
@@ -393,11 +405,12 @@ export default function NowPlayingPage() {
           <span>{msToTime(duration)}</span>
         </div>
       </div>
-      <div className="mt-4 flex items-center gap-4">
+      {/* Playback Status */}
+      <div className="mt-4 mb-8 flex items-center gap-4">
         <span className={`text-sm font-medium ${isPlaying ? 'text-primary' : 'text-neutral'}`}>{isPlaying ? 'Playing' : 'Paused'}</span>
       </div>
       {/* Intro script status and display */}
-      <div className="mt-8">
+      <div className="mb-8">
         {introStatus === 'generating' && <div className="text-neutral">Generating intro...</div>}
         {introStatus === 'ready' && introScript && (
           <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 text-foreground text-base shadow-inner">

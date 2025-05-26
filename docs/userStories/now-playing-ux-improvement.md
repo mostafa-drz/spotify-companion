@@ -59,8 +59,8 @@ This user story builds on the template selection feature described in [integrate
 
 ## Subtasks
 - [x] Refactor TemplateSelector to use a custom-styled dropdown with preview/description
-- [ ] Adjust layout and add spacing between all major sections (prompt, selector, track info, intro, controls)
-- [ ] Replace the "Enable AI Intros" checkbox with a modern switch component
+- [x] Adjust layout and add spacing between all major sections (prompt, selector, track info, intro, controls)
+- [x] Replace the "Enable AI Intros" checkbox with a modern switch component
 - [ ] Refactor audio controls to use icon buttons and group them with the audio player
 - [ ] Add loading spinners/progress indicators for intro generation and actions
 - [ ] Implement toast notifications for success and error feedback
