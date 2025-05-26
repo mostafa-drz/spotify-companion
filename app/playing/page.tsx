@@ -389,9 +389,9 @@ export default function NowPlayingPage() {
           className="w-28 h-28 rounded-lg shadow border border-gray-200 dark:border-gray-700 object-cover"
         />
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold text-primary truncate mb-1">{track.name}</h2>
-          <div className="text-neutral text-base truncate mb-1">{track.artists.map(a => a.name).join(", ")}</div>
-          <div className="text-neutral text-sm truncate">{track.album.name}</div>
+          <h2 className="text-3xl font-extrabold text-primary truncate mb-2 leading-tight">{track.name}</h2>
+          <div className="text-lg font-medium text-neutral truncate mb-1">{track.artists.map(a => a.name).join(", ")}</div>
+          <div className="text-base text-neutral-600 dark:text-neutral-300 truncate mb-2">{track.album.name}</div>
           <div className="text-xs text-neutral mt-2">Track ID: {track.id ?? '—'}</div>
           <div className="text-xs text-neutral">Playable: {track.is_playable ? 'Yes' : 'No'}</div>
           <div className="text-xs text-neutral">Type: {track.type} ({track.media_type})</div>
@@ -434,7 +434,7 @@ export default function NowPlayingPage() {
                 <ArrowPathIcon className="h-6 w-6 text-green-600" />
               )}
             </button>
-            <span className="font-semibold text-primary">Intro:</span>
+            <span className="font-semibold text-primary text-lg">Intro:</span>
             <div className="mt-2" aria-busy={introStatus === 'generating'}>
               {introStatus === 'generating' && (
                 <div className="flex items-center gap-2 text-green-600 mb-2">
@@ -442,7 +442,9 @@ export default function NowPlayingPage() {
                   <span>Generating intro…</span>
                 </div>
               )}
-              <MarkdownContent content={introScript.introText} />
+              <div className="prose prose-neutral dark:prose-invert max-w-none text-base leading-relaxed">
+                <MarkdownContent content={introScript.introText} />
+              </div>
               {/* Inline feedback messages */}
               {introSuccess && (
                 <div className="mt-3 text-green-600 text-sm" role="status">Intro updated!</div>

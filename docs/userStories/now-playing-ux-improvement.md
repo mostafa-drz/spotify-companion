@@ -72,8 +72,10 @@ This user story builds on the template selection feature described in [integrate
 - [x] Add loading spinners/progress indicators for intro generation and actions
     - Spinners are shown on the Regenerate button and in the intro area during generation
     - Spinners use theme-consistent green color and accessible markup
-- [ ] Implement toast notifications for success and error feedback
-- [ ] Update typography for track title, artist, and intro for better readability
+- [x] Implement inline feedback for success and error states
+    - All feedback is now shown inline, below the relevant section, using theme-consistent colors and accessible roles
+- [x] Update typography for track title, artist, and intro for better readability
+    - Track title, artist, album, and intro now use improved font sizes, weights, and spacing for better readability and hierarchy
 - [ ] Audit and improve color contrast, especially for dark mode
 - [ ] Add hover, focus, and transition effects to interactive elements
 - [ ] Test and optimize the layout for mobile and tablet devices
