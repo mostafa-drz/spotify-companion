@@ -72,7 +72,7 @@ export interface UserPromptSettings {
   templates: PromptTemplate[];
 }
 
-// Update TrackIntro to include prompt
+// Update TrackIntro to include template
 export interface TrackIntro {
   trackId: string;
   userId: string;
@@ -85,6 +85,8 @@ export interface TrackIntro {
   tone: string;
   length: number;
   prompt: string;
+  templateId?: string;  // ID of the template used to generate this intro
+  templateName?: string;  // Name of the template for display purposes
   createdAt?: string;
   updatedAt?: string;
 } 

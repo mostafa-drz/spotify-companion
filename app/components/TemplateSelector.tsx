@@ -8,9 +8,10 @@ import { getUserPromptTemplates } from '@/app/lib/firestore';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import toast from 'react-hot-toast';
 
-interface TemplateSelectorProps {
+export interface TemplateSelectorProps {
   onSelect: (template: PromptTemplate) => void;
   selectedTemplate?: PromptTemplate;
+  introCounts?: Record<string, number>;
   onCreateNew?: () => void;
   templates?: PromptTemplate[]; // Optional - if not provided, will fetch from DB
 }
@@ -18,6 +19,7 @@ interface TemplateSelectorProps {
 export default function TemplateSelector({
   onSelect,
   selectedTemplate,
+  introCounts = {},
   onCreateNew,
   templates: providedTemplates,
 }: TemplateSelectorProps) {
@@ -103,6 +105,11 @@ export default function TemplateSelector({
                     <>
                       <span className={`block truncate font-medium ${selected ? 'text-primary' : ''}`}>
                         {template.name}
+                        {introCounts[template.id] ? (
+                          <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                            ({introCounts[template.id]})
+                          </span>
+                        ) : null}
                       </span>
                       {template.prompt && (
                         <span className="block text-xs text-neutral mt-0.5 truncate">

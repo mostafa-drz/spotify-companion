@@ -10,7 +10,7 @@ import { MarkdownContent } from '@/app/components/MarkdownContent';
 import type { TrackIntro } from '@/app/types/Prompt';
 import TemplateSelector from '@/app/components/TemplateSelector';
 import type { PromptTemplate } from '@/app/types/Prompt';
-import { getDefaultPrompt, updateDefaultPrompt, getTrackIntro, saveTrackIntro } from '@/app/lib/firestore';
+import { getDefaultPrompt, updateDefaultPrompt, getTrackIntro, saveTrackIntro, getTrackIntros } from '@/app/lib/firestore';
 import { Switch } from '@headlessui/react';
 import { PlayIcon, ArrowPathIcon, PauseIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 
@@ -83,6 +83,8 @@ function DefaultPromptEditor({ userId }: { userId: string }) {
   );
 }
 
+type IntroStatus = 'idle' | 'generating' | 'ready' | 'error';
+
 export default function NowPlayingPage() {
   const { data: session, status } = useSession();
   const {
@@ -99,7 +101,7 @@ export default function NowPlayingPage() {
   const [transferring, setTransferring] = useState(false);
   const [transferError, setTransferError] = useState<string | null>(null);
   const [introsEnabled, setIntrosEnabled] = useState(true);
-  const [introStatus, setIntroStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
+  const [introStatus, setIntroStatus] = useState<IntroStatus>('idle');
   const [introScript, setIntroScript] = useState<TrackIntro | null>(null);
   const [introError, setIntroError] = useState<string | null>(null);
   const [introSuccess, setIntroSuccess] = useState(false);
@@ -107,7 +109,7 @@ export default function NowPlayingPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isIntroAudioPlaying, setIsIntroAudioPlaying] = useState(false);
   const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
-  const [defaultPrompt, setDefaultPrompt] = useState("");
+  const [trackIntros, setTrackIntros] = useState<TrackIntro[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | undefined>(undefined);
 
   // Fallback for duration if not in context
@@ -229,52 +231,87 @@ export default function NowPlayingPage() {
   useEffect(() => {
     if (!session?.user?.id) return;
     getDoc(doc(clientDb, "users", session.user.id)).then((snap) => {
-      setDefaultPrompt(snap.exists() ? snap.data().defaultTrackPrompt || "" : "");
+      // Remove unused defaultPrompt state and related code
+      // const [defaultPrompt, setDefaultPrompt] = useState(snap.exists() ? snap.data().defaultTrackPrompt || "" : "");
     });
   }, [session?.user?.id]);
 
-  // Add a handler for template selection
-  const handleTemplateSelect = (template: PromptTemplate) => {
-    setSelectedTemplate(template);
-    // If we have a current track, regenerate the intro with the new template
-    if (currentTrack?.id) {
-      handleRegenerateIntro(template);
+  // Effect: Load all intros for current track
+  useEffect(() => {
+    async function loadTrackIntros() {
+      if (!session?.user?.id || !currentTrack?.id) return;
+      
+      const intros = await getTrackIntros(session.user.id, currentTrack.id);
+      setTrackIntros(intros);
+      
+      // If we have a selected template, find its intro
+      if (selectedTemplate) {
+        const templateIntro = intros.find(intro => intro.templateId === selectedTemplate.id);
+        if (templateIntro) {
+          setIntroScript(templateIntro);
+          setIntroStatus('ready');
+        }
+      }
     }
-  };
 
-  // Modify the regenerate intro handler to accept a template
-  const handleRegenerateIntro = (template?: PromptTemplate) => {
-    if (!session?.user?.id || !currentTrack?.id) return;
-    setIntroStatus('generating');
-    setIntroScript(null);
-    setIntroError(null);
-    fetch('/api/intro', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        trackId: currentTrack.id,
-        track: {
-          ...currentTrack,
-          prompt: template?.prompt || defaultPrompt,
-        },
-        regenerate: true,
-      }),
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (res.ok && data.status === 'ready') {
+    if (currentTrack?.id && session?.user?.id) {
+      loadTrackIntros();
+    }
+  }, [currentTrack?.id, session?.user?.id, selectedTemplate]);
+
+  // Update template selection handler
+  const handleTemplateSelect = async (template: PromptTemplate) => {
+    if (!template) return;
+    
+    setSelectedTemplate(template);
+    
+    // Find existing intro for this template
+    const existingIntro = trackIntros.find(intro => intro.templateId === template.id);
+    
+    if (existingIntro) {
+      setIntroScript(existingIntro);
+      setIntroStatus('ready');
+    } else {
+      // Generate new intro with template
+      setIntroStatus('generating');
+      setIntroScript(null);
+      setIntroError(null);
+      setIntroSuccess(false);
+      
+      try {
+        const response = await fetch('/api/intro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            trackId: currentTrack?.id,
+            track: currentTrack,
+            templateId: template.id,
+            templateName: template.name,
+            language: 'en',
+            tone: 'conversational',
+            length: 60,
+            userAreaOfInterest: template.prompt
+          }),
+        });
+
+        const data = await response.json();
+        if (response.ok && data.status === 'ready') {
           setIntroScript(data.intro);
           setIntroStatus('ready');
-          lastTrackIdRef.current = currentTrack.id;
+          setIntroSuccess(true);
+          setTimeout(() => setIntroSuccess(false), 2000);
+          
+          // Update track intros list
+          setTrackIntros(prev => [...prev, data.intro]);
         } else {
           setIntroStatus('error');
           setIntroError(data.error || 'Failed to generate intro.');
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         setIntroStatus('error');
-        setIntroError(err?.message || 'Failed to generate intro.');
-      });
+        setIntroError(err instanceof Error ? err.message : 'Failed to generate intro.');
+      }
+    }
   };
 
   if (status === "loading") {
@@ -353,11 +390,17 @@ export default function NowPlayingPage() {
       <div className="mb-8">
         <DefaultPromptEditor userId={session.user.id} />
       </div>
-      {/* Template selector */}
+      {/* Template selector with intro count */}
       <div className="mb-8">
         <TemplateSelector
           onSelect={handleTemplateSelect}
           selectedTemplate={selectedTemplate}
+          introCounts={trackIntros.reduce((acc, intro) => {
+            if (intro.templateId) {
+              acc[intro.templateId] = (acc[intro.templateId] || 0) + 1;
+            }
+            return acc;
+          }, {} as Record<string, number>)}
         />
       </div>
       {/* Intros toggle */}
@@ -428,8 +471,8 @@ export default function NowPlayingPage() {
               title="Regenerate Intro"
               tabIndex={0}
               className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 flex items-center justify-center transition-colors duration-200"
-              onClick={() => handleRegenerateIntro(selectedTemplate || undefined)}
-              disabled={introStatus === 'generating' || !currentTrack || (!selectedTemplate && !defaultPrompt)}
+              onClick={() => selectedTemplate && handleTemplateSelect(selectedTemplate)}
+              disabled={introStatus === 'generating' || !currentTrack}
             >
               {introStatus === 'generating' ? (
                 <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />

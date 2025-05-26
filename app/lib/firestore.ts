@@ -1,5 +1,5 @@
 import { clientDb } from '@/app/lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import type { PromptTemplate, TrackIntro, UserPromptSettings } from '@/app/types/Prompt';
 import { User } from '@/app/types/User';
 
@@ -8,6 +8,7 @@ interface IntroCacheParams {
   tone: string;
   length: string;
   prompt: string;
+  templateId?: string;
 }
 
 export async function getCachedIntro(
@@ -22,12 +23,13 @@ export async function getCachedIntro(
     
     const data = document.data() as TrackIntro;
     
-    // Check if cached intro matches all parameters
+    // Check if cached intro matches all parameters including template
     if (
       data.language === params.language &&
       data.tone === params.tone &&
       data.length === parseInt(params.length) &&
-      data.prompt === params.prompt
+      data.prompt === params.prompt &&
+      data.templateId === params.templateId
     ) {
       return data;
     }
@@ -46,6 +48,19 @@ export async function saveIntroToFirestore(intro: TrackIntro): Promise<void> {
   } catch (error) {
     console.error('Error saving intro to Firestore:', error);
     throw error;
+  }
+}
+
+export async function getTrackIntros(userId: string, trackId: string): Promise<TrackIntro[]> {
+  try {
+    const introsRef = collection(clientDb, 'users', userId, 'trackIntros');
+    const q = query(introsRef, where('trackId', '==', trackId));
+    const querySnapshot = await getDocs(q);
+    
+    return querySnapshot.docs.map(doc => doc.data() as TrackIntro);
+  } catch (error) {
+    console.error('Error getting track intros:', error);
+    return [];
   }
 }
 
