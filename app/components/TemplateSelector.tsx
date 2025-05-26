@@ -69,7 +69,9 @@ export default function TemplateSelector({
 
   return (
     <div className="w-full max-w-md">
-      <Listbox.Label className="block text-sm font-medium text-foreground mb-1">Select Template</Listbox.Label>
+      <label className="block text-sm font-medium text-foreground mb-1" id="template-label">
+        Select Template
+      </label>
       <div className="flex items-start gap-2">
         <div className="flex-1">
           <Listbox
@@ -79,8 +81,11 @@ export default function TemplateSelector({
               if (template) onSelect(template);
             }}
           >
+            <Listbox.Label className="sr-only" id="template-label">
+              Select Template
+            </Listbox.Label>
             <div className="relative">
-              <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm">
+              <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm" aria-labelledby="template-label">
                 <span className="block truncate">
                   {selectedTemplate?.name || 'Default Template'}
                 </span>

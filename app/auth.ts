@@ -28,9 +28,6 @@ declare module "next-auth/jwt" {
 
 const scope = [
   "user-read-email",
-  "user-read-private",
-  "playlist-read-private",
-  "playlist-read-collaborative",
   "streaming",
   "user-modify-playback-state",
   "user-read-playback-state"
