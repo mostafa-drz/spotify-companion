@@ -348,7 +348,7 @@ export default function NowPlayingPage() {
   const track = currentTrack as SpotifyTrack;
 
   return (
-    <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818]">
+    <div className="max-w-xl mx-auto mt-12 p-4 sm:p-6 rounded-lg shadow bg-white dark:bg-[#181818]">
       {/* Default Prompt Section */}
       <div className="mb-8">
         <DefaultPromptEditor userId={session.user.id} />
@@ -366,35 +366,37 @@ export default function NowPlayingPage() {
           <Switch
             checked={introsEnabled}
             onChange={setIntrosEnabled}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
+            aria-label="Enable AI Intros for Now Playing"
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary ${
               introsEnabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-700'
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 shadow ${
                 introsEnabled ? 'translate-x-5' : 'translate-x-1'
               }`}
+              aria-hidden="true"
             />
           </Switch>
-          <Switch.Label className="ml-4 text-base font-medium text-foreground cursor-pointer">
+          <Switch.Label className="ml-4 text-base font-medium text-foreground cursor-pointer select-none transition-colors duration-200">
             Enable AI Intros for Now Playing
           </Switch.Label>
         </Switch.Group>
       </div>
       {/* Track Info Section */}
-      <div className="flex items-center gap-6 mb-8">
+      <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
         <img
           src={track.album.images[0]?.url || "/track-placeholder.png"}
           alt={track.album.name}
-          className="w-28 h-28 rounded-lg shadow border border-gray-200 dark:border-gray-700 object-cover"
+          className="w-24 h-24 sm:w-28 sm:h-28 rounded-lg shadow border border-gray-200 dark:border-gray-700 object-cover mb-4 sm:mb-0"
         />
-        <div className="flex-1 min-w-0">
-          <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 truncate mb-2 leading-tight">{track.name}</h2>
-          <div className="text-lg font-medium text-neutral-800 dark:text-neutral-200 truncate mb-1">{track.artists.map(a => a.name).join(", ")}</div>
-          <div className="text-base text-neutral-700 dark:text-neutral-300 truncate mb-2">{track.album.name}</div>
-          <div className="text-xs text-neutral-700 dark:text-neutral-300 mt-2">Track ID: {track.id ?? '—'}</div>
-          <div className="text-xs text-neutral-700 dark:text-neutral-300">Playable: {track.is_playable ? 'Yes' : 'No'}</div>
-          <div className="text-xs text-neutral-700 dark:text-neutral-300">Type: {track.type} ({track.media_type})</div>
+        <div className="flex-1 min-w-0 text-center sm:text-left">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 mb-2 leading-tight whitespace-normal break-words">{track.name}</h2>
+          <div className="text-base sm:text-lg font-medium text-neutral-800 dark:text-neutral-200 mb-1 whitespace-normal break-words">{track.artists.map(a => a.name).join(", ")}</div>
+          <div className="text-sm sm:text-base text-neutral-700 dark:text-neutral-300 mb-2 whitespace-normal break-words">{track.album.name}</div>
+          <div className="text-xs text-neutral-700 dark:text-neutral-300 mt-2 break-words">Track ID: {track.id ?? '—'}</div>
+          <div className="text-xs text-neutral-700 dark:text-neutral-300 break-words">Playable: {track.is_playable ? 'Yes' : 'No'}</div>
+          <div className="text-xs text-neutral-700 dark:text-neutral-300 break-words">Type: {track.type} ({track.media_type})</div>
         </div>
       </div>
       {/* Progress Bar Section */}
@@ -411,20 +413,21 @@ export default function NowPlayingPage() {
         </div>
       </div>
       {/* Playback Status */}
-      <div className="mt-4 mb-8 flex items-center gap-4">
+      <div className="mt-4 mb-8 flex items-center gap-4 justify-center sm:justify-start">
         <span className={`text-sm font-medium ${isPlaying ? 'text-primary' : 'text-neutral'}`}>{isPlaying ? 'Playing' : 'Paused'}</span>
       </div>
       {/* Intro script status and display */}
       <div className="mb-8">
         {introStatus === 'generating' && <div className="text-neutral">Generating intro...</div>}
         {introStatus === 'ready' && introScript && (
-          <div className="bg-gray-100 dark:bg-gray-900 rounded p-4 text-neutral-900 dark:text-neutral-100 text-base shadow-inner relative">
+          <div className="bg-gray-100 dark:bg-gray-900 rounded p-3 sm:p-4 text-neutral-900 dark:text-neutral-100 text-base shadow-inner relative">
             {/* Regenerate Intro Button (top right) */}
             <button
               type="button"
               aria-label="Regenerate Intro"
               title="Regenerate Intro"
-              className="absolute top-4 right-4 p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 flex items-center justify-center"
+              tabIndex={0}
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 flex items-center justify-center transition-colors duration-200"
               onClick={() => handleRegenerateIntro(selectedTemplate || undefined)}
               disabled={introStatus === 'generating' || !currentTrack || (!selectedTemplate && !defaultPrompt)}
             >
@@ -472,42 +475,46 @@ export default function NowPlayingPage() {
                   </span>
                 </div>
                 {/* Custom Controls Row */}
-                <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700 mt-1">
-                  <button
-                    type="button"
-                    aria-label="Play"
-                    title="Play"
-                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
-                    onClick={() => audioRef.current?.play()}
-                    disabled={isIntroAudioPlaying}
-                  >
-                    <PlayIcon className="h-6 w-6 text-green-600" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Replay Audio"
-                    title="Replay Audio"
-                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500"
-                    onClick={() => {
-                      if (audioRef.current) {
-                        audioRef.current.currentTime = 0;
-                        audioRef.current.play();
-                      }
-                    }}
-                  >
-                    <ArrowUturnLeftIcon className="h-6 w-6 text-green-600" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Pause"
-                    title="Pause"
-                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
-                    onClick={() => audioRef.current?.pause()}
-                    disabled={!isIntroAudioPlaying}
-                  >
-                    <PauseIcon className="h-6 w-6 text-green-600" />
-                  </button>
-                  <div className="flex-1" />
+                <div className="flex flex-col sm:flex-row items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 sm:px-3 py-2 border border-gray-200 dark:border-gray-700 mt-1">
+                  <div className="flex items-center gap-3 mb-2 sm:mb-0">
+                    <button
+                      type="button"
+                      aria-label="Play"
+                      title="Play"
+                      tabIndex={0}
+                      className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
+                      onClick={() => audioRef.current?.play()}
+                      disabled={isIntroAudioPlaying}
+                    >
+                      <PlayIcon className="h-6 w-6 text-green-600" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Replay Audio"
+                      title="Replay Audio"
+                      tabIndex={0}
+                      className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
+                      onClick={() => {
+                        if (audioRef.current) {
+                          audioRef.current.currentTime = 0;
+                          audioRef.current.play();
+                        }
+                      }}
+                    >
+                      <ArrowUturnLeftIcon className="h-6 w-6 text-green-600" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Pause"
+                      title="Pause"
+                      tabIndex={0}
+                      className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
+                      onClick={() => audioRef.current?.pause()}
+                      disabled={!isIntroAudioPlaying}
+                    >
+                      <PauseIcon className="h-6 w-6 text-green-600" />
+                    </button>
+                  </div>
                 </div>
                 {/* Hidden audio element for playback logic */}
                 <audio

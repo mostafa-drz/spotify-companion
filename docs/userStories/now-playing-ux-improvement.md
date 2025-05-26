@@ -78,9 +78,12 @@ This user story builds on the template selection feature described in [integrate
     - Track title, artist, album, and intro now use improved font sizes, weights, and spacing for better readability and hierarchy
 - [x] Audit and improve color contrast, especially for dark mode
     - All text and UI elements now use accessible, high-contrast colors for both light and dark mode, ensuring readability and WCAG compliance
-- [ ] Add hover, focus, and transition effects to interactive elements
-- [ ] Test and optimize the layout for mobile and tablet devices
-- [ ] Ensure all controls are keyboard accessible and have ARIA labels
+- [x] Add hover, focus, and transition effects to interactive elements
+    - All interactive elements now have clear, accessible hover, focus, and transition effects in both light and dark mode
+- [x] Test and optimize the layout for mobile and tablet devices
+    - Layout, spacing, and controls are now responsive and touch-friendly on all devices
+- [x] Ensure all controls are keyboard accessible and have ARIA labels
+    - All controls are now fully keyboard accessible and have appropriate ARIA labels for screen readers
 
 ---
 
