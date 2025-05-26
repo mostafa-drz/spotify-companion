@@ -2,11 +2,12 @@
 
 import { Fragment, useState, useEffect } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { CheckIcon, ChevronUpDownIcon, Cog6ToothIcon } from '@heroicons/react/20/solid';
 import { useSession } from 'next-auth/react';
 import { getUserPromptTemplates } from '@/app/lib/firestore';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import toast from 'react-hot-toast';
+import TemplateManagementModal from './TemplateManagementModal';
 
 export interface TemplateSelectorProps {
   onSelect: (template: PromptTemplate) => void;
@@ -27,6 +28,7 @@ export default function TemplateSelector({
   const [templates, setTemplates] = useState<PromptTemplate[]>(providedTemplates || []);
   const [loading, setLoading] = useState(!providedTemplates);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadTemplates() {
@@ -35,8 +37,8 @@ export default function TemplateSelector({
         setLoading(true);
         const userTemplates = await getUserPromptTemplates(session.user.id);
         setTemplates(userTemplates);
-      } catch (err) {
-        console.error('Failed to load templates:', err);
+      } catch {
+        console.error('Failed to load templates:');
         setError('Failed to load templates');
         toast.error('Failed to load templates');
       } finally {
@@ -67,83 +69,119 @@ export default function TemplateSelector({
 
   return (
     <div className="w-full max-w-md">
-      <Listbox
-        value={selectedTemplate?.id || ''}
-        onChange={id => {
-          const template = allTemplates.find(t => t.id === id);
-          if (template) onSelect(template);
-        }}
-      >
-        <Listbox.Label className="block text-sm font-medium text-foreground mb-1">Select Template</Listbox.Label>
-        <div className="relative">
-          <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm">
-            <span className="block truncate">
-              {selectedTemplate?.name || 'Default Template'}
-            </span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </span>
-          </Listbox.Button>
-          <Transition
-            as={Fragment}
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
+      <Listbox.Label className="block text-sm font-medium text-foreground mb-1">Select Template</Listbox.Label>
+      <div className="flex items-start gap-2">
+        <div className="flex-1">
+          <Listbox
+            value={selectedTemplate?.id || ''}
+            onChange={id => {
+              const template = allTemplates.find(t => t.id === id);
+              if (template) onSelect(template);
+            }}
           >
-            <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {allTemplates.map((template) => (
-                <Listbox.Option
-                  key={template.id || 'default'}
-                  className={({ active }) =>
-                    `relative cursor-pointer select-none py-2 pl-10 pr-4 transition-colors ${
-                      active ? 'bg-primary/10 text-primary' : 'text-foreground'
-                    }`
-                  }
-                  value={template.id}
-                >
-                  {({ selected }) => (
-                    <>
-                      <span className={`block truncate font-medium ${selected ? 'text-primary' : ''} flex items-center`}>
-                        {template.name}
-                        {introCounts[template.id] ? (
-                          <span className="ml-2 inline-block align-middle">
-                            <span className="h-2 w-2 rounded-full bg-green-500 inline-block" title="Intro available" />
+            <div className="relative">
+              <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm">
+                <span className="block truncate">
+                  {selectedTemplate?.name || 'Default Template'}
+                </span>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                </span>
+              </Listbox.Button>
+              <Transition
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  {allTemplates.map((template) => (
+                    <Listbox.Option
+                      key={template.id || 'default'}
+                      className={({ active }) =>
+                        `relative cursor-pointer select-none py-2 pl-10 pr-4 transition-colors ${
+                          active ? 'bg-primary/10 text-primary' : 'text-foreground'
+                        }`
+                      }
+                      value={template.id}
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span className={`block truncate font-medium ${selected ? 'text-primary' : ''} flex items-center`}>
+                            {template.name}
+                            {introCounts[template.id] ? (
+                              <span className="ml-2 inline-block align-middle">
+                                <span className="h-2 w-2 rounded-full bg-green-500 inline-block" title="Intro available" />
+                              </span>
+                            ) : null}
                           </span>
-                        ) : null}
-                      </span>
-                      {template.prompt && (
-                        <span className="block text-xs text-neutral mt-0.5 truncate">
-                          {template.prompt.length > 80
-                            ? template.prompt.slice(0, 80) + '...'
-                            : template.prompt}
-                        </span>
+                          {template.prompt && (
+                            <span className="block text-xs text-neutral mt-0.5 truncate">
+                              {template.prompt.length > 80
+                                ? template.prompt.slice(0, 80) + '...'
+                                : template.prompt}
+                            </span>
+                          )}
+                          {selected ? (
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary">
+                              <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                            </span>
+                          ) : null}
+                        </>
                       )}
-                      {selected ? (
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary">
-                          <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                        </span>
-                      ) : null}
-                    </>
+                    </Listbox.Option>
+                  ))}
+                  {onCreateNew && (
+                    <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
                   )}
-                </Listbox.Option>
-              ))}
-              {onCreateNew && (
-                <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
-              )}
-              {onCreateNew && (
-                <Listbox.Option
-                  key="create-new"
-                  value="__create_new__"
-                  disabled
-                  className="relative cursor-pointer select-none py-2 pl-10 pr-4 text-primary/80 hover:text-primary/100"
-                >
-                  <span className="block font-medium">+ Create New Template</span>
-                </Listbox.Option>
-              )}
-            </Listbox.Options>
-          </Transition>
+                  {onCreateNew && (
+                    <Listbox.Option
+                      key="create-new"
+                      value="__create_new__"
+                      disabled
+                      className="relative cursor-pointer select-none py-2 pl-10 pr-4 text-primary/80 hover:text-primary/100"
+                    >
+                      <span className="block font-medium">+ Create New Template</span>
+                    </Listbox.Option>
+                  )}
+                </Listbox.Options>
+              </Transition>
+            </div>
+          </Listbox>
         </div>
-      </Listbox>
+        <button
+          type="button"
+          aria-label="Manage templates"
+          title="Manage templates"
+          className="ml-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary transition-colors duration-200 h-[42px] mt-0.5"
+          tabIndex={0}
+          onClick={() => setIsModalOpen(true)}
+          style={{ alignSelf: 'flex-start' }}
+        >
+          <Cog6ToothIcon className="w-5 h-5" aria-hidden="true" />
+          <span className="font-medium text-sm">Manage Templates</span>
+        </button>
+      </div>
+      {isModalOpen && session?.user?.id && (
+        <TemplateManagementModal
+          templates={templates}
+          onClose={() => setIsModalOpen(false)}
+          userId={session.user.id}
+          onTemplatesChange={async () => {
+            setLoading(true);
+            try {
+              const userTemplates = await getUserPromptTemplates(session.user.id);
+              setTemplates(userTemplates);
+            } catch {
+              setError('Failed to load templates');
+              toast.error('Failed to load templates');
+            } finally {
+              setLoading(false);
+            }
+          }}
+          selectedTemplateId={selectedTemplate?.id}
+        />
+      )}
     </div>
   );
 } 
