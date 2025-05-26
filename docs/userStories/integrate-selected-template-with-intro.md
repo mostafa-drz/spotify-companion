@@ -12,22 +12,22 @@ As a user, I want to select and apply different intro templates while listening 
 6. User can quickly switch between templates without leaving the Now Playing page
 
 ## Technical Implementation
-- Integrate template selection UI with Now Playing page
-- Modify intro generation to use selected template
-- Add template switching functionality
-- Implement template persistence
-- Add loading states and error handling
-- Ensure real-time updates
+- ✅ Integrate template selection UI with Now Playing page
+- ✅ Modify intro generation to use selected template
+- ✅ Add template switching functionality
+- ✅ Implement template persistence
+- ✅ Add loading states and error handling
+- ✅ Ensure real-time updates
 
 ## Acceptance Criteria
-- [ ] Template selector is visible on Now Playing page
-- [ ] User can select from available templates
-- [ ] Selected template is used for intro generation
-- [ ] Template selection persists across sessions
-- [ ] Intro regenerates when template changes
-- [ ] Loading states show during regeneration
-- [ ] Error handling for failed template application
-- [ ] Clear feedback when template is changed
+- [x] Template selector is visible on Now Playing page
+- [x] User can select from available templates
+- [x] Selected template is used for intro generation
+- [x] Template selection persists across sessions
+- [x] Intro regenerates when template changes
+- [x] Loading states show during regeneration
+- [x] Error handling for failed template application
+- [x] Clear feedback when template is changed
 
 ## Success Metrics
 - Template switching frequency
@@ -37,47 +37,47 @@ As a user, I want to select and apply different intro templates while listening 
 
 ## Implementation Plan
 
-### Phase 1: Analysis & Design
-- [ ] Review current Now Playing page implementation
-  - [ ] Analyze intro generation flow
-  - [ ] Identify integration points
-  - [ ] Document state management
-- [ ] Review template system implementation
-  - [ ] Analyze template data structure
-  - [ ] Review template selection logic
-  - [ ] Document template persistence
-- [ ] Design template selector UI
-  - [ ] Create mockups
-  - [ ] Define component structure
-  - [ ] Plan state management
+### Phase 1: Analysis & Design ✅
+- [x] Review current Now Playing page implementation
+  - [x] Analyze intro generation flow
+  - [x] Identify integration points
+  - [x] Document state management
+- [x] Review template system implementation
+  - [x] Analyze template data structure
+  - [x] Review template selection logic
+  - [x] Document template persistence
+- [x] Design template selector UI
+  - [x] Create mockups
+  - [x] Define component structure
+  - [x] Plan state management
 
-### Phase 2: Core Integration
-- [ ] Add template selector component
-  - [ ] Create dropdown interface
-  - [ ] Add template list loading
-  - [ ] Implement selection handling
-- [ ] Modify intro generation
-  - [ ] Update intro generation to use selected template
-  - [ ] Add template switching logic
-  - [ ] Implement regeneration flow
-- [ ] Add template persistence
-  - [ ] Store selected template in user preferences
-  - [ ] Load saved template on page load
-  - [ ] Handle template updates
+### Phase 2: Core Integration ✅
+- [x] Add template selector component
+  - [x] Create dropdown interface
+  - [x] Add template list loading
+  - [x] Implement selection handling
+- [x] Modify intro generation
+  - [x] Update intro generation to use selected template
+  - [x] Add template switching logic
+  - [x] Implement regeneration flow
+- [x] Add template persistence
+  - [x] Store selected template in user preferences
+  - [x] Load saved template on page load
+  - [x] Handle template updates
 
-### Phase 3: UI/UX Enhancement
-- [ ] Add loading states
-  - [ ] Show loading during template switch
-  - [ ] Add regeneration progress indicator
-  - [ ] Implement smooth transitions
-- [ ] Add error handling
-  - [ ] Handle template loading errors
-  - [ ] Handle regeneration failures
-  - [ ] Add retry mechanisms
-- [ ] Improve user feedback
-  - [ ] Add success/error notifications
-  - [ ] Show current template status
-  - [ ] Add template preview
+### Phase 3: UI/UX Enhancement ✅
+- [x] Add loading states
+  - [x] Show loading during template switch
+  - [x] Add regeneration progress indicator
+  - [x] Implement smooth transitions
+- [x] Add error handling
+  - [x] Handle template loading errors
+  - [x] Handle regeneration failures
+  - [x] Add retry mechanisms
+- [x] Improve user feedback
+  - [x] Add success/error notifications
+  - [x] Show current template status
+  - [x] Add template preview
 
 ### Phase 4: Testing & Polish
 - [ ] Add unit tests
@@ -148,6 +148,25 @@ const TemplateSelector = () => {
 };
 ```
 
+## Implementation Details
+1. **Template Selector Component**
+   - Consolidated `TemplateSelector` and `NowPlayingTemplateSelector` into a single component
+   - Added support for both dropdown and select variants
+   - Implemented loading and error states
+   - Added template fetching from Firestore
+
+2. **Database Operations**
+   - Moved all Firestore operations to `firestore.ts`
+   - Added functions for managing track intros
+   - Added functions for managing default prompts
+   - Improved error handling and type safety
+
+3. **State Management**
+   - Added template selection state to Now Playing page
+   - Implemented template switching with intro regeneration
+   - Added proper loading and error states
+   - Ensured type safety throughout
+
 ## Notes
 - Consider caching generated intros per template
 - Add analytics for template usage
@@ -155,23 +174,11 @@ const TemplateSelector = () => {
 - Plan for template versioning
 - Consider adding template categories
 
+## Next Steps
+1. Implement unit tests for template selection
+2. Add integration tests for the full flow
+3. Polish UI/UX with animations and accessibility improvements
+4. Add analytics tracking for template usage
+
 ## Spikes
-1. Review current intro generation flow in `app/playing/page.tsx`
-   - How is the default prompt currently used?
-   - Where is the intro generation triggered?
-   - How is the intro state managed?
-
-2. Analyze template system in `app/templates/page.tsx`
-   - How are templates loaded and managed?
-   - What is the template selection flow?
-   - How is template persistence handled?
-
-3. Review Firestore schema
-   - How are templates stored?
-   - How are user preferences stored?
-   - What changes are needed for template selection?
-
-4. Investigate state management
-   - How is the Now Playing state managed?
-   - How can template selection be integrated?
-   - What changes are needed for real-time updates?
+1. Review current intro generation flow in `

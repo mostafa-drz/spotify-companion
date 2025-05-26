@@ -5,9 +5,12 @@ import { useSpotifyPlayer } from "@/app/contexts/SpotifyPlayerContext";
 import { useState, useEffect, useRef } from "react";
 import type { SpotifyTrack } from "@/app/types/Spotify";
 import { clientDb } from "@/app/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { MarkdownContent } from '@/app/components/MarkdownContent';
 import type { TrackIntro } from '@/app/types/Prompt';
+import TemplateSelector from '@/app/components/TemplateSelector';
+import type { PromptTemplate } from '@/app/types/Prompt';
+import { getDefaultPrompt, updateDefaultPrompt, getTrackIntro, saveTrackIntro } from '@/app/lib/firestore';
 
 declare global {
   interface Window {
@@ -28,10 +31,13 @@ function DefaultPromptEditor({ userId }: { userId: string }) {
   useEffect(() => {
     if (!userId) return;
     setLoading(true);
-    getDoc(doc(clientDb, "users", userId)).then((snap) => {
-      setPrompt(snap.exists() ? snap.data().defaultTrackPrompt || "" : "");
-      setLoading(false);
-    });
+    getDefaultPrompt(userId)
+      .then(setPrompt)
+      .catch(err => {
+        console.error(err);
+        setError("Failed to load prompt");
+      })
+      .finally(() => setLoading(false));
   }, [userId]);
 
   const handleSave = async () => {
@@ -39,7 +45,7 @@ function DefaultPromptEditor({ userId }: { userId: string }) {
     setError(null);
     setSuccess(false);
     try {
-      await setDoc(doc(clientDb, "users", userId), { defaultTrackPrompt: prompt }, { merge: true });
+      await updateDefaultPrompt(userId, prompt);
       setSuccess(true);
     } catch (e) {
       console.error(e);
@@ -99,6 +105,7 @@ export default function NowPlayingPage() {
   const [isIntroAudioPlaying, setIsIntroAudioPlaying] = useState(false);
   const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
   const [defaultPrompt, setDefaultPrompt] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | undefined>(undefined);
 
   // Fallback for duration if not in context
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -111,8 +118,7 @@ export default function NowPlayingPage() {
 
     async function getIntroFromDb() {
       if (!userId || !track?.id) return null;
-      const introDoc = await getDoc(doc(clientDb, 'users', userId, 'trackIntros', track.id));
-      return introDoc.exists() ? introDoc.data() as TrackIntro : null;
+      return await getTrackIntro(userId, track.id);
     }
 
     function generateIntro() {
@@ -142,6 +148,10 @@ export default function NowPlayingPage() {
             setIntroScript(data.intro);
             setIntroStatus('ready');
             lastTrackIdRef.current = track.id;
+            // Save the intro to Firestore
+            if (userId && track.id) {
+              await saveTrackIntro(userId, track.id, data.intro);
+            }
           } else {
             setIntroStatus('error');
             setIntroError(data.error || 'Failed to generate intro.');
@@ -217,9 +227,18 @@ export default function NowPlayingPage() {
     });
   }, [session?.user?.id]);
 
-  // Add a handler to regenerate the intro using the current prompt
-  const handleRegenerateIntro = () => {
-    if (!session?.user?.id || !currentTrack?.id || !defaultPrompt) return;
+  // Add a handler for template selection
+  const handleTemplateSelect = (template: PromptTemplate) => {
+    setSelectedTemplate(template);
+    // If we have a current track, regenerate the intro with the new template
+    if (currentTrack?.id) {
+      handleRegenerateIntro(template);
+    }
+  };
+
+  // Modify the regenerate intro handler to accept a template
+  const handleRegenerateIntro = (template?: PromptTemplate) => {
+    if (!session?.user?.id || !currentTrack?.id) return;
     setIntroStatus('generating');
     setIntroScript(null);
     setIntroError(null);
@@ -230,7 +249,7 @@ export default function NowPlayingPage() {
         trackId: currentTrack.id,
         track: {
           ...currentTrack,
-          prompt: defaultPrompt,
+          prompt: template?.prompt || defaultPrompt,
         },
         regenerate: true,
       }),
@@ -325,6 +344,14 @@ export default function NowPlayingPage() {
   return (
     <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818]">
       <DefaultPromptEditor userId={session.user.id} />
+      {/* Template selector */}
+      <div className="mb-6">
+        <TemplateSelector
+          onSelect={handleTemplateSelect}
+          selectedTemplate={selectedTemplate}
+          variant="select"
+        />
+      </div>
       {/* Intros toggle */}
       <div className="flex items-center gap-3 mb-6">
         <label className="flex items-center cursor-pointer gap-2">
@@ -425,8 +452,8 @@ export default function NowPlayingPage() {
         )}
         <button
           className="btn btn-primary mt-4"
-          onClick={handleRegenerateIntro}
-          disabled={introStatus === 'generating' || !currentTrack || !defaultPrompt}
+          onClick={() => handleRegenerateIntro(selectedTemplate || undefined)}
+          disabled={introStatus === 'generating' || !currentTrack || (!selectedTemplate && !defaultPrompt)}
         >
           {introStatus === 'generating' ? 'Regenerating…' : 'Regenerate Intro'}
         </button>

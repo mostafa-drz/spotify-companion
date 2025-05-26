@@ -94,3 +94,25 @@ export async function deleteUserPromptTemplate(userId: string, templateId: strin
   userData.templates = userData.templates.filter(t => t.id !== templateId);
   await setDoc(docRef, userData);
 }
+
+export async function getDefaultPrompt(userId: string): Promise<string> {
+  const docRef = doc(clientDb, 'users', userId);
+  const document = await getDoc(docRef);
+  return document.exists() ? document.data().defaultTrackPrompt || "" : "";
+}
+
+export async function updateDefaultPrompt(userId: string, prompt: string): Promise<void> {
+  const docRef = doc(clientDb, 'users', userId);
+  await setDoc(docRef, { defaultTrackPrompt: prompt }, { merge: true });
+}
+
+export async function getTrackIntro(userId: string, trackId: string): Promise<TrackIntro | null> {
+  const docRef = doc(clientDb, 'users', userId, 'trackIntros', trackId);
+  const document = await getDoc(docRef);
+  return document.exists() ? document.data() as TrackIntro : null;
+}
+
+export async function saveTrackIntro(userId: string, trackId: string, intro: TrackIntro): Promise<void> {
+  const docRef = doc(clientDb, 'users', userId, 'trackIntros', trackId);
+  await setDoc(docRef, intro, { merge: true });
+}

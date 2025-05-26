@@ -1,23 +1,97 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon, PlusIcon } from '@heroicons/react/20/solid';
+import { useSession } from 'next-auth/react';
+import { getUserPromptTemplates } from '@/app/lib/firestore';
 import type { PromptTemplate } from '@/app/types/Prompt';
+import toast from 'react-hot-toast';
 
 interface TemplateSelectorProps {
   onSelect: (template: PromptTemplate) => void;
   selectedTemplate?: PromptTemplate;
   onCreateNew?: () => void;
-  templates: PromptTemplate[];
+  templates?: PromptTemplate[]; // Optional - if not provided, will fetch from DB
+  variant?: 'dropdown' | 'select'; // New prop to control UI variant
 }
 
 export default function TemplateSelector({
   onSelect,
   selectedTemplate,
   onCreateNew,
-  templates
+  templates: providedTemplates,
+  variant = 'dropdown'
 }: TemplateSelectorProps) {
+  const { data: session } = useSession();
+  const [templates, setTemplates] = useState<PromptTemplate[]>(providedTemplates || []);
+  const [loading, setLoading] = useState(!providedTemplates);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadTemplates() {
+      if (providedTemplates || !session?.user?.id) return;
+      
+      try {
+        setLoading(true);
+        const userTemplates = await getUserPromptTemplates(session.user.id);
+        setTemplates(userTemplates);
+      } catch (err) {
+        console.error('Failed to load templates:', err);
+        setError('Failed to load templates');
+        toast.error('Failed to load templates');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadTemplates();
+  }, [session?.user?.id, providedTemplates]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 text-neutral">
+        <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+        <span>Loading templates...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-semantic-error">
+        {error}
+      </div>
+    );
+  }
+
+  if (variant === 'select') {
+    return (
+      <div className="flex flex-col gap-2">
+        <label htmlFor="template-select" className="text-sm font-medium text-foreground">
+          Select Template
+        </label>
+        <select
+          id="template-select"
+          value={selectedTemplate?.id || ''}
+          onChange={(e) => {
+            const template = templates.find(t => t.id === e.target.value);
+            if (template) {
+              onSelect(template);
+            }
+          }}
+          className="form-select block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-foreground"
+        >
+          <option value="">Default Template</option>
+          {templates.map((template) => (
+            <option key={template.id} value={template.id}>
+              {template.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
 
   return (
     <Menu as="div" className="relative inline-block text-left">
