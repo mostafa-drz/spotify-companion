@@ -34,7 +34,6 @@ export async function generateIntro(
   tone: string = 'neutral',
   length: string = 'medium'
 ): Promise<TrackIntro> {
-  console.log('Generating intro for track:', trackMetadata);
   try {
     // Check if we have a cached intro that matches all parameters
     const cachedIntro = await getCachedIntro(trackMetadata.id, {
@@ -45,7 +44,6 @@ export async function generateIntro(
     });
 
     if (cachedIntro) {
-      console.log('Using cached intro for track:', trackMetadata.id);
       return cachedIntro;
     }
 

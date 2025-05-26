@@ -103,11 +103,11 @@ export default function TemplateSelector({
                 >
                   {({ selected }) => (
                     <>
-                      <span className={`block truncate font-medium ${selected ? 'text-primary' : ''}`}>
+                      <span className={`block truncate font-medium ${selected ? 'text-primary' : ''} flex items-center`}>
                         {template.name}
                         {introCounts[template.id] ? (
-                          <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                            ({introCounts[template.id]})
+                          <span className="ml-2 inline-block align-middle">
+                            <span className="h-2 w-2 rounded-full bg-green-500 inline-block" title="Intro available" />
                           </span>
                         ) : null}
                       </span>

@@ -5,7 +5,6 @@ import { generateTTSAudio } from '@/app/lib/tts-service';
 import { adminDb } from '@/app/lib/firebase-admin';
 import { SpotifyTrack } from '@/app/types/Spotify';
 import { TrackMetadata } from '@/app/types/Track';
-import { getTrackIntros } from '@/app/lib/firestore';
 
 interface RequestBody {
   trackId: string;
@@ -17,6 +16,11 @@ interface RequestBody {
   userAreaOfInterest?: string;
   templateId?: string;
   templateName?: string;
+}
+
+// Helper to generate composite doc ID
+function getIntroDocId(trackId: string, templateId: string) {
+  return `${trackId}_${templateId}`;
 }
 
 export async function POST(request: Request) {
@@ -34,15 +38,22 @@ export async function POST(request: Request) {
       templateName
     } = (await request.json()) as RequestBody;
 
+    if (!templateId) {
+      return NextResponse.json({
+        status: 'error',
+        error: 'templateId is required',
+      }, { status: 400 });
+    }
+
     // Check if intro already exists for this template, unless regenerating
     if (!regenerate && templateId) {
-      const existingIntros = await getTrackIntros(userId, trackId);
-      const existingIntro = existingIntros.find(intro => intro.templateId === templateId);
-      
-      if (existingIntro) {
+      const docId = getIntroDocId(trackId, templateId);
+      const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(docId);
+      const existingDoc = await introRef.get();
+      if (existingDoc.exists) {
         return NextResponse.json({
           status: 'ready',
-          intro: existingIntro,
+          intro: existingDoc.data(),
         });
       }
     }
@@ -80,7 +91,8 @@ export async function POST(request: Request) {
       updatedAt: new Date().toISOString(),
     };
 
-    const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(trackId);
+    const docId = getIntroDocId(trackId, templateId);
+    const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(docId);
     await introRef.set(intro);
 
     return NextResponse.json({

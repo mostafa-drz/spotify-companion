@@ -24,7 +24,6 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
     const unsubscribe = clientAuth.onAuthStateChanged(
       (user) => {
         if (user) {
-          console.log('Firebase user:', user);
           setUser({
             uid: user.uid,
             email: user.email,
