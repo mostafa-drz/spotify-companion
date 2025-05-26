@@ -102,6 +102,7 @@ export default function NowPlayingPage() {
   const [introStatus, setIntroStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
   const [introScript, setIntroScript] = useState<TrackIntro | null>(null);
   const [introError, setIntroError] = useState<string | null>(null);
+  const [introSuccess, setIntroSuccess] = useState(false);
   const lastTrackIdRef = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isIntroAudioPlaying, setIsIntroAudioPlaying] = useState(false);
@@ -129,6 +130,7 @@ export default function NowPlayingPage() {
       setIntroStatus('generating');
       setIntroScript(null);
       setIntroError(null);
+      setIntroSuccess(false);
       
       fetch('/api/intro', {
         method: 'POST',
@@ -154,6 +156,8 @@ export default function NowPlayingPage() {
             if (userId && track.id) {
               await saveTrackIntro(userId, track.id, data.intro);
             }
+            setIntroSuccess(true);
+            setTimeout(() => setIntroSuccess(false), 2000);
           } else {
             setIntroStatus('error');
             setIntroError(data.error || 'Failed to generate intro.');
@@ -420,15 +424,32 @@ export default function NowPlayingPage() {
               type="button"
               aria-label="Regenerate Intro"
               title="Regenerate Intro"
-              className="absolute top-4 right-4 p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+              className="absolute top-4 right-4 p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 flex items-center justify-center"
               onClick={() => handleRegenerateIntro(selectedTemplate || undefined)}
               disabled={introStatus === 'generating' || !currentTrack || (!selectedTemplate && !defaultPrompt)}
             >
-              <ArrowPathIcon className="h-6 w-6 text-green-600" />
+              {introStatus === 'generating' ? (
+                <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+              ) : (
+                <ArrowPathIcon className="h-6 w-6 text-green-600" />
+              )}
             </button>
             <span className="font-semibold text-primary">Intro:</span>
-            <div className="mt-2">
+            <div className="mt-2" aria-busy={introStatus === 'generating'}>
+              {introStatus === 'generating' && (
+                <div className="flex items-center gap-2 text-green-600 mb-2">
+                  <span className="inline-block h-4 w-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+                  <span>Generating intro…</span>
+                </div>
+              )}
               <MarkdownContent content={introScript.introText} />
+              {/* Inline feedback messages */}
+              {introSuccess && (
+                <div className="mt-3 text-green-600 text-sm" role="status">Intro updated!</div>
+              )}
+              {introStatus === 'error' && introError && (
+                <div className="mt-3 text-red-600 text-sm" role="alert">{introError}</div>
+              )}
             </div>
             {/* Audio playback controls */}
             {introScript.audioUrl && (

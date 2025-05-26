@@ -61,13 +61,17 @@ This user story builds on the template selection feature described in [integrate
 - [x] Refactor TemplateSelector to use a custom-styled dropdown with preview/description
 - [x] Adjust layout and add spacing between all major sections (prompt, selector, track info, intro, controls)
 - [x] Replace the "Enable AI Intros" checkbox with a modern switch component
-- [ ] Refactor audio controls to use icon buttons and group them with the audio player
+- [x] Refactor audio controls to use icon buttons and group them with the audio player
     - Hide the native audio player
     - Use only custom icon buttons for Play, Replay, Pause, and Regenerate (with tooltips/aria-labels)
     - Add a minimal custom progress bar below the intro or above the controls
     - Group all controls in a single, compact row with subtle background/border
     - Ensure all controls are accessible and keyboard navigable
-- [ ] Add loading spinners/progress indicators for intro generation and actions
+    - Regenerate Intro button is now above the intro, uses a refresh icon, and is visually separated from audio controls for clarity
+    - All icon buttons have tooltips for accessibility and user guidance
+- [x] Add loading spinners/progress indicators for intro generation and actions
+    - Spinners are shown on the Regenerate button and in the intro area during generation
+    - Spinners use theme-consistent green color and accessible markup
 - [ ] Implement toast notifications for success and error feedback
 - [ ] Update typography for track title, artist, and intro for better readability
 - [ ] Audit and improve color contrast, especially for dark mode
