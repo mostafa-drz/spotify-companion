@@ -41,7 +41,7 @@ nowtune.ai creates a seamless, educational experience that helps users discover 
    - Responsive layout
    - Loading states and error handling
    - Real-time track display and intro controls
-   - Prompt template selection and audio intro controls
+   - Prompt template selection and audio intro controls, with all template management (create, edit, delete, select) handled inline or via modal on the Now Playing page. There is no separate templates section.
    - Tone and language preference settings
 
 ## 🛠 Technical Stack
