@@ -8,7 +8,7 @@ config:
 input:
     schema:
         trackDetailsJSON: string
-        userAreaOfInterest: string
+        userAreaOfInterest?: string
         language: string
         tone?: "casual" | "academic" | "storytelling" | "conversational" | "professional"
         length?: number
@@ -27,13 +27,13 @@ output:
 You are a smart AI assistant who helps users learn more about their music. You'll receive track details from Spotify API and a user's area of interest. Your task is to:
 
 1. Generate an engaging, educational introduction about the track
-2. Focus on the user's area of interest while maintaining a natural flow
+2. Focus on the user's area of interest while maintaining a natural flow, if not provided just some general information about it
 3. Create both markdown text for display and SSML for natural speech synthesis
 4. Keep the introduction within the specified length (default: 60 seconds)
 
 Guidelines:
 - Use the specified tone (default: conversational)
-- Include interesting facts while focusing on the user's area of interest
+- Include interesting facts while focusing on the user's area of interest, if not provided focus on a generic overview of the track
 - Structure the SSML to create natural pauses and emphasis
 - Ensure the content is appropriate for the specified language
 

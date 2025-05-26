@@ -7,14 +7,12 @@ import { LoadingButton } from './LoadingButton';
 
 interface TemplatePreviewProps {
   template: PromptTemplate;
-  onUseTemplate: (template: PromptTemplate) => Promise<void>;
-  onEdit: (template: PromptTemplate) => Promise<void>;
+  onEdit: (template: PromptTemplate) => void;
   onDelete: (template: PromptTemplate) => Promise<void>;
 }
 
 export default function TemplatePreview({
   template,
-  onUseTemplate,
   onEdit,
   onDelete,
 }: TemplatePreviewProps) {
@@ -23,11 +21,11 @@ export default function TemplatePreview({
 
   const handleAction = async (
     action: 'use' | 'edit' | 'delete',
-    callback: (template: PromptTemplate) => Promise<void>
+    callback: (template: PromptTemplate) => void | Promise<void>
   ) => {
     try {
       setIsLoading(action);
-      await callback(template);
+      await Promise.resolve(callback(template));
     } finally {
       setIsLoading(null);
     }
@@ -64,14 +62,6 @@ export default function TemplatePreview({
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <LoadingButton
-          variant="primary"
-          size="sm"
-          loading={isLoading === 'use'}
-          onClick={() => handleAction('use', onUseTemplate)}
-        >
-          Use Template
-        </LoadingButton>
         {!template.isSystem && (
           <>
             <LoadingButton

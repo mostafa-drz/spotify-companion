@@ -1,53 +1,51 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { adminDb } from '@/app/lib/firebase-admin';
-import { TemplateSkeleton } from './TemplateSkeleton';
 import TemplatePreview from './TemplatePreview';
-import { usePromptTemplates } from '@/app/hooks/usePromptTemplates';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import toast from 'react-hot-toast';
+import { deleteUserPromptTemplate, getUserPromptTemplates } from '@/app/lib/firestore';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 
-async function getSystemTemplates(): Promise<PromptTemplate[]> {
-  const templates = await adminDb
-    .collection('promptTemplates')
-    .where('isSystem', '==', true)
-    .get();
-  return templates.docs.map(doc => ({
-    id: doc.id,
-    name: doc.data().name,
-    prompt: doc.data().prompt,
-    isSystem: true,
-    createdAt: doc.data().createdAt,
-    updatedAt: doc.data().updatedAt
-  }));
+interface TemplateListProps {
+  onEdit: (template: PromptTemplate) => void;
 }
 
-export default function TemplateList() {
-  const { templates: userTemplates, loading, error, deleteTemplate, setDefaultPrompt } = usePromptTemplates();
-  const [systemTemplates, setSystemTemplates] = useState<PromptTemplate[]>([]);
+export default function TemplateList({ onEdit }: TemplateListProps) {
+  const { data: session } = useSession();
+  const [userTemplates, setUserTemplates] = useState<PromptTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getSystemTemplates().then(setSystemTemplates);
-  }, []);
-
-  const handleUseTemplate = async (template: PromptTemplate) => {
-    try {
-      await setDefaultPrompt(template.id);
-      toast.success('Default template set successfully');
-    } catch {
-      toast.error('Failed to set default template');
+    async function loadTemplates() {
+      if (!session?.user?.id) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        const templates = await getUserPromptTemplates(session.user.id);
+        setUserTemplates(templates);
+      } catch {
+        setError('Failed to load templates');
+        toast.error('Failed to load templates');
+      } finally {
+        setLoading(false);
+      }
     }
-  };
 
-  const handleEditTemplate = async () => {
-    // TODO: Implement edit functionality
-    toast.error('Edit functionality not implemented yet');
-  };
+    loadTemplates();
+  }, [session?.user?.id]);
 
   const handleDeleteTemplate = async (template: PromptTemplate) => {
+    if (!session?.user?.id) {
+      toast.error('You must be logged in to delete templates');
+      return;
+    }
+
     try {
-      await deleteTemplate(template.id);
+      await deleteUserPromptTemplate(session.user.id, template.id);
+      setUserTemplates(prev => prev.filter(t => t.id !== template.id));
       toast.success('Template deleted successfully');
     } catch {
       toast.error('Failed to delete template');
@@ -55,56 +53,48 @@ export default function TemplateList() {
   };
 
   if (loading) {
-    return <TemplateSkeleton count={5} />;
+    return (
+      <div className="animate-pulse space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        ))}
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-900/50 dark:text-red-400">
+      <div className="text-red-500 dark:text-red-400 text-center p-4">
         {error}
+      </div>
+    );
+  }
+
+  if (userTemplates.length === 0) {
+    return (
+      <div className="text-center p-8 text-gray-600 dark:text-gray-400">
+        <p>No templates found. Create your first template to get started!</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* System Templates */}
       <div>
         <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-          System Templates
+          Your Templates
         </h2>
         <div className="space-y-4">
-          {systemTemplates.map(template => (
+          {userTemplates.map(template => (
             <TemplatePreview
               key={template.id}
               template={template}
-              onUseTemplate={handleUseTemplate}
-              onEdit={handleEditTemplate}
-              onDelete={handleDeleteTemplate}
+              onEdit={() => onEdit(template)}
+              onDelete={() => handleDeleteTemplate(template)}
             />
           ))}
         </div>
       </div>
-
-      {/* User Templates */}
-      {userTemplates.length > 0 && (
-        <div>
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Your Templates
-          </h2>
-          <div className="space-y-4">
-            {userTemplates.map(template => (
-              <TemplatePreview
-                key={template.id}
-                template={template}
-                onUseTemplate={handleUseTemplate}
-                onEdit={handleEditTemplate}
-                onDelete={handleDeleteTemplate}
-              />
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 } 

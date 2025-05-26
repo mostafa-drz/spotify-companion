@@ -7,20 +7,7 @@ import type { SpotifyTrack } from "@/app/types/Spotify";
 import { clientDb } from "@/app/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { MarkdownContent } from '@/app/components/MarkdownContent';
-
-interface TrackIntro {
-  trackId: string;
-  userId: string;
-  introText: string;
-  ssml: string;
-  audioUrl: string;
-  duration: number;
-  language: string;
-  tone: string;
-  length: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import type { TrackIntro } from '@/app/types/Prompt';
 
 declare global {
   interface Window {

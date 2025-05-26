@@ -1,23 +1,7 @@
-import { adminDb } from '@/app/lib/firebase-admin';
-import { verifyAuth } from '@/app/lib/firebase-admin';
 import { generateTrackIntro } from './genKit';
-import { IntroPromptInput, IntroPromptOutput } from '@/app/types/Prompt';
 import type { TrackMetadata } from '@/app/types/Track';
 import type { TrackIntro } from '@/app/types/Prompt';
 import { getCachedIntro, saveIntroToFirestore } from '@/app/lib/firestore';
-
-/**
- * Track metadata interface for intro generation
- * Contains essential information about a Spotify track
- */
-export interface TrackMetadata {
-  id: string;
-  name: string;
-  artists: string[];
-  album: string;
-  duration: number;
-  playlistId?: string;
-}
 
 /**
  * Generate or fetch intro for a track
@@ -50,8 +34,7 @@ export async function generateIntro(
   tone: string = 'neutral',
   length: string = 'medium'
 ): Promise<TrackIntro> {
-  const userId = await verifyAuth();
-
+  console.log('Generating intro for track:', trackMetadata);
   try {
     // Check if we have a cached intro that matches all parameters
     const cachedIntro = await getCachedIntro(trackMetadata.id, {
@@ -85,11 +68,11 @@ export async function generateIntro(
       duration: intro.duration,
       language,
       tone,
-      length,
-      prompt: userAreaOfInterest,
+      length: parseInt(length),
+      prompt: userAreaOfInterest || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      playlistId: trackMetadata.playlistId || null
+      markdown: intro.markdown,
     };
 
     await saveIntroToFirestore(introData);

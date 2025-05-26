@@ -1,6 +1,7 @@
 import { clientDb } from '@/app/lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import type { TrackIntro } from '@/app/types/Prompt';
+import type { PromptTemplate, TrackIntro, UserPromptSettings } from '@/app/types/Prompt';
+import { User } from '@/app/types/User';
 
 interface IntroCacheParams {
   language: string;
@@ -15,17 +16,17 @@ export async function getCachedIntro(
 ): Promise<TrackIntro | null> {
   try {
     const docRef = doc(clientDb, 'trackIntros', trackId);
-    const doc = await getDoc(docRef);
+    const document = await getDoc(docRef);
     
-    if (!doc.exists()) return null;
+    if (!document.exists()) return null;
     
-    const data = doc.data() as TrackIntro;
+    const data = document.data() as TrackIntro;
     
     // Check if cached intro matches all parameters
     if (
       data.language === params.language &&
       data.tone === params.tone &&
-      data.length === params.length &&
+      data.length === parseInt(params.length) &&
       data.prompt === params.prompt
     ) {
       return data;
@@ -46,4 +47,50 @@ export async function saveIntroToFirestore(intro: TrackIntro): Promise<void> {
     console.error('Error saving intro to Firestore:', error);
     throw error;
   }
-} 
+}
+
+export async function getUserPromptTemplates(userId: string): Promise<PromptTemplate[]> {
+  const docRef = doc(clientDb, 'users', userId);
+  const document = await getDoc(docRef);
+  const userData = document.data() as UserPromptSettings;
+  return userData?.templates as unknown as PromptTemplate[] || [];
+}
+
+export async function addUserPromptTemplate(userId: string, template: PromptTemplate): Promise<void> {
+  const docRef = doc(clientDb, 'users', userId);
+  const document = await getDoc(docRef);
+  
+  // Initialize user data if it doesn't exist
+  const userData = document.exists() 
+    ? (document.data() as User)
+    : { templates: [] };
+
+  // Add the new template
+  const templates = [...(userData.templates || []), template];
+  
+  // Save the updated user data
+  await setDoc(docRef, {
+    ...userData,
+    templates,
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+}
+
+export async function updateUserPromptTemplate(userId: string, templateId: string, updates: Partial<PromptTemplate>): Promise<void> {
+  const docRef = doc(clientDb, 'users', userId);
+  const document = await getDoc(docRef);
+  const userData = document.data() as User;
+  const templateIndex = userData?.templates.findIndex(t => t.id === templateId);
+  if (templateIndex !== -1) {
+    userData.templates[templateIndex] = { ...userData.templates[templateIndex], ...updates };
+  }
+  await setDoc(docRef, userData);
+}
+
+export async function deleteUserPromptTemplate(userId: string, templateId: string): Promise<void> {
+  const docRef = doc(clientDb, 'users', userId);
+  const document = await getDoc(docRef);
+  const userData = document.data() as User;
+  userData.templates = userData.templates.filter(t => t.id !== templateId);
+  await setDoc(docRef, userData);
+}

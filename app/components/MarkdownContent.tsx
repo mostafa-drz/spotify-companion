@@ -8,6 +8,12 @@ interface MarkdownContentProps {
   className?: string;
 }
 
+interface CodeProps {
+  inline?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+}
+
 export function MarkdownContent({ content, className = '' }: MarkdownContentProps) {
   return (
     <div className={`prose dark:prose-invert max-w-none ${className}`}>
@@ -45,7 +51,7 @@ export function MarkdownContent({ content, className = '' }: MarkdownContentProp
             <ol {...props} className="list-decimal list-inside my-3 text-foreground/90" />
           ),
           // Style code blocks
-          code: ({ inline, ...props }) => (
+          code: ({ inline, ...props }: CodeProps) => (
             inline ? (
               <code {...props} className="bg-gray-100 dark:bg-gray-800 rounded px-1.5 py-0.5 text-sm" />
             ) : (

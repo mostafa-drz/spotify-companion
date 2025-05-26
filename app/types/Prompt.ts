@@ -69,7 +69,7 @@ export interface IntroPrompt {
 
 export interface UserPromptSettings {
   defaultPrompt: string | null;
-  templates: string[];
+  templates: PromptTemplate[];
 }
 
 // Update TrackIntro to include prompt
@@ -77,14 +77,14 @@ export interface TrackIntro {
   trackId: string;
   userId: string;
   introText: string;
+  markdown: string;
   ssml: string;
   audioUrl: string;
   duration: number;
   language: string;
   tone: string;
-  length: string;
+  length: number;
   prompt: string;
-  createdAt: string;
-  updatedAt: string;
-  playlistId: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 } 

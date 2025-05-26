@@ -3,37 +3,21 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon, PlusIcon } from '@heroicons/react/20/solid';
-import { usePromptTemplates } from '@/app/hooks/usePromptTemplates';
 import type { PromptTemplate } from '@/app/types/Prompt';
 
 interface TemplateSelectorProps {
   onSelect: (template: PromptTemplate) => void;
   selectedTemplate?: PromptTemplate;
   onCreateNew?: () => void;
+  templates: PromptTemplate[];
 }
 
 export default function TemplateSelector({
   onSelect,
   selectedTemplate,
-  onCreateNew
+  onCreateNew,
+  templates
 }: TemplateSelectorProps) {
-  const { templates, loading, error } = usePromptTemplates();
-
-  if (loading) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-md w-48"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-red-500 dark:text-red-400">
-        Error loading templates: {error.message}
-      </div>
-    );
-  }
 
   return (
     <Menu as="div" className="relative inline-block text-left">

@@ -69,6 +69,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           try {
             await adminAuth.getUser(email);
           } catch (error) {
+            console.log(error)
             // User doesn't exist, create them
             await adminAuth.createUser({
               uid: email,

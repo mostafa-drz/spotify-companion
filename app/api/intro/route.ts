@@ -4,6 +4,7 @@ import { generateIntro } from '@/app/lib/ai';
 import { generateTTSAudio } from '@/app/lib/tts-service';
 import { adminDb } from '@/app/lib/firebase-admin';
 import { SpotifyTrack } from '@/app/types/Spotify';
+import { TrackMetadata } from '@/app/types/Track';
 
 interface RequestBody {
   trackId: string;
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
       language = 'en',
       tone = 'conversational',
       length = 60,
-      userAreaOfInterest = 'music'
+      userAreaOfInterest = 'General'
     } = (await request.json()) as RequestBody;
 
     // Check if intro already exists, unless regenerating
@@ -42,22 +43,15 @@ export async function POST(request: Request) {
 
     // Generate intro using new GenKit integration
     const introOutput = await generateIntro(
-      {
-        id: trackId,
-        name: track.name,
-        artists: track.artists.map(a => a.name),
-        album: track.album.name,
-        duration: track.duration_ms,
-        playlistId: track.playlistId
-      },
+      track as unknown as TrackMetadata,
       userAreaOfInterest,
       language,
       tone,
-      length
+      length.toString()
     );
 
     // Generate TTS audio
-    const { audioUrl, duration } = await generateTTSAudio({
+    const { audioUrl } = await generateTTSAudio({
       text: introOutput.markdown,
       userId,
       trackId,
