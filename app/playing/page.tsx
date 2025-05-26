@@ -389,12 +389,12 @@ export default function NowPlayingPage() {
           className="w-28 h-28 rounded-lg shadow border border-gray-200 dark:border-gray-700 object-cover"
         />
         <div className="flex-1 min-w-0">
-          <h2 className="text-3xl font-extrabold text-primary truncate mb-2 leading-tight">{track.name}</h2>
-          <div className="text-lg font-medium text-neutral truncate mb-1">{track.artists.map(a => a.name).join(", ")}</div>
-          <div className="text-base text-neutral-600 dark:text-neutral-300 truncate mb-2">{track.album.name}</div>
-          <div className="text-xs text-neutral mt-2">Track ID: {track.id ?? '—'}</div>
-          <div className="text-xs text-neutral">Playable: {track.is_playable ? 'Yes' : 'No'}</div>
-          <div className="text-xs text-neutral">Type: {track.type} ({track.media_type})</div>
+          <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 truncate mb-2 leading-tight">{track.name}</h2>
+          <div className="text-lg font-medium text-neutral-800 dark:text-neutral-200 truncate mb-1">{track.artists.map(a => a.name).join(", ")}</div>
+          <div className="text-base text-neutral-700 dark:text-neutral-300 truncate mb-2">{track.album.name}</div>
+          <div className="text-xs text-neutral-700 dark:text-neutral-300 mt-2">Track ID: {track.id ?? '—'}</div>
+          <div className="text-xs text-neutral-700 dark:text-neutral-300">Playable: {track.is_playable ? 'Yes' : 'No'}</div>
+          <div className="text-xs text-neutral-700 dark:text-neutral-300">Type: {track.type} ({track.media_type})</div>
         </div>
       </div>
       {/* Progress Bar Section */}
@@ -418,7 +418,7 @@ export default function NowPlayingPage() {
       <div className="mb-8">
         {introStatus === 'generating' && <div className="text-neutral">Generating intro...</div>}
         {introStatus === 'ready' && introScript && (
-          <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 text-foreground text-base shadow-inner relative">
+          <div className="bg-gray-100 dark:bg-gray-900 rounded p-4 text-neutral-900 dark:text-neutral-100 text-base shadow-inner relative">
             {/* Regenerate Intro Button (top right) */}
             <button
               type="button"
@@ -447,10 +447,10 @@ export default function NowPlayingPage() {
               </div>
               {/* Inline feedback messages */}
               {introSuccess && (
-                <div className="mt-3 text-green-600 text-sm" role="status">Intro updated!</div>
+                <div className="mt-3 text-green-700 dark:text-green-400 text-sm" role="status">Intro updated!</div>
               )}
               {introStatus === 'error' && introError && (
-                <div className="mt-3 text-red-600 text-sm" role="alert">{introError}</div>
+                <div className="mt-3 text-red-700 dark:text-red-400 text-sm" role="alert">{introError}</div>
               )}
             </div>
             {/* Audio playback controls */}

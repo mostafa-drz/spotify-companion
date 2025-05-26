@@ -76,7 +76,8 @@ This user story builds on the template selection feature described in [integrate
     - All feedback is now shown inline, below the relevant section, using theme-consistent colors and accessible roles
 - [x] Update typography for track title, artist, and intro for better readability
     - Track title, artist, album, and intro now use improved font sizes, weights, and spacing for better readability and hierarchy
-- [ ] Audit and improve color contrast, especially for dark mode
+- [x] Audit and improve color contrast, especially for dark mode
+    - All text and UI elements now use accessible, high-contrast colors for both light and dark mode, ensuring readability and WCAG compliance
 - [ ] Add hover, focus, and transition effects to interactive elements
 - [ ] Test and optimize the layout for mobile and tablet devices
 - [ ] Ensure all controls are keyboard accessible and have ARIA labels
