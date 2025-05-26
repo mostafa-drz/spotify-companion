@@ -12,6 +12,7 @@ import TemplateSelector from '@/app/components/TemplateSelector';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import { getDefaultPrompt, updateDefaultPrompt, getTrackIntro, saveTrackIntro } from '@/app/lib/firestore';
 import { Switch } from '@headlessui/react';
+import { PlayIcon, ArrowPathIcon, PauseIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 
 declare global {
   interface Window {
@@ -413,49 +414,88 @@ export default function NowPlayingPage() {
       <div className="mb-8">
         {introStatus === 'generating' && <div className="text-neutral">Generating intro...</div>}
         {introStatus === 'ready' && introScript && (
-          <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 text-foreground text-base shadow-inner">
+          <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 text-foreground text-base shadow-inner relative">
+            {/* Regenerate Intro Button (top right) */}
+            <button
+              type="button"
+              aria-label="Regenerate Intro"
+              title="Regenerate Intro"
+              className="absolute top-4 right-4 p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+              onClick={() => handleRegenerateIntro(selectedTemplate || undefined)}
+              disabled={introStatus === 'generating' || !currentTrack || (!selectedTemplate && !defaultPrompt)}
+            >
+              <ArrowPathIcon className="h-6 w-6 text-green-600" />
+            </button>
             <span className="font-semibold text-primary">Intro:</span>
             <div className="mt-2">
               <MarkdownContent content={introScript.introText} />
             </div>
             {/* Audio playback controls */}
             {introScript.audioUrl && (
-              <div className="mt-4 flex items-center gap-3">
+              <div className="mt-4 flex flex-col gap-2">
+                {/* Custom Progress Bar */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-neutral w-10 text-right tabular-nums">
+                    {msToTime(audioRef.current?.currentTime ? audioRef.current.currentTime * 1000 : 0)}
+                  </span>
+                  <div className="flex-1 h-2 bg-gray-300 dark:bg-gray-700 rounded-full relative overflow-hidden">
+                    <div
+                      className="h-2 bg-green-500 rounded-full transition-all"
+                      style={{ width: audioRef.current && audioRef.current.duration ? `${(audioRef.current.currentTime / audioRef.current.duration) * 100}%` : '0%' }}
+                    />
+                  </div>
+                  <span className="text-xs text-neutral w-10 tabular-nums">
+                    {msToTime(audioRef.current?.duration ? audioRef.current.duration * 1000 : 0)}
+                  </span>
+                </div>
+                {/* Custom Controls Row */}
+                <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700 mt-1">
+                  <button
+                    type="button"
+                    aria-label="Play"
+                    title="Play"
+                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+                    onClick={() => audioRef.current?.play()}
+                    disabled={isIntroAudioPlaying}
+                  >
+                    <PlayIcon className="h-6 w-6 text-green-600" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Replay Audio"
+                    title="Replay Audio"
+                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onClick={() => {
+                      if (audioRef.current) {
+                        audioRef.current.currentTime = 0;
+                        audioRef.current.play();
+                      }
+                    }}
+                  >
+                    <ArrowUturnLeftIcon className="h-6 w-6 text-green-600" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Pause"
+                    title="Pause"
+                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+                    onClick={() => audioRef.current?.pause()}
+                    disabled={!isIntroAudioPlaying}
+                  >
+                    <PauseIcon className="h-6 w-6 text-green-600" />
+                  </button>
+                  <div className="flex-1" />
+                </div>
+                {/* Hidden audio element for playback logic */}
                 <audio
                   ref={audioRef}
                   src={introScript.audioUrl}
-                  controls
                   onPlay={handleIntroAudioPlay}
                   onPause={handleIntroAudioPauseOrEnd}
                   onEnded={handleIntroAudioPauseOrEnd}
                   preload="auto"
-                  style={{ width: '100%' }}
+                  style={{ display: 'none' }}
                 />
-                <button
-                  className="btn btn-secondary px-3 py-1 rounded"
-                  onClick={() => audioRef.current?.play()}
-                  disabled={isIntroAudioPlaying}
-                >
-                  Play
-                </button>
-                <button
-                  className="btn btn-secondary px-3 py-1 rounded"
-                  onClick={() => {
-                    if (audioRef.current) {
-                      audioRef.current.currentTime = 0;
-                      audioRef.current.play();
-                    }
-                  }}
-                >
-                  Replay
-                </button>
-                <button
-                  className="btn btn-secondary px-3 py-1 rounded"
-                  onClick={() => audioRef.current?.pause()}
-                  disabled={!isIntroAudioPlaying}
-                >
-                  Pause
-                </button>
               </div>
             )}
           </div>
@@ -463,13 +503,6 @@ export default function NowPlayingPage() {
         {introStatus === 'error' && (
           <div className="text-semantic-error">{introError}</div>
         )}
-        <button
-          className="btn btn-primary mt-4"
-          onClick={() => handleRegenerateIntro(selectedTemplate || undefined)}
-          disabled={introStatus === 'generating' || !currentTrack || (!selectedTemplate && !defaultPrompt)}
-        >
-          {introStatus === 'generating' ? 'Regenerating…' : 'Regenerate Intro'}
-        </button>
       </div>
     </div>
   );

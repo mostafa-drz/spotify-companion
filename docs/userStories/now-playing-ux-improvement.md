@@ -62,6 +62,11 @@ This user story builds on the template selection feature described in [integrate
 - [x] Adjust layout and add spacing between all major sections (prompt, selector, track info, intro, controls)
 - [x] Replace the "Enable AI Intros" checkbox with a modern switch component
 - [ ] Refactor audio controls to use icon buttons and group them with the audio player
+    - Hide the native audio player
+    - Use only custom icon buttons for Play, Replay, Pause, and Regenerate (with tooltips/aria-labels)
+    - Add a minimal custom progress bar below the intro or above the controls
+    - Group all controls in a single, compact row with subtle background/border
+    - Ensure all controls are accessible and keyboard navigable
 - [ ] Add loading spinners/progress indicators for intro generation and actions
 - [ ] Implement toast notifications for success and error feedback
 - [ ] Update typography for track title, artist, and intro for better readability
