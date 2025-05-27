@@ -83,28 +83,30 @@ export default function IntroControls({
           </div>
         )}
         {isReady(introStatus) && introScript && (
-          <div className="bg-gray-100 dark:bg-gray-900 rounded p-3 sm:p-4 text-neutral-900 dark:text-neutral-100 text-base shadow-inner relative">
-            {/* Regenerate Intro Button (top right) */}
-            <button
-              type="button"
-              aria-label="Regenerate Intro"
-              title="Regenerate Intro"
-              tabIndex={0}
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 px-3 py-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 flex items-center gap-2 justify-center transition-colors duration-200"
-              onClick={() => selectedTemplate && handleTemplateSelect(selectedTemplate)}
-              disabled={isGenerating(introStatus) || !currentTrack}
-            >
-              {isGenerating(introStatus) ? (
-                <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
-              ) : (
-                <>
-                  <ArrowPathIcon className="h-5 w-5 text-green-600" />
-                  <span className="font-medium text-green-700 dark:text-green-300 text-sm hidden sm:inline">Regenerate Intro</span>
-                </>
-              )}
-            </button>
-            <span className="font-semibold text-primary text-lg">Intro:</span>
-            <div className="mt-2" aria-busy={isGenerating(introStatus)}>
+          <div className="bg-gray-100 dark:bg-gray-900 rounded p-3 sm:p-4 text-neutral-900 dark:text-neutral-100 text-base shadow-inner">
+            {/* Flex row for label and regenerate button */}
+            <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+              <span className="font-semibold text-primary text-lg">Intro:</span>
+              <button
+                type="button"
+                aria-label="Regenerate Intro"
+                title="Regenerate Intro"
+                tabIndex={0}
+                className="px-3 py-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 flex items-center gap-2 justify-center transition-colors duration-200"
+                onClick={() => selectedTemplate && handleTemplateSelect(selectedTemplate)}
+                disabled={isGenerating(introStatus) || !currentTrack}
+              >
+                {isGenerating(introStatus) ? (
+                  <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+                ) : (
+                  <>
+                    <ArrowPathIcon className="h-5 w-5 text-green-600" />
+                    <span className="font-medium text-green-700 dark:text-green-300 text-sm hidden sm:inline">Regenerate Intro</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <div aria-busy={isGenerating(introStatus)}>
               <div className="prose prose-neutral dark:prose-invert max-w-none text-base leading-relaxed">
                 <MarkdownContent content={introScript.introText} />
               </div>
@@ -118,13 +120,13 @@ export default function IntroControls({
             </div>
             {/* Audio playback controls */}
             {introScript.audioUrl && (
-              <div className="mt-4 flex flex-col gap-2">
+              <div className="mt-4 flex flex-col gap-2 items-center">
                 {/* Custom Progress Bar */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full justify-center">
                   <span className="text-xs text-neutral w-10 text-right tabular-nums">
                     {audioRef.current?.currentTime ? msToTime(audioRef.current.currentTime * 1000) : '0:00'}
                   </span>
-                  <div className="flex-1 h-2 bg-gray-300 dark:bg-gray-700 rounded-full relative overflow-hidden">
+                  <div className="flex-1 h-2 bg-gray-300 dark:bg-gray-700 rounded-full relative overflow-hidden max-w-xs">
                     <div
                       className="h-2 bg-green-500 rounded-full transition-all"
                       style={{ width: audioRef.current && audioRef.current.duration ? `${(audioRef.current.currentTime / audioRef.current.duration) * 100}%` : '0%' }}
@@ -135,46 +137,44 @@ export default function IntroControls({
                   </span>
                 </div>
                 {/* Custom Controls Row */}
-                <div className="flex flex-col sm:flex-row items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 sm:px-3 py-2 border border-gray-200 dark:border-gray-700 mt-1">
-                  <div className="flex items-center gap-3 mb-2 sm:mb-0">
-                    <button
-                      type="button"
-                      aria-label="Play"
-                      title="Play"
-                      tabIndex={0}
-                      className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
-                      onClick={() => audioRef.current?.play()}
-                      disabled={isIntroAudioPlaying}
-                    >
-                      <PlayIcon className="h-6 w-6 text-green-600" />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Replay Audio"
-                      title="Replay Audio"
-                      tabIndex={0}
-                      className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
-                      onClick={() => {
-                        if (audioRef.current) {
-                          audioRef.current.currentTime = 0;
-                          audioRef.current.play();
-                        }
-                      }}
-                    >
-                      <ArrowUturnLeftIcon className="h-6 w-6 text-green-600" />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Pause"
-                      title="Pause"
-                      tabIndex={0}
-                      className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
-                      onClick={() => audioRef.current?.pause()}
-                      disabled={!isIntroAudioPlaying}
-                    >
-                      <PauseIcon className="h-6 w-6 text-green-600" />
-                    </button>
-                  </div>
+                <div className="flex items-center justify-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 sm:px-3 py-2 border border-gray-200 dark:border-gray-700 mt-1 w-full max-w-xs">
+                  <button
+                    type="button"
+                    aria-label="Play"
+                    title="Play"
+                    tabIndex={0}
+                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
+                    onClick={() => audioRef.current?.play()}
+                    disabled={isIntroAudioPlaying}
+                  >
+                    <PlayIcon className="h-6 w-6 text-green-600" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Replay Audio"
+                    title="Replay Audio"
+                    tabIndex={0}
+                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
+                    onClick={() => {
+                      if (audioRef.current) {
+                        audioRef.current.currentTime = 0;
+                        audioRef.current.play();
+                      }
+                    }}
+                  >
+                    <ArrowUturnLeftIcon className="h-6 w-6 text-green-600" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Pause"
+                    title="Pause"
+                    tabIndex={0}
+                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
+                    onClick={() => audioRef.current?.pause()}
+                    disabled={!isIntroAudioPlaying}
+                  >
+                    <PauseIcon className="h-6 w-6 text-green-600" />
+                  </button>
                 </div>
                 {/* Hidden audio element for playback logic (should be rendered in parent) */}
               </div>

@@ -6,6 +6,9 @@ export interface PromptTemplate {
   isSystem?: boolean;
   createdAt: string;
   updatedAt?: string;
+  tone?: string;
+  length?: number;
+  language?: string;
 }
 
 export interface UserPrompt {

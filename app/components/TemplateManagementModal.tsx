@@ -16,9 +16,10 @@ interface TemplateManagementModalProps {
 }
 
 const EXAMPLE_PROMPTS = [
-  'Tell me about the historical context of this track.',
-  'Summarize this podcast in 30 seconds.',
-  'Describe the artist\u2019s influences and style.',
+  'Share a fun fact about this track or its artist.',
+  'Describe the mood and style of this song.',
+  'Explain the meaning behind the lyrics.',
+  'Tell me about the genre and its history.'
 ];
 
 export default function TemplateManagementModal({ templates, onClose, selectedTemplateId, userId, onTemplatesChange }: TemplateManagementModalProps) {
@@ -26,10 +27,11 @@ export default function TemplateManagementModal({ templates, onClose, selectedTe
   const [deleting, setDeleting] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<PromptTemplate | null>(null);
-  const [form, setForm] = useState({ name: '', prompt: '' });
+  const [form, setForm] = useState({ name: '', prompt: '', tone: '', length: '', language: '' });
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -48,14 +50,20 @@ export default function TemplateManagementModal({ templates, onClose, selectedTe
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ name: '', prompt: '' });
+    setForm({ name: '', prompt: '', tone: '', length: '', language: '' });
     setFormError(null);
     setFormOpen(true);
   };
 
   const openEdit = (template: PromptTemplate) => {
     setEditing(template);
-    setForm({ name: template.name, prompt: template.prompt });
+    setForm({
+      name: template.name,
+      prompt: template.prompt,
+      tone: template.tone || '',
+      length: template.length?.toString() || '',
+      language: template.language || ''
+    });
     setFormError(null);
     setFormOpen(true);
   };
@@ -78,21 +86,27 @@ export default function TemplateManagementModal({ templates, onClose, selectedTe
     }
     setSaving(true);
     try {
+      const templateData = {
+        name: form.name,
+        prompt: form.prompt,
+        tone: form.tone,
+        length: form.length ? parseInt(form.length) : undefined,
+        language: form.language,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
       if (editing) {
-        await updateUserPromptTemplate(userId, editing.id, { name: form.name, prompt: form.prompt });
+        await updateUserPromptTemplate(userId, editing.id, templateData);
       } else {
         const newTemplate: PromptTemplate = {
           id: Math.random().toString(36).slice(2),
-          name: form.name,
-          prompt: form.prompt,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          ...templateData,
         };
         await addUserPromptTemplate(userId, newTemplate);
       }
       setFormOpen(false);
       setEditing(null);
-      setForm({ name: '', prompt: '' });
+      setForm({ name: '', prompt: '', tone: '', length: '', language: '' });
       onTemplatesChange();
     } catch {
       setActionError('Failed to save template.');
@@ -146,6 +160,56 @@ export default function TemplateManagementModal({ templates, onClose, selectedTe
               ))}
             </ul>
           </div>
+          <button
+            type="button"
+            className="text-sm text-primary mb-2"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+          >
+            {showAdvanced ? 'Hide Advanced' : 'Show Advanced'}
+          </button>
+          {showAdvanced && (
+            <>
+              <div className="mb-3">
+                <label htmlFor="template-tone" className="block text-sm font-medium mb-1">Tone</label>
+                <input
+                  id="template-tone"
+                  name="tone"
+                  type="text"
+                  className="w-full rounded border px-3 py-2 text-sm bg-white dark:bg-[#181818]"
+                  placeholder="e.g. neutral, formal, casual"
+                  value={form.tone}
+                  onChange={handleFormChange}
+                  disabled={saving}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="template-length" className="block text-sm font-medium mb-1">Length (seconds)</label>
+                <input
+                  id="template-length"
+                  name="length"
+                  type="number"
+                  className="w-full rounded border px-3 py-2 text-sm bg-white dark:bg-[#181818]"
+                  placeholder="e.g. 30"
+                  value={form.length}
+                  onChange={handleFormChange}
+                  disabled={saving}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="template-language" className="block text-sm font-medium mb-1">Language</label>
+                <input
+                  id="template-language"
+                  name="language"
+                  type="text"
+                  className="w-full rounded border px-3 py-2 text-sm bg-white dark:bg-[#181818]"
+                  placeholder="e.g. en-US"
+                  value={form.language}
+                  onChange={handleFormChange}
+                  disabled={saving}
+                />
+              </div>
+            </>
+          )}
           {formError && <div className="text-red-600 text-sm mb-2">{formError}</div>}
           <div className="flex gap-2 mt-4">
             <button

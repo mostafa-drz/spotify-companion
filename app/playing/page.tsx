@@ -9,6 +9,7 @@ import type { PromptTemplate } from '@/app/types/Prompt';
 import { getTrackIntro, saveTrackIntro, getTrackIntros } from '@/app/lib/firestore';
 import NowPlayingTrackInfo from '@/app/components/NowPlayingTrackInfo';
 import IntroControls from '@/app/components/IntroControls';
+import TemplateSelector from '@/app/components/TemplateSelector';
 
 declare global {
   interface Window {
@@ -56,6 +57,9 @@ export default function NowPlayingPage() {
   const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
   const [trackIntros, setTrackIntros] = useState<TrackIntro[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | undefined>(undefined);
+  const [userTemplates, setUserTemplates] = useState<PromptTemplate[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
+  const [templatesError, setTemplatesError] = useState<string | null>(null);
 
   // Fallback for duration if not in context
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,10 +67,10 @@ export default function NowPlayingPage() {
 
   // Effect: Set default template if not set
   useEffect(() => {
-    if (!selectedTemplate) {
+    if (!selectedTemplate && currentTrack?.id !== lastTrackIdRef.current) {
       setSelectedTemplate(DEFAULT_TEMPLATE);
     }
-  }, [selectedTemplate]);
+  }, [selectedTemplate, currentTrack?.id]);
 
   // Effect: Generate intro script on track or template change if enabled
   useEffect(() => {
@@ -260,6 +264,25 @@ export default function NowPlayingPage() {
     }
   };
 
+  // Fetch user templates on mount or when session changes
+  useEffect(() => {
+    async function fetchTemplates() {
+      if (!session?.user?.id) return;
+      setTemplatesLoading(true);
+      setTemplatesError(null);
+      try {
+        const res = await import('@/app/lib/firestore');
+        const userTemplates = await res.getUserPromptTemplates(session.user.id);
+        setUserTemplates(userTemplates);
+      } catch {
+        setTemplatesError('Failed to load templates');
+      } finally {
+        setTemplatesLoading(false);
+      }
+    }
+    fetchTemplates();
+  }, [session?.user?.id]);
+
   if (status === "loading") {
     return <div className="p-8 text-neutral">Loading...</div>;
   }
@@ -334,6 +357,30 @@ export default function NowPlayingPage() {
       <div className="mb-8">
         {/* Track Info, Progress Bar, and Playback Status */}
         <NowPlayingTrackInfo track={track} position={position} duration={duration} isPlaying={isPlaying} />
+      </div>
+
+      {/* --- Template Selector (Above Intro Section) --- */}
+      <div className="mb-6">
+        {templatesLoading ? (
+          <div className="flex items-center gap-2 text-neutral" role="status" aria-live="polite">
+            <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+            <span>Loading templates…</span>
+          </div>
+        ) : templatesError ? (
+          <div className="text-semantic-error" role="alert">{templatesError}</div>
+        ) : (
+          <>
+            <TemplateSelector
+              onSelect={setSelectedTemplate}
+              selectedTemplate={selectedTemplate}
+              templates={userTemplates}
+            />
+            {/* Minimal inline feedback for template selection */}
+            {userTemplates.length === 0 && (
+              <div className="text-xs text-neutral mt-2" role="status">No templates found. Create one to get started.</div>
+            )}
+          </>
+        )}
       </div>
 
       {/* --- Intro Section (Below Player) --- */}

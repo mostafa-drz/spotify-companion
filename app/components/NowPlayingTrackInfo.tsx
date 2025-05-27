@@ -13,7 +13,7 @@ function msToTime(ms: number) {
   return `${min}:${sec.toString().padStart(2, '0')}`;
 }
 
-export default function NowPlayingTrackInfo({ track, position, duration, isPlaying }: NowPlayingTrackInfoProps) {
+export default function NowPlayingTrackInfo({ track, position, duration }: NowPlayingTrackInfoProps) {
   const progressPercent = typeof duration === 'number' && duration > 0 ? Math.min(100, Math.round((position / duration) * 100)) : 0;
   return (
     <div className="mb-8">
@@ -43,9 +43,6 @@ export default function NowPlayingTrackInfo({ track, position, duration, isPlayi
           <span>{msToTime(position)}</span>
           <span>{msToTime(duration)}</span>
         </div>
-      </div>
-      <div className="mt-2 mb-2 flex items-center gap-4 justify-center sm:justify-start">
-        <span className={`text-sm font-medium ${isPlaying ? 'text-primary' : 'text-neutral'}`}>{isPlaying ? 'Playing' : 'Paused'}</span>
       </div>
     </div>
   );

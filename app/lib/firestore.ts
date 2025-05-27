@@ -101,8 +101,13 @@ export async function addUserPromptTemplate(userId: string, template: PromptTemp
     ? (document.data() as User)
     : { templates: [] };
 
-  // Add the new template
-  const templates = [...(userData.templates || []), template];
+  // Add the new template with advanced fields
+  const templates = [...(userData.templates || []), {
+    ...template,
+    tone: template.tone || '',
+    length: template.length || 0,
+    language: template.language || 'en-US'
+  }];
   
   // Save the updated user data
   await setDoc(docRef, {
@@ -118,7 +123,13 @@ export async function updateUserPromptTemplate(userId: string, templateId: strin
   const userData = document.data() as User;
   const templateIndex = userData?.templates.findIndex(t => t.id === templateId);
   if (templateIndex !== -1) {
-    userData.templates[templateIndex] = { ...userData.templates[templateIndex], ...updates };
+    userData.templates[templateIndex] = { 
+      ...userData.templates[templateIndex], 
+      ...updates,
+      tone: updates.tone || userData.templates[templateIndex].tone || '',
+      length: updates.length || userData.templates[templateIndex].length || 0,
+      language: updates.language || userData.templates[templateIndex].language || 'en-US'
+    };
   }
   await setDoc(docRef, userData);
 }
