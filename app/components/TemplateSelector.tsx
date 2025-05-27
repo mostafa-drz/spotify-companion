@@ -6,7 +6,6 @@ import { CheckIcon, ChevronUpDownIcon, Cog6ToothIcon } from '@heroicons/react/20
 import { useSession } from 'next-auth/react';
 import { getUserPromptTemplates } from '@/app/lib/firestore';
 import type { PromptTemplate } from '@/app/types/Prompt';
-import toast from 'react-hot-toast';
 import TemplateManagementModal from './TemplateManagementModal';
 
 export interface TemplateSelectorProps {
@@ -40,7 +39,6 @@ export default function TemplateSelector({
       } catch {
         console.error('Failed to load templates:');
         setError('Failed to load templates');
-        toast.error('Failed to load templates');
       } finally {
         setLoading(false);
       }
@@ -179,7 +177,6 @@ export default function TemplateSelector({
               setTemplates(userTemplates);
             } catch {
               setError('Failed to load templates');
-              toast.error('Failed to load templates');
             } finally {
               setLoading(false);
             }
