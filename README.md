@@ -13,6 +13,7 @@ A minimal web application that enhances your music listening experience by provi
   - Pick from different tones (casual, academic, storytelling, etc.)
   - Control intro duration
 - Manage your intro templates (create, edit, delete, select) directly from the Now Playing page—no separate templates section.
+- All feedback (loading, errors, success) is handled via minimal inline messages—no toast notifications or popups, in line with the product's minimalism philosophy.
 - Each track can have multiple intros, one per template, and switching templates instantly loads or generates the relevant intro.
 - Enjoy both text and audio versions of the insights
 

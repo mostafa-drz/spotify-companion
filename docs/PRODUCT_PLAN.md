@@ -39,7 +39,7 @@ nowtune.ai creates a seamless, educational experience that helps users discover 
 4. **User Interface**
    - Clean, minimal design using TailwindCSS
    - Responsive layout
-   - Loading states and error handling
+   - Loading states and error handling (all feedback is handled via minimal inline messages—no toast notifications or popups)
    - Real-time track display and intro controls
    - Prompt template selection and audio intro controls, with all template management (create, edit, delete, select) handled inline or via modal on the Now Playing page. There is no separate templates section.
    - Tone and language preference settings
@@ -93,8 +93,8 @@ nowtune.ai creates a seamless, educational experience that helps users discover 
 - [ ] Add loading states and error handling
 
 ### Phase 4: Polish & Deploy
-- [ ] Error handling
-- [ ] Loading states
+- [ ] Error handling (all feedback is handled via minimal inline messages—no toast notifications or popups)
+- [ ] Loading states (no toast notifications or popups)
 - [ ] Responsive design
 - [ ] Performance optimization
 - [ ] Deploy to production

@@ -198,6 +198,7 @@ space-12: 3rem    /* 48px */
 - Keyboard navigation support
 - ARIA labels where necessary
 - Screen reader friendly markup
+- All feedback (loading, errors, success) is handled via minimal inline messages—no toast notifications or popups, in line with the product's minimalism and accessibility philosophy.
 
 ## 🎨 Responsive Design
 - Mobile-first approach
