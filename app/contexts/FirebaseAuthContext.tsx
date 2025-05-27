@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth';
-import { clientAuth, type FirebaseUser } from '@/app/lib/firebase';
+import { clientAuth, type FirebaseUser } from '@/app/lib/firebase-client';
 import { generateFirebaseToken } from '@/app/actions/auth';
 
 interface FirebaseAuthContextType {

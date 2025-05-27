@@ -65,7 +65,7 @@ export async function refreshSpotifyToken(): Promise<{ accessToken: string }> {
 // Authentication Operations
 export async function signIn() {
   // This will trigger the NextAuth sign-in flow and redirect to Spotify
-  await nextAuthSignIn('spotify', { redirectTo: '/' });
+  await nextAuthSignIn('spotify', { redirectTo: '/playing' });
 }
 
 // Sign out from both Firebase and NextAuth

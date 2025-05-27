@@ -1,4 +1,4 @@
-import { clientDb } from '@/app/lib/firebase';
+import { clientDb } from '@/app/lib/firebase-client';
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import type { PromptTemplate, TrackIntro, UserPromptSettings } from '@/app/types/Prompt';
 import { User } from '@/app/types/User';

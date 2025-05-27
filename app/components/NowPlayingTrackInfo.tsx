@@ -1,4 +1,5 @@
 import type { SpotifyTrack } from '@/app/types/Spotify';
+import ProgressBar from './ui/ProgressBar';
 
 interface NowPlayingTrackInfoProps {
   track: SpotifyTrack;
@@ -13,8 +14,7 @@ function msToTime(ms: number) {
   return `${min}:${sec.toString().padStart(2, '0')}`;
 }
 
-export default function NowPlayingTrackInfo({ track, position, duration }: NowPlayingTrackInfoProps) {
-  const progressPercent = typeof duration === 'number' && duration > 0 ? Math.min(100, Math.round((position / duration) * 100)) : 0;
+export default function NowPlayingTrackInfo({ track, position, duration, isPlaying }: NowPlayingTrackInfoProps) {
   return (
     <div className="mb-8">
       <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
@@ -33,12 +33,11 @@ export default function NowPlayingTrackInfo({ track, position, duration }: NowPl
         </div>
       </div>
       <div className="mb-4">
-        <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-          <div
-            className="h-2 bg-primary rounded-full transition-all"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
+        <ProgressBar 
+          value={position} 
+          max={duration}
+          isPlaying={isPlaying}
+        />
         <div className="flex justify-between text-xs text-neutral mt-1">
           <span>{msToTime(position)}</span>
           <span>{msToTime(duration)}</span>

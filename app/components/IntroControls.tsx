@@ -4,6 +4,7 @@ import { MarkdownContent } from '@/app/components/MarkdownContent';
 import type { TrackIntro, PromptTemplate } from '@/app/types/Prompt';
 import type { SpotifyTrack } from '@/app/types/Spotify';
 import { RefObject } from 'react';
+import ProgressBar from './ui/ProgressBar';
 
 type IntroStatus = 'idle' | 'generating' | 'ready' | 'error';
 
@@ -126,11 +127,8 @@ export default function IntroControls({
                   <span className="text-xs text-neutral w-10 text-right tabular-nums">
                     {audioRef.current?.currentTime ? msToTime(audioRef.current.currentTime * 1000) : '0:00'}
                   </span>
-                  <div className="flex-1 h-2 bg-gray-300 dark:bg-gray-700 rounded-full relative overflow-hidden max-w-xs">
-                    <div
-                      className="h-2 bg-green-500 rounded-full transition-all"
-                      style={{ width: audioRef.current && audioRef.current.duration ? `${(audioRef.current.currentTime / audioRef.current.duration) * 100}%` : '0%' }}
-                    />
+                  <div className="flex-1 max-w-xs">
+                    <ProgressBar audioRef={audioRef} isPlaying={isIntroAudioPlaying} />
                   </div>
                   <span className="text-xs text-neutral w-10 tabular-nums">
                     {audioRef.current?.duration ? msToTime(audioRef.current.duration * 1000) : '0:00'}
