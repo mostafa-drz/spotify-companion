@@ -4,13 +4,11 @@ import { useSession } from "next-auth/react";
 import { useSpotifyPlayer } from "@/app/contexts/SpotifyPlayerContext";
 import { useState, useEffect, useRef } from "react";
 import type { SpotifyTrack } from "@/app/types/Spotify";
-import { MarkdownContent } from '@/app/components/MarkdownContent';
 import type { TrackIntro } from '@/app/types/Prompt';
-import TemplateSelector from '@/app/components/TemplateSelector';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import { getTrackIntro, saveTrackIntro, getTrackIntros } from '@/app/lib/firestore';
-import { Switch } from '@headlessui/react';
-import { PlayIcon, ArrowPathIcon, PauseIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
+import NowPlayingTrackInfo from '@/app/components/NowPlayingTrackInfo';
+import IntroControls from '@/app/components/IntroControls';
 
 declare global {
   interface Window {
@@ -23,16 +21,14 @@ declare global {
 
 type IntroStatus = 'idle' | 'generating' | 'ready' | 'error';
 
-function msToTime(ms: number) {
-  const min = Math.floor(ms / 60000);
-  const sec = Math.floor((ms % 60000) / 1000);
-  return `${min}:${sec.toString().padStart(2, '0')}`;
-}
-
-// Helper functions for status checks
-const isGenerating = (status: IntroStatus) => status === 'generating';
-const isReady = (status: IntroStatus) => status === 'ready';
-const isError = (status: IntroStatus) => status === 'error';
+const DEFAULT_TEMPLATE: PromptTemplate = {
+  id: '',
+  name: 'Default Template',
+  prompt: 'Tell me something interesting about this track.',
+  isSystem: false,
+  createdAt: '',
+  updatedAt: '',
+};
 
 export default function NowPlayingPage() {
   const { data: session, status } = useSession();
@@ -65,7 +61,14 @@ export default function NowPlayingPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const duration = (currentTrack as any)?.duration_ms ?? 0;
 
-  // Effect: Generate intro script on track change if enabled
+  // Effect: Set default template if not set
+  useEffect(() => {
+    if (!selectedTemplate) {
+      setSelectedTemplate(DEFAULT_TEMPLATE);
+    }
+  }, [selectedTemplate]);
+
+  // Effect: Generate intro script on track or template change if enabled
   useEffect(() => {
     const userId = session?.user?.id;
     const track = currentTrack as SpotifyTrack;
@@ -77,20 +80,16 @@ export default function NowPlayingPage() {
 
     function generateIntro() {
       if (!userId || !track?.id || !selectedTemplate?.id) return;
-      
       setIntroStatus('generating');
       setIntroScript(null);
       setIntroError(null);
       setIntroSuccess(false);
-      
       fetch('/api/intro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           trackId: track.id,
-          track: {
-            ...track,
-          },
+          track: { ...track },
           templateId: selectedTemplate.id,
           templateName: selectedTemplate.name,
           language: 'en',
@@ -132,7 +131,7 @@ export default function NowPlayingPage() {
       }
     }
 
-    if (introsEnabled && userId && track && track.id && track.is_playable && track.id !== lastTrackIdRef.current && selectedTemplate?.id) {
+    if (introsEnabled && userId && track && track.id && track.is_playable && selectedTemplate?.id) {
       updateIntro();
     }
 
@@ -142,7 +141,6 @@ export default function NowPlayingPage() {
       setIntroError(null);
       lastTrackIdRef.current = null;
     }
-
   }, [introsEnabled, currentTrack, session?.user?.id, selectedTemplate?.id, selectedTemplate?.prompt, selectedTemplate?.name]);
 
   // Effect: Orchestrate Spotify player pause/resume based on intro audio
@@ -328,203 +326,40 @@ export default function NowPlayingPage() {
     );
   }
 
-  // Progress bar width
-  const progressPercent = typeof duration === 'number' && duration > 0 ? Math.min(100, Math.round((position / duration) * 100)) : 0;
   const track = currentTrack as SpotifyTrack;
 
   return (
     <div className="max-w-xl mx-auto mt-12 p-4 sm:p-6 rounded-lg shadow bg-white dark:bg-[#181818]">
       {/* --- Spotify Player Section (Top) --- */}
       <div className="mb-8">
-        {/* Track Info Section */}
-        <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
-          <img
-            src={track.album.images[0]?.url || "/track-placeholder.png"}
-            alt={track.album.name}
-            className="w-24 h-24 sm:w-28 sm:h-28 rounded-lg shadow border border-gray-200 dark:border-gray-700 object-cover mb-4 sm:mb-0"
-          />
-          <div className="flex-1 min-w-0 text-center sm:text-left">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 mb-2 leading-tight whitespace-normal break-words">{track.name}</h2>
-            <div className="text-base sm:text-lg font-medium text-neutral-800 dark:text-neutral-200 mb-1 whitespace-normal break-words">{track.artists.map(a => a.name).join(", ")}</div>
-            <div className="text-sm sm:text-base text-neutral-700 dark:text-neutral-300 mb-2 whitespace-normal break-words">{track.album.name}</div>
-            <div className="text-xs text-neutral-700 dark:text-neutral-300 mt-2 break-words">Track ID: {track.id ?? '—'}</div>
-            <div className="text-xs text-neutral-700 dark:text-neutral-300 break-words">Playable: {track.is_playable ? 'Yes' : 'No'}</div>
-            <div className="text-xs text-neutral-700 dark:text-neutral-300 break-words">Type: {track.type} ({track.media_type})</div>
-          </div>
-        </div>
-        {/* Progress Bar Section */}
-        <div className="mb-4">
-          <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-            <div
-              className="h-2 bg-primary rounded-full transition-all"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-          <div className="flex justify-between text-xs text-neutral mt-1">
-            <span>{msToTime(position)}</span>
-            <span>{msToTime(duration)}</span>
-          </div>
-        </div>
-        {/* Playback Status */}
-        <div className="mt-2 mb-2 flex items-center gap-4 justify-center sm:justify-start">
-          <span className={`text-sm font-medium ${isPlaying ? 'text-primary' : 'text-neutral'}`}>{isPlaying ? 'Playing' : 'Paused'}</span>
-        </div>
+        {/* Track Info, Progress Bar, and Playback Status */}
+        <NowPlayingTrackInfo track={track} position={position} duration={duration} isPlaying={isPlaying} />
       </div>
 
       {/* --- Intro Section (Below Player) --- */}
-      <div className="mb-8">
-        {/* Template selector with intro count */}
-        <TemplateSelector
-          onSelect={handleTemplateSelect}
-          selectedTemplate={selectedTemplate}
-          introCounts={trackIntros.reduce((acc, intro) => {
-            if (intro.templateId) {
-              acc[intro.templateId] = (acc[intro.templateId] || 0) + 1;
-            }
-            return acc;
-          }, {} as Record<string, number>)}
-        />
-        {/* Intros toggle */}
-        <div className="flex items-center gap-3 mt-4 mb-6">
-          <Switch.Group>
-            <Switch
-              checked={introsEnabled}
-              onChange={setIntrosEnabled}
-              aria-label="Enable AI Intros for Now Playing"
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary ${
-                introsEnabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-700'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 shadow ${
-                  introsEnabled ? 'translate-x-5' : 'translate-x-1'
-                }`}
-                aria-hidden="true"
-              />
-            </Switch>
-            <Switch.Label className="ml-4 text-base font-medium text-foreground cursor-pointer select-none transition-colors duration-200">
-              Enable AI Intros for Now Playing
-            </Switch.Label>
-          </Switch.Group>
-        </div>
-        {/* Intro script status and display */}
-        <div className="mb-8">
-          {isGenerating(introStatus) && (
-            <div className="flex items-center gap-2 text-green-600 mb-2">
-              <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
-              <span>Generating…</span>
-            </div>
-          )}
-          {isReady(introStatus) && introScript && (
-            <div className="bg-gray-100 dark:bg-gray-900 rounded p-3 sm:p-4 text-neutral-900 dark:text-neutral-100 text-base shadow-inner relative">
-              {/* Regenerate Intro Button (top right) */}
-              <button
-                type="button"
-                aria-label="Regenerate Intro"
-                title="Regenerate Intro"
-                tabIndex={0}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 flex items-center justify-center transition-colors duration-200"
-                onClick={() => selectedTemplate && handleTemplateSelect(selectedTemplate)}
-                disabled={isGenerating(introStatus) || !currentTrack}
-              >
-                {isGenerating(introStatus) ? (
-                  <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
-                ) : (
-                  <ArrowPathIcon className="h-6 w-6 text-green-600" />
-                )}
-              </button>
-              <span className="font-semibold text-primary text-lg">Intro:</span>
-              <div className="mt-2" aria-busy={isGenerating(introStatus)}>
-                <div className="prose prose-neutral dark:prose-invert max-w-none text-base leading-relaxed">
-                  <MarkdownContent content={introScript.introText} />
-                </div>
-                {/* Inline feedback messages */}
-                {introSuccess && (
-                  <div className="mt-3 text-green-700 dark:text-green-400 text-sm" role="status">Intro updated!</div>
-                )}
-                {isError(introStatus) && introError && (
-                  <div className="mt-3 text-red-700 dark:text-red-400 text-sm" role="alert">{introError}</div>
-                )}
-              </div>
-              {/* Audio playback controls */}
-              {introScript.audioUrl && (
-                <div className="mt-4 flex flex-col gap-2">
-                  {/* Custom Progress Bar */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-neutral w-10 text-right tabular-nums">
-                      {msToTime(audioRef.current?.currentTime ? audioRef.current.currentTime * 1000 : 0)}
-                    </span>
-                    <div className="flex-1 h-2 bg-gray-300 dark:bg-gray-700 rounded-full relative overflow-hidden">
-                      <div
-                        className="h-2 bg-green-500 rounded-full transition-all"
-                        style={{ width: audioRef.current && audioRef.current.duration ? `${(audioRef.current.currentTime / audioRef.current.duration) * 100}%` : '0%' }}
-                      />
-                    </div>
-                    <span className="text-xs text-neutral w-10 tabular-nums">
-                      {msToTime(audioRef.current?.duration ? audioRef.current.duration * 1000 : 0)}
-                    </span>
-                  </div>
-                  {/* Custom Controls Row */}
-                  <div className="flex flex-col sm:flex-row items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 sm:px-3 py-2 border border-gray-200 dark:border-gray-700 mt-1">
-                    <div className="flex items-center gap-3 mb-2 sm:mb-0">
-                      <button
-                        type="button"
-                        aria-label="Play"
-                        title="Play"
-                        tabIndex={0}
-                        className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
-                        onClick={() => audioRef.current?.play()}
-                        disabled={isIntroAudioPlaying}
-                      >
-                        <PlayIcon className="h-6 w-6 text-green-600" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Replay Audio"
-                        title="Replay Audio"
-                        tabIndex={0}
-                        className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
-                        onClick={() => {
-                          if (audioRef.current) {
-                            audioRef.current.currentTime = 0;
-                            audioRef.current.play();
-                          }
-                        }}
-                      >
-                        <ArrowUturnLeftIcon className="h-6 w-6 text-green-600" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Pause"
-                        title="Pause"
-                        tabIndex={0}
-                        className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
-                        onClick={() => audioRef.current?.pause()}
-                        disabled={!isIntroAudioPlaying}
-                      >
-                        <PauseIcon className="h-6 w-6 text-green-600" />
-                      </button>
-                    </div>
-                  </div>
-                  {/* Hidden audio element for playback logic */}
-                  <audio
-                    ref={audioRef}
-                    src={introScript.audioUrl}
-                    onPlay={handleIntroAudioPlay}
-                    onPause={handleIntroAudioPauseOrEnd}
-                    onEnded={handleIntroAudioPauseOrEnd}
-                    preload="auto"
-                    style={{ display: 'none' }}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-          {isError(introStatus) && introError && (
-            <div className="text-semantic-error mt-2" role="alert">{introError}</div>
-          )}
-        </div>
-      </div>
+      <IntroControls
+        introsEnabled={introsEnabled}
+        setIntrosEnabled={setIntrosEnabled}
+        introStatus={introStatus}
+        introScript={introScript}
+        introError={introError}
+        introSuccess={introSuccess}
+        selectedTemplate={selectedTemplate}
+        handleTemplateSelect={handleTemplateSelect}
+        currentTrack={track}
+        isIntroAudioPlaying={isIntroAudioPlaying}
+        audioRef={audioRef}
+      />
+      {/* Hidden audio element for playback logic */}
+      <audio
+        ref={audioRef}
+        src={introScript?.audioUrl}
+        onPlay={handleIntroAudioPlay}
+        onPause={handleIntroAudioPauseOrEnd}
+        onEnded={handleIntroAudioPauseOrEnd}
+        preload="auto"
+        style={{ display: 'none' }}
+      />
     </div>
   );
 } 
