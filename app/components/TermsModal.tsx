@@ -2,10 +2,11 @@ import Modal from './ui/Modal';
 
 interface TermsModalProps {
   onClose: () => void;
-  onAccept: () => void;
+  onAccept?: () => void;
+  isSignup?: boolean;
 }
 
-export default function TermsModal({ onClose, onAccept }: TermsModalProps) {
+export default function TermsModal({ onClose, onAccept, isSignup = false }: TermsModalProps) {
   return (
     <Modal onClose={onClose}>
       <div className="max-h-[80vh] overflow-y-auto">
@@ -52,18 +53,29 @@ export default function TermsModal({ onClose, onAccept }: TermsModalProps) {
           </section>
         </div>
         <div className="mt-8 flex gap-3">
-          <button
-            onClick={onAccept}
-            className="btn btn-primary flex-1"
-          >
-            I Accept
-          </button>
-          <button
-            onClick={onClose}
-            className="btn flex-1"
-          >
-            Close
-          </button>
+          {isSignup ? (
+            <>
+              <button
+                onClick={onAccept}
+                className="btn btn-primary flex-1"
+              >
+                I Accept
+              </button>
+              <button
+                onClick={onClose}
+                className="btn flex-1"
+              >
+                Close
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={onClose}
+              className="btn btn-primary w-full"
+            >
+              Close
+            </button>
+          )}
         </div>
       </div>
     </Modal>

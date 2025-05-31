@@ -1,5 +1,5 @@
 import { clientDb } from '@/app/lib/firebase-client';
-import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import type { PromptTemplate, TrackIntro, UserPromptSettings } from '@/app/types/Prompt';
 import { User } from '@/app/types/User';
 
@@ -140,4 +140,21 @@ export async function deleteUserPromptTemplate(userId: string, templateId: strin
   const userData = document.data() as User;
   userData.templates = userData.templates.filter(t => t.id !== templateId);
   await setDoc(docRef, userData);
+}
+
+export async function deleteUser(userId: string): Promise<void> {
+  try {
+    // Delete all track intros first
+    const introsRef = collection(clientDb, 'users', userId, 'trackIntros');
+    const introsSnapshot = await getDocs(introsRef);
+    const deletePromises = introsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+    
+    // Then delete the user document
+    const docRef = doc(clientDb, 'users', userId);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    throw error;
+  }
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { auth } from '@/app/auth';
+import UserMenu from './UserMenu';
 import SignInButton from './SignInButton';
-import SignOutButton from './SignOutButton';
+import { auth } from '@/app/auth';
 
 export default async function Header() {
   const session = await auth();
@@ -20,16 +20,8 @@ export default async function Header() {
 
           {/* Navigation */}
           <nav className="flex items-center gap-6">
-            {session ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {session.user.email}
-                </span>
-                <SignOutButton />
-              </div>
-            ) : (
-              <SignInButton />
-            )}
+            <Link href="/playing" className="text-neutral hover:text-primary transition-colors font-medium">Now Playing</Link>
+            {session ? <UserMenu /> : <SignInButton />}
           </nav>
         </div>
       </div>
