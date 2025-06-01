@@ -38,17 +38,16 @@ export default function NowPlayingPage() {
   const { data: session, status } = useSession();
   const {
     currentTrack,
-    isPlaying,
     position,
-    error: playerError,
-    isReady: playerIsReady,
-    deviceId,
+    isPlaying,
+    isReady,
+    error,
+    togglePlay,
+    nextTrack,
+    previousTrack,
     transferPlayback,
-    pause,
-    resume,
   } = useSpotifyPlayer();
   const [transferring, setTransferring] = useState(false);
-  const [transferError, setTransferError] = useState<string | null>(null);
   const [introsEnabled, setIntrosEnabled] = useState(true);
   const [introStatus, setIntroStatus] = useState<IntroStatus>('idle');
   const [introScript, setIntroScript] = useState<TrackIntro | null>(null);
@@ -158,7 +157,7 @@ export default function NowPlayingPage() {
         if (isPlaying) {
           setWasSpotifyPlaying(true);
           try {
-            await pause();
+            await togglePlay();
           } catch {
             // Optionally handle error
           }
@@ -168,7 +167,7 @@ export default function NowPlayingPage() {
       } else {
         if (wasSpotifyPlaying) {
           try {
-            await resume();
+            await togglePlay();
           } catch {
             // Optionally handle error
           }
@@ -309,15 +308,15 @@ export default function NowPlayingPage() {
     );
   }
 
-  if (playerError) {
+  if (error) {
     return (
       <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818] text-semantic-error text-center">
-        {playerError.message}
+        {error.message}
       </div>
     );
   }
 
-  if (!playerIsReady) {
+  if (!isReady) {
     return (
       <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818] text-center text-neutral">
         <h2 className="text-xl font-semibold mb-2">Spotify Player is loading...</h2>
@@ -327,7 +326,7 @@ export default function NowPlayingPage() {
   }
 
   // If SDK is ready but no track, offer transfer playback
-  if (!currentTrack && deviceId && session.accessToken) {
+  if (!currentTrack && session.accessToken) {
     return (
       <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818] text-center text-neutral">
         <h2 className="text-xl font-semibold mb-2">Playback is on another device</h2>
@@ -337,11 +336,10 @@ export default function NowPlayingPage() {
           disabled={transferring}
           onClick={async () => {
             setTransferring(true);
-            setTransferError(null);
             try {
               await transferPlayback(true);
-            } catch (err) {
-              setTransferError((err as Error).message || "Failed to transfer playback.");
+            } catch {
+              // Optionally handle error
             } finally {
               setTransferring(false);
             }
@@ -349,7 +347,6 @@ export default function NowPlayingPage() {
         >
           {transferring ? "Transferring..." : "Play in this browser"}
         </button>
-        {transferError && <div className="text-semantic-error mt-2">{transferError}</div>}
       </div>
     );
   }
@@ -379,15 +376,16 @@ export default function NowPlayingPage() {
         </div>
         <NowPlayingTrackInfo
           track={track}
-          isPlaying={isPlaying}
           position={position}
           duration={duration}
-          error={playerError}
-          isReady={playerIsReady}
-          deviceId={deviceId}
+          isPlaying={isPlaying}
+          error={typeof error === 'string' ? error : undefined}
+          isReady={isReady}
           onTransferPlayback={transferPlayback}
-          transferring={transferring}
-          transferError={transferError}
+          onPlayPause={togglePlay}
+          onNext={nextTrack}
+          onPrev={previousTrack}
+          controlsDisabled={!isReady || !!error}
         />
         {/* --- Template Selector (Above Intro Section) --- */}
         <div className="mb-6">

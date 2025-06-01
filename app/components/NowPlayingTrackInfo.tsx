@@ -1,5 +1,6 @@
 import type { SpotifyTrack } from '@/app/types/Spotify';
 import ProgressBar from './ui/ProgressBar';
+import { PlayIcon, PauseIcon, ForwardIcon, BackwardIcon } from '@heroicons/react/24/solid';
 
 interface NowPlayingTrackInfoProps {
   track: SpotifyTrack;
@@ -12,6 +13,10 @@ interface NowPlayingTrackInfoProps {
   onTransferPlayback?: (play: boolean) => Promise<void>;
   transferring?: boolean;
   transferError?: string | null;
+  onPlayPause?: () => void;
+  onNext?: () => void;
+  onPrev?: () => void;
+  controlsDisabled?: boolean;
 }
 
 function msToTime(ms: number) {
@@ -26,11 +31,11 @@ export default function NowPlayingTrackInfo({
   duration, 
   isPlaying,
   error,
-  isReady,
-  deviceId,
-  onTransferPlayback,
-  transferring,
-  transferError
+  transferError,
+  onPlayPause,
+  onNext,
+  onPrev,
+  controlsDisabled
 }: NowPlayingTrackInfoProps) {
   return (
     <div className="mb-8">
@@ -65,6 +70,33 @@ export default function NowPlayingTrackInfo({
           <span>{msToTime(position)}</span>
           <span>{msToTime(duration)}</span>
         </div>
+      </div>
+      {/* Minimal Player Controls */}
+      <div className="flex items-center justify-center gap-6 mt-2">
+        <button
+          onClick={onPrev}
+          aria-label="Previous track"
+          disabled={controlsDisabled}
+          className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition disabled:opacity-50"
+        >
+          <BackwardIcon className="w-6 h-6" />
+        </button>
+        <button
+          onClick={onPlayPause}
+          aria-label={isPlaying ? "Pause" : "Play"}
+          disabled={controlsDisabled}
+          className="p-3 rounded-full bg-primary text-white hover:bg-primary/90 transition disabled:opacity-50"
+        >
+          {isPlaying ? <PauseIcon className="w-7 h-7" /> : <PlayIcon className="w-7 h-7" />}
+        </button>
+        <button
+          onClick={onNext}
+          aria-label="Next track"
+          disabled={controlsDisabled}
+          className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition disabled:opacity-50"
+        >
+          <ForwardIcon className="w-6 h-6" />
+        </button>
       </div>
     </div>
   );
