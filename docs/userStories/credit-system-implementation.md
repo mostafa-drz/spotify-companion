@@ -83,11 +83,11 @@ This user story defines a simple, transparent credit system that enhances the us
     [UserTransaction.GENERATE_TRACK_INTRO]: 1
   }
   ```
-- [ ] Implement credit management actions
-  - [ ] Initialize user credits on signup
-  - [ ] Check credit availability
-  - [ ] Deduct credits after successful operations
-  - [ ] Handle failed operations (no credit deduction)
+- [x] Implement credit management actions
+  - [x] Initialize user credits on signup
+  - [x] Check credit availability
+  - [x] Deduct credits after successful operations
+  - [x] Handle failed operations (no credit deduction)
 
 ### 2. UI Integration
 - [ ] Add credit balance display

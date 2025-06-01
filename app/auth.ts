@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import SpotifyProvider from 'next-auth/providers/spotify';
 import type { JWT } from 'next-auth/jwt';
 import { adminAuth } from './lib/firebase-admin';
+import { initializeUserCredits } from './actions/credits';
 
 // Extend the built-in session types
 declare module "next-auth" {
@@ -74,6 +75,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               displayName: user.name || undefined,
               photoURL: user.image || undefined,
             });
+            // Initialize credits for new user
+            await initializeUserCredits(email);
           }
 
           return {
