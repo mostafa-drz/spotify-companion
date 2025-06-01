@@ -5,8 +5,8 @@ import { generateTTSAudio } from '@/app/lib/tts-service';
 import { adminDb } from '@/app/lib/firebase-admin';
 import { SpotifyTrack } from '@/app/types/Spotify';
 import { TrackMetadata } from '@/app/types/Track';
-import { chargeUser } from '@/app/actions/user';
 import { UserTransaction } from '@/app/types/User';
+import { hasSufficientCredits, deductCredits } from '@/app/actions/credits';
 
 interface RequestBody {
   trackId: string;
@@ -60,6 +60,15 @@ export async function POST(request: Request) {
       }
     }
 
+    // Check if user has sufficient credits
+    const hasCredits = await hasSufficientCredits(userId, UserTransaction.GENERATE_TRACK_INTRO);
+    if (!hasCredits) {
+      return NextResponse.json({
+        status: 'error',
+        error: 'Insufficient credits to generate intro',
+      }, { status: 402 }); // Payment Required
+    }
+
     // Generate intro using new GenKit integration
     const introOutput = await generateIntro(
       track as unknown as TrackMetadata,
@@ -97,7 +106,8 @@ export async function POST(request: Request) {
     const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(docId);
     await introRef.set(intro);
 
-    chargeUser(userId, UserTransaction.GENERATE_TRACK_INTRO);
+    // Deduct credits after successful generation
+    await deductCredits(userId, UserTransaction.GENERATE_TRACK_INTRO);
 
     return NextResponse.json({
       status: 'ready',
