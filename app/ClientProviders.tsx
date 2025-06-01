@@ -3,7 +3,7 @@
 import { SessionProvider } from 'next-auth/react';
 import { SpotifyPlayerProvider } from '@/app/contexts/SpotifyPlayerContext';
 import ErrorBoundary from '@/app/components/ErrorBoundary';
-import { FirebaseAuthProvider } from '@/app/contexts/FirebaseAuthContext';
+import { FirebaseAuthProvider } from '@/app/contexts/UserContext';
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
