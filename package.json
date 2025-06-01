@@ -1,7 +1,35 @@
 {
-  "name": "playlist-companion",
-  "version": "0.1.0",
+  "name": "spotify-companion",
+  "version": "1.0.0",
   "private": true,
+  "description": "A minimal web application that enhances your music listening experience by providing educational insights about your Spotify playlist tracks.",
+  "keywords": [
+    "spotify",
+    "ai",
+    "education",
+    "nextjs",
+    "react",
+    "typescript",
+    "firebase",
+    "genkit",
+    "vertex-ai"
+  ],
+  "author": {
+    "name": "Mostafa Darehzereshki",
+    "url": "https://github.com/mostafa-drz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mostafaxyz/spotify-companion"
+  },
+  "homepage": "https://github.com/mostafaxyz/spotify-companion#readme",
+  "bugs": {
+    "url": "https://github.com/mostafaxyz/spotify-companion/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
