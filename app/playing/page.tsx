@@ -10,6 +10,9 @@ import { getTrackIntro, saveTrackIntro, getTrackIntros } from '@/app/lib/firesto
 import NowPlayingTrackInfo from '@/app/components/NowPlayingTrackInfo';
 import IntroControls from '@/app/components/IntroControls';
 import TemplateSelector from '@/app/components/TemplateSelector';
+import CreditBalance from '@/app/components/CreditBalance';
+import LowCreditBanner from '@/app/components/LowCreditBanner';
+import { hasLowCredits } from '@/app/actions/credits';
 
 declare global {
   interface Window {
@@ -60,6 +63,7 @@ export default function NowPlayingPage() {
   const [userTemplates, setUserTemplates] = useState<PromptTemplate[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [templatesError, setTemplatesError] = useState<string | null>(null);
+  const [showLowCreditBanner, setShowLowCreditBanner] = useState(false);
 
   // Fallback for duration if not in context
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -283,6 +287,16 @@ export default function NowPlayingPage() {
     fetchTemplates();
   }, [session?.user?.id]);
 
+  // Add effect to check for low credits
+  useEffect(() => {
+    async function checkLowCredits() {
+      if (!session?.user?.id) return;
+      const isLow = await hasLowCredits(session.user.id);
+      setShowLowCreditBanner(isLow);
+    }
+    checkLowCredits();
+  }, [session?.user?.id]);
+
   if (status === "loading") {
     return <div className="p-8 text-neutral">Loading...</div>;
   }
@@ -352,61 +366,78 @@ export default function NowPlayingPage() {
   const track = currentTrack as SpotifyTrack;
 
   return (
-    <div className="max-w-xl mx-auto mt-12 p-4 sm:p-6 rounded-lg shadow bg-white dark:bg-[#181818]">
-      {/* --- Spotify Player Section (Top) --- */}
-      <div className="mb-8">
-        {/* Track Info, Progress Bar, and Playback Status */}
-        <NowPlayingTrackInfo track={track} position={position} duration={duration} isPlaying={isPlaying} />
-      </div>
-
-      {/* --- Template Selector (Above Intro Section) --- */}
-      <div className="mb-6">
-        {templatesLoading ? (
-          <div className="flex items-center gap-2 text-neutral" role="status" aria-live="polite">
-            <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-            <span>Loading templates…</span>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col gap-8">
+        {showLowCreditBanner && (
+          <div className="w-full">
+            <LowCreditBanner />
           </div>
-        ) : templatesError ? (
-          <div className="text-semantic-error" role="alert">{templatesError}</div>
-        ) : (
-          <>
-            <TemplateSelector
-              onSelect={setSelectedTemplate}
-              selectedTemplate={selectedTemplate}
-              templates={userTemplates}
-            />
-            {/* Minimal inline feedback for template selection */}
-            {userTemplates.length === 0 && (
-              <div className="text-xs text-neutral mt-2" role="status">No templates found. Create one to get started.</div>
-            )}
-          </>
         )}
-      </div>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Now Playing</h1>
+          <CreditBalance className="text-lg" />
+        </div>
+        <NowPlayingTrackInfo
+          track={track}
+          isPlaying={isPlaying}
+          position={position}
+          duration={duration}
+          error={playerError}
+          isReady={playerIsReady}
+          deviceId={deviceId}
+          onTransferPlayback={transferPlayback}
+          transferring={transferring}
+          transferError={transferError}
+        />
+        {/* --- Template Selector (Above Intro Section) --- */}
+        <div className="mb-6">
+          {templatesLoading ? (
+            <div className="flex items-center gap-2 text-neutral" role="status" aria-live="polite">
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+              <span>Loading templates…</span>
+            </div>
+          ) : templatesError ? (
+            <div className="text-semantic-error" role="alert">{templatesError}</div>
+          ) : (
+            <>
+              <TemplateSelector
+                onSelect={setSelectedTemplate}
+                selectedTemplate={selectedTemplate}
+                templates={userTemplates}
+              />
+              {/* Minimal inline feedback for template selection */}
+              {userTemplates.length === 0 && (
+                <div className="text-xs text-neutral mt-2" role="status">No templates found. Create one to get started.</div>
+              )}
+            </>
+          )}
+        </div>
 
-      {/* --- Intro Section (Below Player) --- */}
-      <IntroControls
-        introsEnabled={introsEnabled}
-        setIntrosEnabled={setIntrosEnabled}
-        introStatus={introStatus}
-        introScript={introScript}
-        introError={introError}
-        introSuccess={introSuccess}
-        selectedTemplate={selectedTemplate}
-        handleTemplateSelect={handleTemplateSelect}
-        currentTrack={track}
-        isIntroAudioPlaying={isIntroAudioPlaying}
-        audioRef={audioRef}
-      />
-      {/* Hidden audio element for playback logic */}
-      <audio
-        ref={audioRef}
-        src={introScript?.audioUrl}
-        onPlay={handleIntroAudioPlay}
-        onPause={handleIntroAudioPauseOrEnd}
-        onEnded={handleIntroAudioPauseOrEnd}
-        preload="auto"
-        style={{ display: 'none' }}
-      />
+        {/* --- Intro Section (Below Player) --- */}
+        <IntroControls
+          introsEnabled={introsEnabled}
+          setIntrosEnabled={setIntrosEnabled}
+          introStatus={introStatus}
+          introScript={introScript}
+          introError={introError}
+          introSuccess={introSuccess}
+          selectedTemplate={selectedTemplate}
+          handleTemplateSelect={handleTemplateSelect}
+          currentTrack={track}
+          isIntroAudioPlaying={isIntroAudioPlaying}
+          audioRef={audioRef}
+        />
+        {/* Hidden audio element for playback logic */}
+        <audio
+          ref={audioRef}
+          src={introScript?.audioUrl}
+          onPlay={handleIntroAudioPlay}
+          onPause={handleIntroAudioPauseOrEnd}
+          onEnded={handleIntroAudioPauseOrEnd}
+          preload="auto"
+          style={{ display: 'none' }}
+        />
+      </div>
     </div>
   );
 } 

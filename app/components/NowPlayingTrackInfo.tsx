@@ -6,6 +6,12 @@ interface NowPlayingTrackInfoProps {
   position: number;
   duration: number;
   isPlaying: boolean;
+  error?: string | null;
+  isReady?: boolean;
+  deviceId?: string | null;
+  onTransferPlayback?: (play: boolean) => Promise<void>;
+  transferring?: boolean;
+  transferError?: string | null;
 }
 
 function msToTime(ms: number) {
@@ -14,7 +20,18 @@ function msToTime(ms: number) {
   return `${min}:${sec.toString().padStart(2, '0')}`;
 }
 
-export default function NowPlayingTrackInfo({ track, position, duration, isPlaying }: NowPlayingTrackInfoProps) {
+export default function NowPlayingTrackInfo({ 
+  track, 
+  position, 
+  duration, 
+  isPlaying,
+  error,
+  isReady,
+  deviceId,
+  onTransferPlayback,
+  transferring,
+  transferError
+}: NowPlayingTrackInfoProps) {
   return (
     <div className="mb-8">
       <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
@@ -30,6 +47,12 @@ export default function NowPlayingTrackInfo({ track, position, duration, isPlayi
           <div className="text-xs text-neutral-700 dark:text-neutral-300 mt-2 break-words">Track ID: {track.id ?? '—'}</div>
           <div className="text-xs text-neutral-700 dark:text-neutral-300 break-words">Playable: {track.is_playable ? 'Yes' : 'No'}</div>
           <div className="text-xs text-neutral-700 dark:text-neutral-300 break-words">Type: {track.type} ({track.media_type})</div>
+          {error && (
+            <div className="text-xs text-red-500 mt-2" role="alert">{error}</div>
+          )}
+          {transferError && (
+            <div className="text-xs text-red-500 mt-2" role="alert">{transferError}</div>
+          )}
         </div>
       </div>
       <div className="mb-4">

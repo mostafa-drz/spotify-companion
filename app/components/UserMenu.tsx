@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import ContactModal from './ContactModal';
 import TermsModal from './TermsModal';
 import DeleteAccountModal from './DeleteAccountModal';
+import CreditBalance from './CreditBalance';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -68,6 +69,9 @@ export default function UserMenu() {
         >
           <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-white dark:bg-[#181818] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
             <div className="py-1">
+              <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                <CreditBalance />
+              </div>
               <Menu.Item>
                 {({ active }) => (
                   <Link

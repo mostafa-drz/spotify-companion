@@ -31,14 +31,14 @@ As a user, I want to use the app's AI features with a simple credit system that 
 - Add error handling for credit-related issues
 
 ## Acceptance Criteria
-- [ ] New users receive initial demo credits
-- [ ] Credit balance is visible in UI
-- [ ] Credit costs are transparent
-- [ ] Operations fail gracefully with insufficient credits
-- [ ] Users can easily contact support for more credits
-- [ ] Credit system is extendable for future features
-- [ ] All feedback is handled via minimal inline messages
-- [ ] System is accessible and mobile-friendly
+- [x] New users receive initial demo credits
+- [x] Credit balance is visible in UI
+- [x] Credit costs are transparent
+- [x] Operations fail gracefully with insufficient credits
+- [x] Users can easily contact support for more credits
+- [x] Credit system is extendable for future features
+- [x] All feedback is handled via minimal inline messages
+- [x] System is accessible and mobile-friendly
 
 ## Success Metrics
 - User understanding of credit system
@@ -62,7 +62,7 @@ As a user, I want to use the app's AI features with a simple credit system that 
 - Maintain the app's minimal design philosophy
 - All feedback should be inline and non-intrusive
 
-## Status: 🚧 Planned
+## Status: 🚧 In Progress
 This user story defines a simple, transparent credit system that enhances the user experience while maintaining the app's minimal design philosophy.
 
 ## Subtasks
@@ -90,18 +90,18 @@ This user story defines a simple, transparent credit system that enhances the us
   - [x] Handle failed operations (no credit deduction)
 
 ### 2. UI Integration
-- [ ] Add credit balance display
-  - [ ] Show in user menu
-  - [ ] Show in now playing page
-  - [ ] Add low credit warning
-- [ ] Add credit usage feedback
-  - [ ] Show credit cost before operation
-  - [ ] Show credit deduction after operation
-  - [ ] Show remaining credits
-- [ ] Add contact support flow
-  - [ ] Low credit notification
-  - [ ] Contact button
-  - [ ] Clear instructions
+- [x] Add credit balance display
+  - [x] Show in user menu
+  - [x] Show in now playing page
+  - [x] Add low credit warning
+- [x] Add credit usage feedback
+  - [x] Show credit cost before operation
+  - [x] Show credit deduction after operation
+  - [x] Show remaining credits
+- [x] Add contact support flow
+  - [x] Low credit notification
+  - [x] Contact button
+  - [x] Clear instructions
 
 ### 3. Service Integration
 - [ ] Update AI generation service
@@ -132,6 +132,25 @@ This user story defines a simple, transparent credit system that enhances the us
 - [ ] Test error handling and recovery
 - [ ] Document credit system for users
 - [ ] Document system for future extensions
+
+## Implementation Details
+### Credit Display
+- Credit balance shown in user menu and now playing page
+- Low credit warning banner appears on now playing page when credits are low
+- Banner includes direct email link to hi@mostafa.xyz
+- Banner uses subtle yellow color scheme for visibility without being intrusive
+
+### Credit Management
+- Initial credits given on signup
+- Credits deducted after successful operations
+- Failed operations don't deduct credits
+- Credit balance auto-refreshes every minute
+
+### Contact Support
+- Simple email-based support system
+- Clear instructions in low credit banner
+- Direct mailto link for easy contact
+- Support email: hi@mostafa.xyz
 
 ## Future Considerations
 - Credit packages
