@@ -15,6 +15,7 @@ nowtune.ai creates a seamless, educational experience that helps users discover 
    - Spotify OAuth integration
    - Secure user session management
    - Basic user profile storage
+   - Credit system initialization
 
 2. **Now Playing Integration**
    - Use Spotify Web Playback SDK for real-time playback state, control, and event listening
@@ -160,6 +161,14 @@ GOOGLE_CLOUD_PROJECT=
    - User-specific defaults
    - Language and tone preferences
 
+6. **Credit System Enhancements**
+   - Credit packages
+   - Referral system
+   - Usage analytics
+   - Automated credit top-up
+   - Credit expiration
+   - Different credit costs for different features
+
 ## 📊 Success Metrics
 - User engagement (time spent per session)
 - Number of tracks analyzed
@@ -180,17 +189,11 @@ GOOGLE_CLOUD_PROJECT=
 - Vertex AI API costs
 - Spotify API rate limits
 - Hosting and bandwidth
+- Credit system:
+  - Initial demo credits for new users
+  - Credit cost per intro generation (includes TTS)
+  - Simple email-based support for credit top-ups
+  - Low credit warnings and notifications
 
 ## 📝 Development Workflow
-1. Feature branches from `main`
-2. Pull requests for review
-3. Automated testing
-4. Staging deployment
-5. Production release
-
-## 🎯 Next Steps
-1. Complete Spotify OAuth integration
-2. Integrate Spotify Web Playback SDK for real-time playback
-3. Set up Vertex AI integration via Firebase client SDK
-4. Build real-time prompt interface and intro player
-5. Deploy MVP version 
+1. Feature branches from `

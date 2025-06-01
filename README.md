@@ -7,6 +7,11 @@ A minimal web application that enhances your music listening experience by provi
 - Connect your Spotify account
 - Select any of your playlists
 - Get AI-generated educational blurbs about each track
+- Simple credit system:
+  - Start with demo credits
+  - Clear credit balance display
+  - Low credit warnings
+  - Easy credit top-up via email
 - Customize your learning experience:
   - Choose your area of interest
   - Select preferred language
@@ -228,6 +233,7 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
 - We only request necessary Spotify permissions
 - Your data is stored securely in Firebase
 - We don't share your information with third parties
+- Credit system is transparent and user-friendly
 
 ## 📝 License
 
