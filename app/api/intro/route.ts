@@ -5,6 +5,8 @@ import { generateTTSAudio } from '@/app/lib/tts-service';
 import { adminDb } from '@/app/lib/firebase-admin';
 import { SpotifyTrack } from '@/app/types/Spotify';
 import { TrackMetadata } from '@/app/types/Track';
+import { chargeUser } from '@/app/actions/user';
+import { UserTransaction } from '@/app/types/User';
 
 interface RequestBody {
   trackId: string;
@@ -94,6 +96,8 @@ export async function POST(request: Request) {
     const docId = getIntroDocId(trackId, templateId);
     const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(docId);
     await introRef.set(intro);
+
+    chargeUser(userId, UserTransaction.GENERATE_TRACK_INTRO);
 
     return NextResponse.json({
       status: 'ready',

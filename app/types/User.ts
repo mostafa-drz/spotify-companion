@@ -7,4 +7,10 @@ export interface User extends UserPromptSettings {
   photoURL: string;
   createdAt: string;
   updatedAt: string;
+  availableCredits: number;
+  usedCredits: number;
+}
+
+export enum UserTransaction {
+  GENERATE_TRACK_INTRO = 'GENERATE_TRACK_INTRO',
 }
