@@ -8,7 +8,7 @@ export default function Home() {
         <h1 className="text-6xl font-bold">
           Welcome to{" "}
           <span className="text-green-600">
-            Playlist Companion
+            Spotify Companion
           </span>
         </h1>
 

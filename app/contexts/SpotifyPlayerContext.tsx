@@ -73,7 +73,7 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
     window.onSpotifyWebPlaybackSDKReady = () => {
       if (!window.Spotify) return;
       const playerInstance = new window.Spotify.Player({
-        name: 'Playlist Companion Player',
+        name: 'Spotify Companion Player',
         getOAuthToken: (cb: (token: string) => void) => { cb(session.accessToken as string); },
         volume: 0.5,
       });

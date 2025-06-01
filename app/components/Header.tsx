@@ -15,7 +15,7 @@ export default async function Header() {
             href="/" 
             className="text-2xl font-bold text-[#1DB954] hover:text-opacity-90 transition-all duration-200"
           >
-            Playlist Companion
+            Spotify Companion
           </Link>
 
           {/* Navigation */}

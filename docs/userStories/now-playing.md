@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This feature introduces a real-time "Now Playing" companion page (`/playing`) to nowtune.ai. The new experience focuses exclusively on generating and playing AI-powered educational intros for the currently playing Spotify track, blending seamlessly into the user's listening session. The implementation is focused, modern, and minimal, with no playlist-based or backward compatibility features. **The app uses the Spotify Web Playback SDK for all playback state, control, and event listening, acting as a true playback controller and intro injector.**
+This feature introduces a real-time "Now Playing" companion page (`/playing`) to Spotify Companion. The new experience focuses exclusively on generating and playing AI-powered educational intros for the currently playing Spotify track, blending seamlessly into the user's listening session. The implementation is focused, modern, and minimal, with no playlist-based or backward compatibility features. **The app uses the Spotify Web Playback SDK for all playback state, control, and event listening, acting as a true playback controller and intro injector.**
 
 ---
 

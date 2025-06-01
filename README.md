@@ -1,4 +1,4 @@
-# 🎵 Playlist Companion
+# 🎵 Spotify Companion
 
 A minimal web application that enhances your music listening experience by providing educational insights about your Spotify playlist tracks.
 

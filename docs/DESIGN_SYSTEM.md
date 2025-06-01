@@ -1,4 +1,4 @@
-# 🎵 Playlist Companion Design System
+# 🎵 Spotify Companion Design System
 
 ## 🎨 Color Palette
 
@@ -78,14 +78,6 @@ font-bold: 700
          shadow-sm hover:shadow-md transition-all duration-200
          border border-gray-100 dark:border-gray-800;
 }
-
-/* Playlist Card */
-.playlist-card {
-  @apply bg-white dark:bg-[#121212] rounded-xl p-6
-         shadow-sm hover:shadow-md transition-all duration-200
-         border border-gray-100 dark:border-gray-800;
-}
-```
 
 ### Inputs
 ```css

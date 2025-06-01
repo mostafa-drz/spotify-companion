@@ -1,10 +1,10 @@
-# 🎵 nowtune.ai — Product Plan
+# 🎵 Spotify Companion — Product Plan
 
 ## 📋 Overview
-nowtune.ai is a minimal web application that enhances users' music listening experience by providing educational insights about their Spotify playlist tracks. Users can connect their Spotify account and receive AI-generated educational intros about the track currently playing on their Spotify device.
+Spotify Companion is a minimal web application that enhances users' music listening experience by providing educational insights about their Spotify playlist tracks. Users can connect their Spotify account and receive AI-generated educational intros about the track currently playing on their Spotify device.
 
 ## 🎯 Product Vision
-nowtune.ai creates a seamless, educational experience that helps users discover the rich history and context behind their favorite music. The app focuses on being:
+Spotify Companion creates a seamless, educational experience that helps users discover the rich history and context behind their favorite music. The app focuses on being:
 - **Educational**: Provide meaningful insights about music
 - **Fun**: Make learning about music engaging and enjoyable
 - **Fast**: Quick, 1-minute blurbs that don't interrupt the listening experience
@@ -71,7 +71,7 @@ nowtune.ai creates a seamless, educational experience that helps users discover 
 
 ## 📅 Development Phases
 
-### Phase 1: Project Setup for nowtune.ai ✅
+### Phase 1: Project Setup for Spotify Companion ✅
 - [x] Initialize Next.js project
 - [x] Configure TypeScript
 - [x] Set up TailwindCSS
@@ -132,7 +132,7 @@ GOOGLE_CLOUD_PROJECT=
 - **Spacing**: Consistent 4px grid
 - **Components**: Minimal, clean design with clear hierarchy
 
-## 🔄 Future Enhancements for nowtune.ai (Post-MVP)
+## 🔄 Future Enhancements for Spotify Companion (Post-MVP)
 1. **Audio Integration**
    - Text-to-Speech for blurbs
    - Audio preview of tracks
@@ -182,7 +182,6 @@ GOOGLE_CLOUD_PROJECT=
 - Data minimization
 - Clear privacy policy
 - Regular security audits
-- Playlist-level access control
 
 ## 💰 Cost Considerations
 - Firebase usage limits
