@@ -11,14 +11,7 @@ export function useTrackIntro(trackId?: string, templateId?: string) {
     shouldFetch ? ['track-intro', userId, trackId, templateId] : null,
     () => getTrackIntro(userId!, trackId!, templateId!)
   );
-  console.log('useTrackIntro', {
-    userId,
-    trackId,
-    templateId,
-    data,
-    error,
-    isLoading,
-  });
+  
   return {
     intro: data,
     isLoading,
