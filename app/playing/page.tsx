@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { useSpotifyPlayer } from "@/app/contexts/SpotifyPlayerContext";
 import { useState, useEffect, useRef } from "react";
 import type { SpotifyTrack } from "@/app/types/Spotify";
-import type { TrackIntro } from '@/app/types/Prompt';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import { useTrackIntros } from '@/app/lib/hooks/useTrackIntros';
 import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
@@ -24,8 +23,6 @@ declare global {
     };
   }
 }
-
-type IntroStatus = 'idle' | 'generating' | 'ready' | 'error';
 
 const DEFAULT_TEMPLATE: PromptTemplate = {
   id: '',
@@ -51,16 +48,12 @@ export default function NowPlayingPage() {
   } = useSpotifyPlayer();
   const [transferring, setTransferring] = useState(false);
   const [introsEnabled, setIntrosEnabled] = useState(true);
-  const [introStatus, setIntroStatus] = useState<IntroStatus>('idle');
-  const [introScript, setIntroScript] = useState<TrackIntro | null>(null);
-  const [introError, setIntroError] = useState<string | null>(null);
-  const [introSuccess, setIntroSuccess] = useState(false);
-  const lastTrackIdRef = useRef<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isIntroAudioPlaying, setIsIntroAudioPlaying] = useState(false);
   const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | undefined>(undefined);
   const { templates: userTemplates = [], isLoading: templatesLoading, error: templatesError } = useUserTemplates(session?.user?.id);
+  const lastTrackIdRef = useRef<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Use SWR hook for track intros
   const {
@@ -87,49 +80,30 @@ export default function NowPlayingPage() {
     }
   }, [selectedTemplate, currentTrack?.id]);
 
-  // Effect: Generate intro script on track or template change if enabled
+  // Generate intro if needed when track/template changes
   useEffect(() => {
     const userId = session?.user?.id;
     const track = currentTrack as SpotifyTrack;
     const intro = trackIntros.find(i => i.templateId === selectedTemplate?.id);
 
-    if (introsEnabled && userId && track && track.id && track.is_playable && selectedTemplate?.id) {
-      if (intro) {
-        setIntroScript(intro);
-        setIntroStatus('ready');
-      } else {
-        setIntroStatus('generating');
-        setIntroScript(null);
-        setIntroError(null);
-        setIntroSuccess(false);
-        generateIntro({
-          userId: userId!,
-          trackId: track.id!,
-          track: { ...track },
-          templateId: selectedTemplate!.id,
-          templateName: selectedTemplate!.name,
-          language: 'en',
-          tone: 'conversational',
-          length: 60,
-          userAreaOfInterest: selectedTemplate!.prompt
-        })
-          .then(async (result) => {
-            setIntroScript(result);
-            setIntroStatus('ready');
-            lastTrackIdRef.current = track.id;
-            mutateTrackIntros();
-          })
-          .catch((err) => {
-            setIntroStatus('error');
-            setIntroError(err instanceof Error ? err.message : 'Failed to generate intro.');
-          });
-      }
+    if (introsEnabled && userId && track && track.id && track.is_playable && selectedTemplate?.id && !intro) {
+      generateIntro({
+        userId: userId!,
+        trackId: track.id!,
+        track: { ...track },
+        templateId: selectedTemplate!.id,
+        templateName: selectedTemplate!.name,
+        language: 'en',
+        tone: 'conversational',
+        length: 60,
+        userAreaOfInterest: selectedTemplate!.prompt
+      }).then(() => {
+        lastTrackIdRef.current = track.id;
+        mutateTrackIntros();
+      });
     }
 
     if (!introsEnabled || !track?.is_playable) {
-      setIntroStatus('idle');
-      setIntroScript(null);
-      setIntroError(null);
       lastTrackIdRef.current = null;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -240,6 +214,9 @@ export default function NowPlayingPage() {
 
   const track = currentTrack as SpotifyTrack;
 
+  // Derive introScript from SWR data
+  const introScript = trackIntros.find(i => i.templateId === selectedTemplate?.id) || null;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col gap-8">
@@ -293,10 +270,10 @@ export default function NowPlayingPage() {
         <IntroControls
           introsEnabled={introsEnabled}
           setIntrosEnabled={setIntrosEnabled}
-          introStatus={introStatus}
+          introStatus={templatesLoading ? 'generating' : introScript ? 'ready' : 'idle'}
           introScript={introScript}
-          introError={introError}
-          introSuccess={introSuccess}
+          introError={templatesError || undefined}
+          introSuccess={false}
           selectedTemplate={selectedTemplate}
           handleTemplateSelect={setSelectedTemplate}
           currentTrack={track}
