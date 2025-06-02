@@ -1,5 +1,5 @@
 import { generateTrackIntro } from './genKit';
-import type { TrackMetadata } from '@/app/types/Track';
+import type { TrackMetadata } from '@/app/types/Spotify';
 import type { TrackIntro } from '@/app/types/Prompt';
 import { getTrackIntro, saveTrackIntro } from '@/app/lib/firestore';
 

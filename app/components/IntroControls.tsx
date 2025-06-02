@@ -65,7 +65,10 @@ export default function IntroControls({
         lastGenRef.current = { trackId: currentTrack.id || '', templateId: selectedTemplate.id };
       });
     }
-  }, [selectedTemplate?.id, currentTrack?.id]);
+  }, [selectedTemplate?.id, 
+    currentTrack?.id, 
+    generateIntro, 
+    mutate, isLoading, introScript, currentTrack, selectedTemplate, lastGenRef, pendingGen]);
 
   function handleRegenerate() {
     if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading) return;
@@ -213,7 +216,16 @@ export default function IntroControls({
           </div>
         )}
         {error && (
-          <div className="text-semantic-error mt-2" role="alert">{error.message || 'Failed to load or generate intro.'}</div>
+          <div className="text-semantic-error mt-2 flex items-center gap-2" role="alert">
+            {error.message || 'Failed to load or generate intro.'}
+            <button
+              type="button"
+              className="ml-2 px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 transition-colors text-sm font-medium border-b border-red-300"
+              onClick={() => mutate()}
+            >
+              Try Again
+            </button>
+          </div>
         )}
       </div>
     </>

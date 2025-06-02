@@ -60,7 +60,7 @@ export default function ContactModal() {
                 </div>
                 <div className="space-y-4">
                   <p className="text-foreground/80">
-                    Have questions or feedback? We'd love to hear from you!
+                    Have questions or feedback? We&apos;d love to hear from you!
                   </p>
                   <div className="space-y-2">
                     <p className="font-medium">Email us at:</p>

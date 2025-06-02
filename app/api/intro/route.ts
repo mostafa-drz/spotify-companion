@@ -4,7 +4,7 @@ import { generateIntro } from '@/app/lib/ai';
 import { generateTTSAudio } from '@/app/lib/tts-service';
 import { adminDb } from '@/app/lib/firebase-admin';
 import { SpotifyTrack } from '@/app/types/Spotify';
-import { TrackMetadata } from '@/app/types/Track';
+import { TrackMetadata } from '@/app/types/Spotify';
 import { UserTransaction } from '@/app/types/User';
 import { hasSufficientCredits, deductCredits } from '@/app/actions/credits';
 
