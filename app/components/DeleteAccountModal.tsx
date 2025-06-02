@@ -1,18 +1,18 @@
 'use client';
 
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { deleteUser } from '@/app/lib/firestore';
+import { useDeleteUser } from '@/app/lib/hooks/useDeleteUser';
 import { useSession, signOut } from 'next-auth/react';
 
 export default function DeleteAccountModal() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isOpen = searchParams.get('modal') === 'delete-account';
-  const [isDeleting, setIsDeleting] = useState(false);
   const { data: session } = useSession();
+  const { deleteUser: deleteUserMutation } = useDeleteUser();
 
   const onClose = () => {
     const params = new URLSearchParams(searchParams);
@@ -25,19 +25,11 @@ export default function DeleteAccountModal() {
       if (!session?.user?.id) {
         throw new Error('User ID is required');
       }
-      setIsDeleting(true);
-      
-      // Delete user data from Firestore
-      await deleteUser(session.user.id);
-      
-      // Sign out from both NextAuth and Firebase
+      await deleteUserMutation(session.user.id);
       await signOut({ redirect: false });
-      
-      // Redirect to home page
       window.location.href = '/';
     } catch (error) {
       console.log(error);
-      setIsDeleting(false);
     }
   };
 
@@ -99,9 +91,8 @@ export default function DeleteAccountModal() {
                       type="button"
                       className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={handleDelete}
-                      disabled={isDeleting}
                     >
-                      {isDeleting ? 'Deleting...' : 'Delete Account'}
+                      Delete Account
                     </button>
                   </div>
                 </div>
