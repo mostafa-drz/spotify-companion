@@ -11,6 +11,7 @@ import IntroControls from '@/app/components/IntroControls';
 import TemplateSelector from '@/app/components/TemplateSelector';
 import CreditBalance from '@/app/components/CreditBalance';
 import LowCreditBanner from '@/app/components/LowCreditBanner';
+import { useTrackIntro } from '@/app/lib/hooks/useTrackIntro';
 
 declare global {
   interface Window {
@@ -20,15 +21,6 @@ declare global {
     };
   }
 }
-
-const DEFAULT_TEMPLATE: PromptTemplate = {
-  id: '',
-  name: 'Default Template',
-  prompt: 'Tell me something interesting about this track.',
-  isSystem: false,
-  createdAt: '',
-  updatedAt: '',
-};
 
 export default function NowPlayingPage() {
   const { data: session, status } = useSession();
@@ -49,19 +41,14 @@ export default function NowPlayingPage() {
   const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | undefined>(undefined);
   const { templates: userTemplates = [], isLoading: templatesLoading, error: templatesError } = useUserTemplates(session?.user?.id);
-  const lastTrackIdRef = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const trackId = currentTrack?.id || undefined;
+  const templateId = selectedTemplate?.id || undefined;
+  const { intro: currentIntro } = useTrackIntro(trackId, templateId);
 
   // Fallback for duration if not in context
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const duration = (currentTrack as any)?.duration_ms ?? 0;
-
-  // Effect: Set default template if not set
-  useEffect(() => {
-    if (!selectedTemplate && currentTrack?.id !== lastTrackIdRef.current) {
-      setSelectedTemplate(DEFAULT_TEMPLATE);
-    }
-  }, [selectedTemplate, currentTrack?.id]);
 
   // Effect: Orchestrate Spotify player pause/resume based on intro audio
   useEffect(() => {
@@ -225,7 +212,7 @@ export default function NowPlayingPage() {
         {/* Hidden audio element for playback logic */}
         <audio
           ref={audioRef}
-          src={selectedTemplate?.prompt ? `data:text/plain;charset=utf-8,${selectedTemplate.prompt}` : undefined}
+          src={currentIntro?.audioUrl || undefined}
           onPlay={handleIntroAudioPlay}
           onPause={handleIntroAudioPauseOrEnd}
           onEnded={handleIntroAudioPauseOrEnd}

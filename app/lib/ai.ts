@@ -1,7 +1,7 @@
 import { generateTrackIntro } from './genKit';
 import type { TrackMetadata } from '@/app/types/Track';
 import type { TrackIntro } from '@/app/types/Prompt';
-import { getCachedIntro, saveIntroToFirestore } from '@/app/lib/firestore';
+import { getTrackIntro, saveTrackIntro } from '@/app/lib/firestore';
 
 /**
  * Generate or fetch intro for a track
@@ -18,30 +18,31 @@ import { getCachedIntro, saveIntroToFirestore } from '@/app/lib/firestore';
  * - Length
  * - User preferences
  * 
+ * @param userId - The user's ID
  * @param trackMetadata - Track information from Spotify
+ * @param templateId - ID of the template used to generate this intro
+ * @param templateName - Name of the template for display purposes
  * @param userAreaOfInterest - User's preferred area of interest
  * @param language - Language code (default: 'en')
  * @param tone - Optional tone for the intro
  * @param length - Optional duration in seconds
  * 
- * @returns Promise<IntroPromptOutput> - Structured output with markdown and SSML
+ * @returns Promise<TrackIntro> - The generated or cached intro
  * @throws Error if generation fails or user is not authenticated
  */
 export async function generateIntro(
+  userId: string,
   trackMetadata: TrackMetadata,
+  templateId: string,
+  templateName: string,
   userAreaOfInterest: string,
   language: string = 'en-US',
   tone: string = 'neutral',
   length: string = 'medium'
 ): Promise<TrackIntro> {
   try {
-    // Check if we have a cached intro that matches all parameters
-    const cachedIntro = await getCachedIntro(trackMetadata.id, {
-      language,
-      tone,
-      length,
-      prompt: userAreaOfInterest
-    });
+    // Check if we have a cached intro for this track+template
+    const cachedIntro = await getTrackIntro(userId, trackMetadata.id, templateId);
 
     if (cachedIntro) {
       return cachedIntro;
@@ -59,7 +60,6 @@ export async function generateIntro(
     // Save the intro to Firestore
     const introData: TrackIntro = {
       trackId: trackMetadata.id,
-      userId: trackMetadata.userId || '',
       introText: intro.markdown,
       ssml: intro.ssml,
       audioUrl: '', // This will be set by the audio generation service
@@ -68,12 +68,14 @@ export async function generateIntro(
       tone,
       length: parseInt(length),
       prompt: userAreaOfInterest || '',
+      templateId,
+      templateName,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       markdown: intro.markdown,
     };
 
-    await saveIntroToFirestore(introData);
+    await saveTrackIntro(userId, trackMetadata.id, templateId, introData);
 
     return introData;
   } catch (error) {

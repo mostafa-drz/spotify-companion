@@ -16,8 +16,8 @@ interface RequestBody {
   tone?: 'casual' | 'academic' | 'storytelling' | 'conversational' | 'professional';
   length?: number;
   userAreaOfInterest?: string;
-  templateId?: string;
-  templateName?: string;
+  templateId: string;
+  templateName: string;
 }
 
 // Helper to generate composite doc ID
@@ -71,7 +71,10 @@ export async function POST(request: Request) {
 
     // Generate intro using new GenKit integration
     const introOutput = await generateIntro(
+      userId,
       track as unknown as TrackMetadata,
+      templateId,
+      templateName,
       userAreaOfInterest,
       language,
       tone,
@@ -85,20 +88,10 @@ export async function POST(request: Request) {
       trackId,
     });
 
-    // Save to Firestore
+    // Update the intro with the audio URL
     const intro = {
-      trackId,
-      userId,
-      introText: introOutput.markdown,
-      ssml: introOutput.ssml,
+      ...introOutput,
       audioUrl,
-      duration: introOutput.duration,
-      language,
-      tone,
-      length,
-      templateId,
-      templateName,
-      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 

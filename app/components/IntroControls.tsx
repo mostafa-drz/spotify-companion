@@ -3,9 +3,10 @@ import { PlayIcon, ArrowPathIcon, PauseIcon, ArrowUturnLeftIcon } from '@heroico
 import { MarkdownContent } from '@/app/components/MarkdownContent';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import type { SpotifyTrack } from '@/app/types/Spotify';
-import { useTrackIntros } from '@/app/lib/hooks/useTrackIntros';
 import { useGenerateIntro } from '@/app/lib/hooks/useGenerateIntro';
 import ProgressBar from './ui/ProgressBar';
+import { useEffect, useRef, useState } from 'react';
+import { useTrackIntro } from '@/app/lib/hooks/useTrackIntro';
 
 interface IntroControlsProps {
   introsEnabled: boolean;
@@ -24,15 +25,50 @@ export default function IntroControls({
   isIntroAudioPlaying,
   audioRef,
 }: IntroControlsProps) {
-  const { trackIntros, isLoading: introsLoading, error: introsError, mutate } = useTrackIntros(undefined, currentTrack?.id || undefined);
+  const trackId = currentTrack?.id || undefined;
+  const templateId = selectedTemplate?.id || undefined;
+  const { intro: introScript, isLoading: introLoading, error: introError, mutate } = useTrackIntro(trackId, templateId);
   const { generateIntro, isLoading: isGenerating, error: generateError } = useGenerateIntro();
 
-  const introScript = selectedTemplate ? trackIntros.find(i => i.templateId === selectedTemplate.id) || null : null;
-  const isLoading = introsLoading || isGenerating;
-  const error = introsError || generateError;
+  const isLoading = introLoading || isGenerating;
+  const error = introError || generateError;
+
+  // Track last generated track/template to avoid duplicate calls
+  const lastGenRef = useRef<{ trackId: string; templateId: string } | null>(null);
+  const [pendingGen, setPendingGen] = useState(false);
+
+  useEffect(() => {
+    if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading) return;
+    if (introScript) {
+      setPendingGen(false);
+      return;
+    }
+    const lastGen = lastGenRef.current;
+    if (
+      !pendingGen &&
+      (!lastGen || lastGen.trackId !== currentTrack.id || lastGen.templateId !== selectedTemplate.id)
+    ) {
+      setPendingGen(true);
+      generateIntro({
+        userId: '',
+        trackId: currentTrack.id || '',
+        track: { ...currentTrack },
+        templateId: selectedTemplate.id,
+        templateName: selectedTemplate.name,
+        language: selectedTemplate.language ?? 'en',
+        tone: selectedTemplate.tone ?? 'conversational',
+        length: selectedTemplate.length ?? 60,
+        userAreaOfInterest: selectedTemplate.prompt
+      }).then(async () => {
+        await mutate();
+        setPendingGen(false);
+        lastGenRef.current = { trackId: currentTrack.id || '', templateId: selectedTemplate.id };
+      });
+    }
+  }, [selectedTemplate?.id, currentTrack?.id]);
 
   function handleRegenerate() {
-    if (!selectedTemplate || !currentTrack) return;
+    if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading) return;
     generateIntro({
       userId: '',
       trackId: currentTrack.id || '',
@@ -43,7 +79,9 @@ export default function IntroControls({
       tone: selectedTemplate.tone ?? 'conversational',
       length: selectedTemplate.length ?? 60,
       userAreaOfInterest: selectedTemplate.prompt
-    }).then(() => mutate());
+    }).then(async () => {
+      await mutate();
+    });
   }
 
   function msToTime(ms: number) {
