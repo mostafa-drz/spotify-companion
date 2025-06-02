@@ -1,11 +1,10 @@
 import Modal from './ui/Modal';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import { useState } from 'react';
-import {
-  addUserPromptTemplate,
-  updateUserPromptTemplate,
-  deleteUserPromptTemplate
-} from '@/app/lib/firestore';
+import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
+import { useAddUserTemplate } from '@/app/lib/hooks/useAddUserTemplate';
+import { useUpdateUserTemplate } from '@/app/lib/hooks/useUpdateUserTemplate';
+import { useDeleteUserTemplate } from '@/app/lib/hooks/useDeleteUserTemplate';
 
 interface TemplateManagementModalProps {
   templates: PromptTemplate[];
@@ -23,6 +22,11 @@ const EXAMPLE_PROMPTS = [
 ];
 
 export default function TemplateManagementModal({ templates, onClose, selectedTemplateId, userId, onTemplatesChange }: TemplateManagementModalProps) {
+  const { mutate: mutateTemplates } = useUserTemplates(userId);
+  const { addTemplate } = useAddUserTemplate(userId);
+  const { updateTemplate } = useUpdateUserTemplate(userId);
+  const { deleteTemplate } = useDeleteUserTemplate(userId);
+
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -38,8 +42,9 @@ export default function TemplateManagementModal({ templates, onClose, selectedTe
     setDeleting(true);
     setActionError(null);
     try {
-      await deleteUserPromptTemplate(userId, deleteId);
+      await deleteTemplate(deleteId);
       setDeleteId(null);
+      mutateTemplates();
       onTemplatesChange();
     } catch {
       setActionError('Failed to delete template.');
@@ -96,17 +101,18 @@ export default function TemplateManagementModal({ templates, onClose, selectedTe
         updatedAt: new Date().toISOString(),
       };
       if (editing) {
-        await updateUserPromptTemplate(userId, editing.id, templateData);
+        await updateTemplate({ templateId: editing.id, updates: templateData });
       } else {
         const newTemplate: PromptTemplate = {
           id: Math.random().toString(36).slice(2),
           ...templateData,
         };
-        await addUserPromptTemplate(userId, newTemplate);
+        await addTemplate(newTemplate);
       }
       setFormOpen(false);
       setEditing(null);
       setForm({ name: '', prompt: '', tone: '', length: '', language: '' });
+      mutateTemplates();
       onTemplatesChange();
     } catch {
       setActionError('Failed to save template.');
