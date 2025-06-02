@@ -2,6 +2,7 @@ import { clientDb } from '@/app/lib/firebase-client';
 import { doc, getDoc, setDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import type { PromptTemplate, TrackIntro, UserPromptSettings } from '@/app/types/Prompt';
 import { User } from '@/app/types/User';
+import { DEFAULT_TEMPLATES } from '@/app/lib/constants';
 
 function getIntroDocId(trackId: string, templateId: string) {
   return `${trackId}_${templateId}`;
@@ -116,4 +117,36 @@ export async function deleteUser(userId: string): Promise<void> {
     console.error('Error deleting user:', error);
     throw error;
   }
+}
+
+export async function userExists(userId: string): Promise<boolean> {
+  const docRef = doc(clientDb, 'users', userId);
+  const document = await getDoc(docRef);
+  return document.exists();
+}
+
+export async function initializeNewUser(userId: string, userData: Partial<User> = {}): Promise<void> {
+  const docRef = doc(clientDb, 'users', userId);
+  const document = await getDoc(docRef);
+  
+  if (document.exists()) {
+    throw new Error('User already exists');
+  }
+
+  // Initialize with default values
+  const newUserData: User = {
+    id: userId,
+    email: userId, // Since we're using email as userId
+    displayName: '',
+    photoURL: '',
+    availableCredits: 10, // Initial credits
+    usedCredits: 0,
+    defaultPrompt: null,
+    templates: DEFAULT_TEMPLATES,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    ...userData
+  };
+
+  await setDoc(docRef, newUserData);
 }

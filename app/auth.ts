@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import SpotifyProvider from 'next-auth/providers/spotify';
 import type { JWT } from 'next-auth/jwt';
 import { adminAuth } from './lib/firebase-admin';
-import { initializeUserCredits } from './actions/credits';
+import { userExists, initializeNewUser } from './lib/firestore';
 
 // Extend the built-in session types
 declare module "next-auth" {
@@ -64,19 +64,27 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           }
 
           // Check if user exists in Firebase
+          let isNewUser = false;
           try {
-            await adminAuth.getUser(email);
+            isNewUser = !(await userExists(email));
+            if (isNewUser) {
+              // Create Firebase auth user
+              await adminAuth.createUser({
+                uid: email,
+                email: email,
+                displayName: user.name || undefined,
+                photoURL: user.image || undefined,
+              });
+              
+              // Initialize user document with defaults
+              await initializeNewUser(email, {
+                displayName: user.name || '',
+                photoURL: user.image || '',
+              });
+            }
           } catch (error) {
-            console.log(error)
-            // User doesn't exist, create them
-            await adminAuth.createUser({
-              uid: email,
-              email: email,
-              displayName: user.name || undefined,
-              photoURL: user.image || undefined,
-            });
-            // Initialize credits for new user
-            await initializeUserCredits(email);
+            console.error('Error checking/creating user:', error);
+            throw error;
           }
 
           return {
