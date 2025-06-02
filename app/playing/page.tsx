@@ -5,9 +5,6 @@ import { useSpotifyPlayer } from "@/app/contexts/SpotifyPlayerContext";
 import { useState, useEffect, useRef } from "react";
 import type { SpotifyTrack } from "@/app/types/Spotify";
 import type { PromptTemplate } from '@/app/types/Prompt';
-import { useTrackIntros } from '@/app/lib/hooks/useTrackIntros';
-import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
-import { useGenerateIntro } from '@/app/lib/hooks/useGenerateIntro';
 import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
 import NowPlayingTrackInfo from '@/app/components/NowPlayingTrackInfo';
 import IntroControls from '@/app/components/IntroControls';
@@ -55,20 +52,6 @@ export default function NowPlayingPage() {
   const lastTrackIdRef = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Use SWR hook for track intros
-  const {
-    trackIntros,
-    mutate: mutateTrackIntros
-  } = useTrackIntros(session?.user?.id, currentTrack?.id || undefined);
-
-  // Use SWR hook for low credit status
-  const {
-    isLow: showLowCreditBanner
-  } = useLowCredits(session?.user?.id);
-
-  // Use SWR hook for generating intros
-  const { generateIntro } = useGenerateIntro();
-
   // Fallback for duration if not in context
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const duration = (currentTrack as any)?.duration_ms ?? 0;
@@ -79,35 +62,6 @@ export default function NowPlayingPage() {
       setSelectedTemplate(DEFAULT_TEMPLATE);
     }
   }, [selectedTemplate, currentTrack?.id]);
-
-  // Generate intro if needed when track/template changes
-  useEffect(() => {
-    const userId = session?.user?.id;
-    const track = currentTrack as SpotifyTrack;
-    const intro = trackIntros.find(i => i.templateId === selectedTemplate?.id);
-
-    if (introsEnabled && userId && track && track.id && track.is_playable && selectedTemplate?.id && !intro) {
-      generateIntro({
-        userId: userId!,
-        trackId: track.id!,
-        track: { ...track },
-        templateId: selectedTemplate!.id,
-        templateName: selectedTemplate!.name,
-        language: 'en',
-        tone: 'conversational',
-        length: 60,
-        userAreaOfInterest: selectedTemplate!.prompt
-      }).then(() => {
-        lastTrackIdRef.current = track.id;
-        mutateTrackIntros();
-      });
-    }
-
-    if (!introsEnabled || !track?.is_playable) {
-      lastTrackIdRef.current = null;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [introsEnabled, currentTrack, session?.user?.id, selectedTemplate?.id, selectedTemplate?.prompt, selectedTemplate?.name, generateIntro, mutateTrackIntros, selectedTemplate]);
 
   // Effect: Orchestrate Spotify player pause/resume based on intro audio
   useEffect(() => {
@@ -214,17 +168,10 @@ export default function NowPlayingPage() {
 
   const track = currentTrack as SpotifyTrack;
 
-  // Derive introScript from SWR data
-  const introScript = trackIntros.find(i => i.templateId === selectedTemplate?.id) || null;
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col gap-8">
-        {showLowCreditBanner && (
-          <div className="w-full">
-            <LowCreditBanner />
-          </div>
-        )}
+        <LowCreditBanner />
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Now Playing</h1>
           <CreditBalance className="text-lg" />
@@ -270,12 +217,7 @@ export default function NowPlayingPage() {
         <IntroControls
           introsEnabled={introsEnabled}
           setIntrosEnabled={setIntrosEnabled}
-          introStatus={templatesLoading ? 'generating' : introScript ? 'ready' : 'idle'}
-          introScript={introScript}
-          introError={templatesError || undefined}
-          introSuccess={false}
           selectedTemplate={selectedTemplate}
-          handleTemplateSelect={setSelectedTemplate}
           currentTrack={track}
           isIntroAudioPlaying={isIntroAudioPlaying}
           audioRef={audioRef}
@@ -283,7 +225,7 @@ export default function NowPlayingPage() {
         {/* Hidden audio element for playback logic */}
         <audio
           ref={audioRef}
-          src={introScript?.audioUrl}
+          src={selectedTemplate?.prompt ? `data:text/plain;charset=utf-8,${selectedTemplate.prompt}` : undefined}
           onPlay={handleIntroAudioPlay}
           onPause={handleIntroAudioPauseOrEnd}
           onEnded={handleIntroAudioPauseOrEnd}

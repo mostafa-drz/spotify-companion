@@ -1,8 +1,14 @@
 'use client';
 
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
+import { useSession } from 'next-auth/react';
 
 export default function LowCreditBanner() {
+  const { data: session } = useSession();
+  const { isLow } = useLowCredits(session?.user?.id);
+  if (!isLow) return null;
+
   return (
     <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-2">
       <div className="flex items-start gap-2">

@@ -1,50 +1,51 @@
 import { Switch } from '@headlessui/react';
 import { PlayIcon, ArrowPathIcon, PauseIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { MarkdownContent } from '@/app/components/MarkdownContent';
-import type { TrackIntro, PromptTemplate } from '@/app/types/Prompt';
+import type { PromptTemplate } from '@/app/types/Prompt';
 import type { SpotifyTrack } from '@/app/types/Spotify';
-import { RefObject } from 'react';
+import { useTrackIntros } from '@/app/lib/hooks/useTrackIntros';
+import { useGenerateIntro } from '@/app/lib/hooks/useGenerateIntro';
 import ProgressBar from './ui/ProgressBar';
-
-type IntroStatus = 'idle' | 'generating' | 'ready' | 'error';
 
 interface IntroControlsProps {
   introsEnabled: boolean;
   setIntrosEnabled: (enabled: boolean) => void;
-  introStatus: IntroStatus;
-  introScript: TrackIntro | null;
-  introError: string | null;
-  introSuccess: boolean;
   selectedTemplate?: PromptTemplate;
-  handleTemplateSelect: (template: PromptTemplate) => void;
   currentTrack: SpotifyTrack;
   isIntroAudioPlaying: boolean;
-  audioRef: RefObject<HTMLAudioElement | null>;
-}
-
-function isGenerating(status: IntroStatus) {
-  return status === 'generating';
-}
-function isReady(status: IntroStatus) {
-  return status === 'ready';
-}
-function isError(status: IntroStatus) {
-  return status === 'error';
+  audioRef: React.RefObject<HTMLAudioElement | null>;
 }
 
 export default function IntroControls({
   introsEnabled,
   setIntrosEnabled,
-  introStatus,
-  introScript,
-  introError,
-  introSuccess,
   selectedTemplate,
-  handleTemplateSelect,
   currentTrack,
   isIntroAudioPlaying,
   audioRef,
 }: IntroControlsProps) {
+  const { trackIntros, isLoading: introsLoading, error: introsError, mutate } = useTrackIntros(undefined, currentTrack?.id || undefined);
+  const { generateIntro, isLoading: isGenerating, error: generateError } = useGenerateIntro();
+
+  const introScript = selectedTemplate ? trackIntros.find(i => i.templateId === selectedTemplate.id) || null : null;
+  const isLoading = introsLoading || isGenerating;
+  const error = introsError || generateError;
+
+  function handleRegenerate() {
+    if (!selectedTemplate || !currentTrack) return;
+    generateIntro({
+      userId: '',
+      trackId: currentTrack.id || '',
+      track: { ...currentTrack },
+      templateId: selectedTemplate.id,
+      templateName: selectedTemplate.name,
+      language: selectedTemplate.language ?? 'en',
+      tone: selectedTemplate.tone ?? 'conversational',
+      length: selectedTemplate.length ?? 60,
+      userAreaOfInterest: selectedTemplate.prompt
+    }).then(() => mutate());
+  }
+
   function msToTime(ms: number) {
     const min = Math.floor(ms / 60000);
     const sec = Math.floor((ms % 60000) / 1000);
@@ -77,13 +78,13 @@ export default function IntroControls({
       </div>
       {/* Intro script status and display */}
       <div className="mb-8">
-        {isGenerating(introStatus) && (
+        {isLoading && (
           <div className="flex items-center gap-2 text-green-600 mb-2">
             <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
             <span>Generating…</span>
           </div>
         )}
-        {isReady(introStatus) && introScript && (
+        {introScript && !isLoading && !error && (
           <div className="bg-gray-100 dark:bg-gray-900 rounded p-3 sm:p-4 text-neutral-900 dark:text-neutral-100 text-base shadow-inner">
             {/* Flex row for label and regenerate button */}
             <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
@@ -94,10 +95,10 @@ export default function IntroControls({
                 title="Regenerate Intro"
                 tabIndex={0}
                 className="px-3 py-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 flex items-center gap-2 justify-center transition-colors duration-200"
-                onClick={() => selectedTemplate && handleTemplateSelect(selectedTemplate)}
-                disabled={isGenerating(introStatus) || !currentTrack}
+                onClick={handleRegenerate}
+                disabled={isLoading || !currentTrack}
               >
-                {isGenerating(introStatus) ? (
+                {isLoading ? (
                   <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
                 ) : (
                   <>
@@ -107,17 +108,11 @@ export default function IntroControls({
                 )}
               </button>
             </div>
-            <div aria-busy={isGenerating(introStatus)}>
+            <div aria-busy={isLoading}>
               <div className="prose prose-neutral dark:prose-invert max-w-none text-base leading-relaxed">
                 <MarkdownContent content={introScript.introText} />
               </div>
-              {/* Inline feedback messages */}
-              {introSuccess && (
-                <div className="mt-3 text-green-700 dark:text-green-400 text-sm" role="status">Intro updated!</div>
-              )}
-              {isError(introStatus) && introError && (
-                <div className="mt-3 text-red-700 dark:text-red-400 text-sm" role="alert">{introError}</div>
-              )}
+              {/* Success and error messages can be handled here if needed */}
             </div>
             {/* Audio playback controls */}
             {introScript.audioUrl && (
@@ -179,8 +174,8 @@ export default function IntroControls({
             )}
           </div>
         )}
-        {isError(introStatus) && introError && (
-          <div className="text-semantic-error mt-2" role="alert">{introError}</div>
+        {error && (
+          <div className="text-semantic-error mt-2" role="alert">{error.message || 'Failed to load or generate intro.'}</div>
         )}
       </div>
     </>
