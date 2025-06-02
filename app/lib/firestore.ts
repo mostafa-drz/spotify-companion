@@ -3,54 +3,6 @@ import { doc, getDoc, setDoc, collection, query, where, getDocs, deleteDoc } fro
 import type { PromptTemplate, TrackIntro, UserPromptSettings } from '@/app/types/Prompt';
 import { User } from '@/app/types/User';
 
-interface IntroCacheParams {
-  language: string;
-  tone: string;
-  length: string;
-  prompt: string;
-  templateId?: string;
-}
-
-export async function getCachedIntro(
-  trackId: string,
-  params: IntroCacheParams
-): Promise<TrackIntro | null> {
-  try {
-    const docRef = doc(clientDb, 'trackIntros', trackId);
-    const document = await getDoc(docRef);
-    
-    if (!document.exists()) return null;
-    
-    const data = document.data() as TrackIntro;
-    
-    // Check if cached intro matches all parameters including template
-    if (
-      data.language === params.language &&
-      data.tone === params.tone &&
-      data.length === parseInt(params.length) &&
-      data.prompt === params.prompt &&
-      data.templateId === params.templateId
-    ) {
-      return data;
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Error getting cached intro:', error);
-    return null;
-  }
-}
-
-export async function saveIntroToFirestore(intro: TrackIntro): Promise<void> {
-  try {
-    const docRef = doc(clientDb, 'trackIntros', intro.trackId);
-    await setDoc(docRef, intro, { merge: true });
-  } catch (error) {
-    console.error('Error saving intro to Firestore:', error);
-    throw error;
-  }
-}
-
 function getIntroDocId(trackId: string, templateId: string) {
   return `${trackId}_${templateId}`;
 }
@@ -59,7 +11,10 @@ export async function getTrackIntro(userId: string, trackId: string, templateId:
   const docId = getIntroDocId(trackId, templateId);
   const docRef = doc(clientDb, 'users', userId, 'trackIntros', docId);
   const document = await getDoc(docRef);
-  return document.exists() ? document.data() as TrackIntro : null;
+  if (!document.exists()) return null;
+  const data = document.data();
+  // userId is not expected in the data
+  return data as TrackIntro;
 }
 
 export async function saveTrackIntro(userId: string, trackId: string, templateId: string, intro: TrackIntro): Promise<void> {
@@ -78,7 +33,11 @@ export async function getTrackIntros(userId: string, trackId?: string): Promise<
       q = introsRef;
     }
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data() as TrackIntro);
+    return querySnapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+      // userId is not expected in the data
+      return data as TrackIntro;
+    });
   } catch (error) {
     console.error('Error getting track intros:', error);
     return [];

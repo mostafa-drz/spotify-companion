@@ -2,7 +2,6 @@ export interface PromptTemplate {
   id: string;
   name: string;
   prompt: string;
-  userId?: string;
   isSystem?: boolean;
   createdAt: string;
   updatedAt?: string;
@@ -11,29 +10,8 @@ export interface PromptTemplate {
   language?: string;
 }
 
-export interface UserPrompt {
-  id: string;
-  userId: string;
-  playlistId: string;
-  templateId?: string;
-  customPrompt?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// UserPrompt, PromptMetadata, PromptStatus, IntroPromptConfig, IntroPrompt are not used in the main flow. Remove or comment as future use.
 
-export interface PromptMetadata {
-  trackId: string;
-  promptId: string;
-  status: 'pending' | 'generating' | 'completed' | 'failed';
-  error?: string;
-  audioUrl?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export type PromptStatus = 'pending' | 'generating' | 'completed' | 'failed';
-
-// New types for Dotprompt integration
 export interface IntroPromptInput {
   trackDetailsJSON: string;
   userAreaOfInterest: string;
@@ -48,37 +26,14 @@ export interface IntroPromptOutput {
   duration: number;
 }
 
-export interface IntroPromptConfig {
-  temperature: number;
-  topK: number;
-  topP: number;
-  maxOutputTokens: number;
-}
-
-export interface IntroPrompt {
-  model: string;
-  config: IntroPromptConfig;
-  input: {
-    schema: IntroPromptInput;
-    default: {
-      tone: string;
-      length: number;
-    };
-  };
-  output: {
-    schema: IntroPromptOutput;
-  };
-}
-
 export interface UserPromptSettings {
   defaultPrompt: string | null;
   templates: PromptTemplate[];
 }
 
-// Update TrackIntro to include template
+// Update TrackIntro to remove userId and standardize timestamps
 export interface TrackIntro {
   trackId: string;
-  userId: string;
   introText: string;
   markdown: string;
   ssml: string;

@@ -1,3 +1,8 @@
+// If needed, import { TrackMetadata } from './Track';
+// Remove duplicate TrackMetadata definition.
+// Remove AIRequest, AIResponse, AIGenerationError, AIGenerationResult unless needed for future use.
+// If you want to keep them for future, comment them as such.
+
 export interface TrackMetadata {
   id: string;
   name: string;
