@@ -1,10 +1,10 @@
 'use client';
 
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon, Cog6ToothIcon } from '@heroicons/react/20/solid';
 import { useSession } from 'next-auth/react';
-import { getUserPromptTemplates } from '@/app/lib/firestore';
+import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import TemplateManagementModal from './TemplateManagementModal';
 
@@ -24,29 +24,23 @@ export default function TemplateSelector({
   templates: providedTemplates,
 }: TemplateSelectorProps) {
   const { data: session } = useSession();
-  const [templates, setTemplates] = useState<PromptTemplate[]>(providedTemplates || []);
-  const [loading, setLoading] = useState(!providedTemplates);
-  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    async function loadTemplates() {
-      if (providedTemplates || !session?.user?.id) return;
-      try {
-        setLoading(true);
-        const userTemplates = await getUserPromptTemplates(session.user.id);
-        setTemplates(userTemplates);
-      } catch {
-        console.error('Failed to load templates:');
-        setError('Failed to load templates');
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadTemplates();
-  }, [session?.user?.id, providedTemplates]);
+  // Use SWR hook if templates are not provided
+  const {
+    templates,
+    isLoading,
+    error,
+    mutate
+  } = useUserTemplates(!providedTemplates && session?.user?.id ? session.user.id : undefined);
 
-  if (loading) {
+  // Add a default option
+  const allTemplates = [
+    { id: '', name: 'Default Template', prompt: '', isSystem: false, createdAt: '', updatedAt: '' },
+    ...(providedTemplates || templates),
+  ];
+
+  if (!providedTemplates && isLoading) {
     return (
       <div className="flex items-center gap-2 text-neutral">
         <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
@@ -55,15 +49,9 @@ export default function TemplateSelector({
     );
   }
 
-  if (error) {
-    return <div className="text-semantic-error">{error}</div>;
+  if (!providedTemplates && error) {
+    return <div className="text-semantic-error">{error.message || 'Failed to load templates'}</div>;
   }
-
-  // Add a default option
-  const allTemplates = [
-    { id: '', name: 'Default Template', prompt: '', isSystem: false, createdAt: '', updatedAt: '' },
-    ...templates,
-  ];
 
   return (
     <div className="w-full max-w-md">
@@ -167,20 +155,10 @@ export default function TemplateSelector({
       </div>
       {isModalOpen && session?.user?.id && (
         <TemplateManagementModal
-          templates={templates}
+          templates={providedTemplates || templates}
           onClose={() => setIsModalOpen(false)}
           userId={session.user.id}
-          onTemplatesChange={async () => {
-            setLoading(true);
-            try {
-              const userTemplates = await getUserPromptTemplates(session.user.id);
-              setTemplates(userTemplates);
-            } catch {
-              setError('Failed to load templates');
-            } finally {
-              setLoading(false);
-            }
-          }}
+          onTemplatesChange={mutate}
           selectedTemplateId={selectedTemplate?.id}
         />
       )}
