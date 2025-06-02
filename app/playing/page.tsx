@@ -12,8 +12,8 @@ import IntroControls from '@/app/components/IntroControls';
 import TemplateSelector from '@/app/components/TemplateSelector';
 import CreditBalance from '@/app/components/CreditBalance';
 import LowCreditBanner from '@/app/components/LowCreditBanner';
-import { hasLowCredits } from '@/app/actions/credits';
 import { useTrackIntros } from '@/app/lib/hooks/useTrackIntros';
+import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
 
 declare global {
   interface Window {
@@ -62,13 +62,17 @@ export default function NowPlayingPage() {
   const [userTemplates, setUserTemplates] = useState<PromptTemplate[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [templatesError, setTemplatesError] = useState<string | null>(null);
-  const [showLowCreditBanner, setShowLowCreditBanner] = useState(false);
 
   // Use SWR hook for track intros
   const {
     trackIntros,
     mutate: mutateTrackIntros
   } = useTrackIntros(session?.user?.id, currentTrack?.id || undefined);
+
+  // Use SWR hook for low credit status
+  const {
+    isLow: showLowCreditBanner
+  } = useLowCredits(session?.user?.id);
 
   // Fallback for duration if not in context
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -212,16 +216,6 @@ export default function NowPlayingPage() {
       }
     }
     fetchTemplates();
-  }, [session?.user?.id]);
-
-  // Add effect to check for low credits
-  useEffect(() => {
-    async function checkLowCredits() {
-      if (!session?.user?.id) return;
-      const isLow = await hasLowCredits(session.user.id);
-      setShowLowCreditBanner(isLow);
-    }
-    checkLowCredits();
   }, [session?.user?.id]);
 
   // Update template selection handler to use trackIntros from hook
