@@ -6,15 +6,15 @@ import { useState, useEffect, useRef } from "react";
 import type { SpotifyTrack } from "@/app/types/Spotify";
 import type { TrackIntro } from '@/app/types/Prompt';
 import type { PromptTemplate } from '@/app/types/Prompt';
-import { getTrackIntro, saveTrackIntro } from '@/app/lib/firestore';
+import { useTrackIntros } from '@/app/lib/hooks/useTrackIntros';
+import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
+import { useGenerateIntro } from '@/app/lib/hooks/useGenerateIntro';
+import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
 import NowPlayingTrackInfo from '@/app/components/NowPlayingTrackInfo';
 import IntroControls from '@/app/components/IntroControls';
 import TemplateSelector from '@/app/components/TemplateSelector';
 import CreditBalance from '@/app/components/CreditBalance';
 import LowCreditBanner from '@/app/components/LowCreditBanner';
-import { useTrackIntros } from '@/app/lib/hooks/useTrackIntros';
-import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
-import { useGenerateIntro } from '@/app/lib/hooks/useGenerateIntro';
 
 declare global {
   interface Window {
@@ -60,9 +60,7 @@ export default function NowPlayingPage() {
   const [isIntroAudioPlaying, setIsIntroAudioPlaying] = useState(false);
   const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | undefined>(undefined);
-  const [userTemplates, setUserTemplates] = useState<PromptTemplate[]>([]);
-  const [templatesLoading, setTemplatesLoading] = useState(true);
-  const [templatesError, setTemplatesError] = useState<string | null>(null);
+  const { templates: userTemplates = [], isLoading: templatesLoading, error: templatesError } = useUserTemplates(session?.user?.id);
 
   // Use SWR hook for track intros
   const {
@@ -93,14 +91,9 @@ export default function NowPlayingPage() {
   useEffect(() => {
     const userId = session?.user?.id;
     const track = currentTrack as SpotifyTrack;
+    const intro = trackIntros.find(i => i.templateId === selectedTemplate?.id);
 
-    async function getIntroFromDb() {
-      if (!userId || !track?.id || !selectedTemplate?.id) return null;
-      return await getTrackIntro(userId, track.id, selectedTemplate.id);
-    }
-
-    async function updateIntro() {
-      const intro = await getIntroFromDb();
+    if (introsEnabled && userId && track && track.id && track.is_playable && selectedTemplate?.id) {
       if (intro) {
         setIntroScript(intro);
         setIntroStatus('ready');
@@ -109,35 +102,28 @@ export default function NowPlayingPage() {
         setIntroScript(null);
         setIntroError(null);
         setIntroSuccess(false);
-        try {
-          const result = await generateIntro({
-            userId: userId!,
-            trackId: track.id!,
-            track: { ...track },
-            templateId: selectedTemplate!.id,
-            templateName: selectedTemplate!.name,
-            language: 'en',
-            tone: 'conversational',
-            length: 60,
-            userAreaOfInterest: selectedTemplate!.prompt
+        generateIntro({
+          userId: userId!,
+          trackId: track.id!,
+          track: { ...track },
+          templateId: selectedTemplate!.id,
+          templateName: selectedTemplate!.name,
+          language: 'en',
+          tone: 'conversational',
+          length: 60,
+          userAreaOfInterest: selectedTemplate!.prompt
+        })
+          .then(async (result) => {
+            setIntroScript(result);
+            setIntroStatus('ready');
+            lastTrackIdRef.current = track.id;
+            mutateTrackIntros();
+          })
+          .catch((err) => {
+            setIntroStatus('error');
+            setIntroError(err instanceof Error ? err.message : 'Failed to generate intro.');
           });
-          setIntroScript(result);
-          setIntroStatus('ready');
-          lastTrackIdRef.current = track.id;
-          if (userId && track.id && selectedTemplate) {
-            await saveTrackIntro(userId!, track.id!, selectedTemplate.id, result);
-          }
-          setIntroSuccess(true);
-          setTimeout(() => setIntroSuccess(false), 2000);
-        } catch (err) {
-          setIntroStatus('error');
-          setIntroError(err instanceof Error ? err.message : 'Failed to generate intro.');
-        }
       }
-    }
-
-    if (introsEnabled && userId && track && track.id && track.is_playable && selectedTemplate?.id) {
-      updateIntro();
     }
 
     if (!introsEnabled || !track?.is_playable) {
@@ -146,15 +132,8 @@ export default function NowPlayingPage() {
       setIntroError(null);
       lastTrackIdRef.current = null;
     }
-  }, [introsEnabled, currentTrack, 
-    session?.user?.id, 
-    selectedTemplate?.id, 
-    selectedTemplate?.prompt, 
-    selectedTemplate?.name, 
-    generateIntro,
-    mutateTrackIntros,
-    selectedTemplate
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [introsEnabled, currentTrack, session?.user?.id, selectedTemplate?.id, selectedTemplate?.prompt, selectedTemplate?.name, generateIntro, mutateTrackIntros, selectedTemplate]);
 
   // Effect: Orchestrate Spotify player pause/resume based on intro audio
   useEffect(() => {
@@ -194,62 +173,6 @@ export default function NowPlayingPage() {
     if (!session?.user?.id) return;
     // Remove unused code
   }, [session?.user?.id]);
-
-  // Fetch user templates on mount or when session changes
-  useEffect(() => {
-    async function fetchTemplates() {
-      if (!session?.user?.id) return;
-      setTemplatesLoading(true);
-      setTemplatesError(null);
-      try {
-        const res = await import('@/app/lib/firestore');
-        const userTemplates = await res.getUserPromptTemplates(session.user.id);
-        setUserTemplates(userTemplates);
-      } catch {
-        setTemplatesError('Failed to load templates');
-      } finally {
-        setTemplatesLoading(false);
-      }
-    }
-    fetchTemplates();
-  }, [session?.user?.id]);
-
-  // Update template selection handler to use useGenerateIntro
-  const handleTemplateSelect = async (template: PromptTemplate) => {
-    if (!template || !session?.user?.id) return;
-    setSelectedTemplate(template);
-    const existingIntro = trackIntros.find(intro => intro.templateId === template.id);
-    if (existingIntro) {
-      setIntroScript(existingIntro);
-      setIntroStatus('ready');
-    } else {
-      setIntroStatus('generating');
-      setIntroScript(null);
-      setIntroError(null);
-      setIntroSuccess(false);
-      try {
-        const result = await generateIntro({
-          userId: session.user.id!,
-          trackId: currentTrack!.id!,
-          track: currentTrack,
-          templateId: template.id,
-          templateName: template.name,
-          language: 'en',
-          tone: 'conversational',
-          length: 60,
-          userAreaOfInterest: template.prompt
-        });
-        setIntroScript(result);
-        setIntroStatus('ready');
-        setIntroSuccess(true);
-        setTimeout(() => setIntroSuccess(false), 2000);
-        mutateTrackIntros();
-      } catch (err) {
-        setIntroStatus('error');
-        setIntroError(err instanceof Error ? err.message : 'Failed to generate intro.');
-      }
-    }
-  };
 
   if (status === "loading") {
     return <div className="p-8 text-neutral">Loading...</div>;
@@ -375,7 +298,7 @@ export default function NowPlayingPage() {
           introError={introError}
           introSuccess={introSuccess}
           selectedTemplate={selectedTemplate}
-          handleTemplateSelect={handleTemplateSelect}
+          handleTemplateSelect={setSelectedTemplate}
           currentTrack={track}
           isIntroAudioPlaying={isIntroAudioPlaying}
           audioRef={audioRef}
