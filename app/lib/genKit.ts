@@ -26,7 +26,7 @@ const ai = genkit({
  * 
  * @param input - The input parameters for intro generation
  * @param input.trackDetailsJSON - JSON string containing track metadata
- * @param input.userAreaOfInterest - User's preferred area of interest
+ * @param input.templatePrompt - The selected template's prompt text
  * @param input.language - Language code for the intro
  * @param input.tone - Optional tone for the intro
  * @param input.length - Optional duration in seconds

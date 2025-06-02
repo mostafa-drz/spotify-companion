@@ -7,10 +7,10 @@ interface GenerateIntroParams {
   track: unknown;
   templateId: string;
   templateName: string;
+  templatePrompt: string;
   language?: string;
   tone?: string;
   length?: number;
-  userAreaOfInterest?: string;
 }
 
 async function generateIntroFetcher(
@@ -25,10 +25,10 @@ async function generateIntroFetcher(
       track: arg.track,
       templateId: arg.templateId,
       templateName: arg.templateName,
+      templatePrompt: arg.templatePrompt,
       language: arg.language || 'en',
       tone: arg.tone || 'conversational',
-      length: arg.length || 60,
-      userAreaOfInterest: arg.userAreaOfInterest || ''
+      length: arg.length || 60
     }),
   });
   const data = await response.json();

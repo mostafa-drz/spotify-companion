@@ -15,9 +15,9 @@ interface RequestBody {
   language?: string;
   tone?: 'casual' | 'academic' | 'storytelling' | 'conversational' | 'professional';
   length?: number;
-  userAreaOfInterest?: string;
   templateId: string;
   templateName: string;
+  templatePrompt: string;
 }
 
 // Helper to generate composite doc ID
@@ -35,15 +35,21 @@ export async function POST(request: Request) {
       language = 'en',
       tone = 'conversational',
       length = 60,
-      userAreaOfInterest = 'General',
       templateId,
-      templateName
+      templateName,
+      templatePrompt
     } = (await request.json()) as RequestBody;
 
     if (!templateId) {
       return NextResponse.json({
         status: 'error',
         error: 'templateId is required',
+      }, { status: 400 });
+    }
+    if (!templatePrompt) {
+      return NextResponse.json({
+        status: 'error',
+        error: 'templatePrompt is required',
       }, { status: 400 });
     }
 
@@ -75,7 +81,7 @@ export async function POST(request: Request) {
       track as unknown as TrackMetadata,
       templateId,
       templateName,
-      userAreaOfInterest,
+      templatePrompt,
       language,
       tone,
       length.toString()

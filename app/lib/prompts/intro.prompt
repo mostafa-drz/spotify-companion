@@ -8,9 +8,9 @@ config:
 input:
     schema:
         trackDetailsJSON: string
-        userAreaOfInterest?: string
-        language: string
-        tone?: "casual" | "academic" | "storytelling" | "conversational" | "professional"
+        templatePrompt: string
+        language?: string
+        tone?: string
         length?: number
     default:
         tone: "conversational"
@@ -24,17 +24,11 @@ output:
 
 ---
 {{role "system"}}
-You are a smart AI assistant for music listeners. Given Spotify track details and a user's prompt, generate a concise, engaging introduction about the track.
-
-- Use the user's area of interest as the main focus.
-- Follow the specified tone, language, and length if provided.
-- Output both markdown (for display) and SSML (for speech).
-- Keep the intro within the requested duration (default: 60 seconds).
-- Make the content friendly, informative, and appropriate for the language.
+You are a smart AI assistant for music listeners. Use the template prompt to guide your introduction.
 
 {{role "user"}}
-Generate an introduction for this track.
-Focus on: {{userAreaOfInterest}}.
+Track details: {{trackDetailsJSON}}
+Prompt: {{templatePrompt}}
 {{#if tone}}Tone: {{tone}}.{{/if}}
 {{#if language}}Language: {{language}}.{{/if}}
 {{#if length}}Target duration: {{length}} seconds.{{/if}}

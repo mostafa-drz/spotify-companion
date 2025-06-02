@@ -58,7 +58,7 @@ export default function IntroControls({
         language: selectedTemplate.language ?? 'en',
         tone: selectedTemplate.tone ?? 'conversational',
         length: selectedTemplate.length ?? 60,
-        userAreaOfInterest: selectedTemplate.prompt
+        templatePrompt: selectedTemplate.prompt
       }).then(async () => {
         await mutate();
         setPendingGen(false);
@@ -78,7 +78,7 @@ export default function IntroControls({
       language: selectedTemplate.language ?? 'en',
       tone: selectedTemplate.tone ?? 'conversational',
       length: selectedTemplate.length ?? 60,
-      userAreaOfInterest: selectedTemplate.prompt
+      templatePrompt: selectedTemplate.prompt
     }).then(async () => {
       await mutate();
     });

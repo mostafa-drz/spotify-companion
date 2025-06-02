@@ -16,13 +16,13 @@ import { getTrackIntro, saveTrackIntro } from '@/app/lib/firestore';
  * - Language
  * - Tone
  * - Length
- * - User preferences
+ * - Template prompt
  * 
  * @param userId - The user's ID
  * @param trackMetadata - Track information from Spotify
  * @param templateId - ID of the template used to generate this intro
  * @param templateName - Name of the template for display purposes
- * @param userAreaOfInterest - User's preferred area of interest
+ * @param templatePrompt - The selected template's prompt text
  * @param language - Language code (default: 'en')
  * @param tone - Optional tone for the intro
  * @param length - Optional duration in seconds
@@ -35,7 +35,7 @@ export async function generateIntro(
   trackMetadata: TrackMetadata,
   templateId: string,
   templateName: string,
-  userAreaOfInterest: string,
+  templatePrompt: string,
   language: string = 'en-US',
   tone: string = 'neutral',
   length: string = 'medium'
@@ -51,7 +51,7 @@ export async function generateIntro(
     // Generate the intro using the AI
     const intro = await generateTrackIntro({
       trackDetailsJSON: JSON.stringify(trackMetadata),
-      userAreaOfInterest,
+      templatePrompt,
       language,
       tone,
       length
@@ -67,7 +67,7 @@ export async function generateIntro(
       language,
       tone,
       length: parseInt(length),
-      prompt: userAreaOfInterest || '',
+      prompt: templatePrompt || '',
       templateId,
       templateName,
       createdAt: new Date().toISOString(),

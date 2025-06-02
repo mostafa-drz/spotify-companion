@@ -14,10 +14,10 @@ export interface PromptTemplate {
 
 export interface IntroPromptInput {
   trackDetailsJSON: string;
-  userAreaOfInterest: string;
   language: string;
   tone: string;
   length: string;
+  templatePrompt: string;
 }
 
 export interface IntroPromptOutput {

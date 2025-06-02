@@ -13,10 +13,10 @@ A minimal web application that enhances your music listening experience by provi
   - Low credit warnings
   - Easy credit top-up via email
 - Customize your learning experience:
-  - Choose your area of interest
   - Select preferred language
   - Pick from different tones (casual, academic, storytelling, etc.)
   - Control intro duration
+  - Select a prompt template (e.g., "About the Artist", "Track Story") to guide the AI intro
 - Manage your intro templates (create, edit, delete, select) directly from the Now Playing page—no separate templates section.
 - All feedback (loading, errors, success) is handled via minimal inline messages—no toast notifications or popups, in line with the product's minimalism philosophy.
 - Each track can have multiple intros, one per template, and switching templates instantly loads or generates the relevant intro.
@@ -53,9 +53,9 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
    input:
      schema:
        trackDetailsJSON: string
-       userAreaOfInterest: string
-       language: string
-       tone?: "casual" | "academic" | "storytelling" | "conversational" | "professional"
+       templatePrompt: string
+       language?: string
+       tone?: string
        length?: number
      default:
        tone: "conversational"
@@ -87,9 +87,9 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
      - Language
      - Tone
      - Length
-     - User preferences
-   - Automatic regeneration when parameters change
-   - Firestore for persistent storage
+     - Template prompt
+     - Automatic regeneration when parameters change
+     - Firestore for persistent storage
 
 ### 🧪 Local Dev Guide
 

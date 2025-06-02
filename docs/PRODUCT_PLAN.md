@@ -30,7 +30,7 @@ Spotify Companion creates a seamless, educational experience that helps users di
    - Generate educational blurbs using Dotprompt format
    - Support for multiple output formats (markdown + SSML)
    - Customizable parameters:
-     - User area of interest
+     - Template prompt (selected from user/system templates)
      - Language preference
      - Tone selection (casual, academic, storytelling, conversational, professional)
      - Duration control (default: 60 seconds)
