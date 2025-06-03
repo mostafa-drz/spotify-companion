@@ -35,8 +35,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type:check": "tsc --noEmit",
-    "dev:tunnel": "concurrently \"npm run dev\" \"ngrok http --url=mostafaxyz.ngrok.app 3000\""
+    "format": "prettier --write .",
+    "ts:check": "tsc --noEmit",
+    "dev:tunnel": "concurrently \"npm run dev\" \"ngrok http --url=mostafaxyz.ngrok.app 3000\"",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@auth/firebase-adapter": "^2.9.1",
@@ -69,12 +71,25 @@
     "@types/node": "^20.17.47",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
     "autoprefixer": "^10.4.17",
     "concurrently": "^9.1.2",
-    "eslint": "^9",
+    "eslint": "^9.28.0",
     "eslint-config-next": "15.3.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
     "postcss": "^8.4.35",
+    "prettier": "^3.5.3",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

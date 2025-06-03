@@ -47,6 +47,7 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
 ### ⚙️ Implementation Details
 
 1. **Prompt Definition** (`app/lib/prompts/intro.prompt`):
+
    ```yaml
    ---
    model: googleai/gemini-2.0-flash
@@ -58,7 +59,7 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
        tone?: string
        length?: number
      default:
-       tone: "conversational"
+       tone: 'conversational'
        length: 60
    output:
      schema:
@@ -69,15 +70,17 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
    ```
 
 2. **GenKit Configuration** (`app/lib/genKit.ts`):
+
    ```typescript
    const ai = genkit({
      plugins: [googleAI()],
      model: gemini15Flash,
-     promptDir: './app/lib/prompts'
+     promptDir: './app/lib/prompts',
    });
    ```
 
 3. **Service Layer** (`app/lib/ai.ts`):
+
    - Single entry point for AI interactions
    - Parameter-based caching with Firestore
    - Type-safe input/output handling
@@ -94,10 +97,12 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
 ### 🧪 Local Dev Guide
 
 1. **Get API Access**
+
    - [Generate a Gemini API key](https://makersuite.google.com/app/apikey)
    - Set it in `.env.local` as `GEMINI_API_KEY`
 
 2. **Start Genkit Dev UI**
+
    ```bash
    genkit start -- tsx --watch src/app.ts
    ```
@@ -117,12 +122,14 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
 ## 🏗️ Development Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/playlist-companion.git
    cd playlist-companion
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -159,18 +166,22 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
    ```
 
    ### Setting up Firebase Admin SDK
+
    Choose one of the following authentication methods:
 
    #### Option 1: Service Account (Recommended for local development)
+
    1. Go to Firebase Console > Project Settings > Service Accounts
    2. Click "Generate New Private Key"
    3. Save the downloaded JSON file securely (e.g., in a `secrets` directory)
    4. Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to this file
-   
+
    Note: Add the service account JSON file to `.gitignore` to keep it secure
 
    #### Option 2: Google Application Default Credentials (ADC)
+
    For production environments on Google Cloud Platform:
+
    1. No environment variables needed
    2. Ensure your GCP project has the necessary IAM roles:
       - Firebase Admin
@@ -179,29 +190,36 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
    3. The application will automatically use the service account associated with your GCP project
 
    ### Setting up Firebase Client
+
    1. Go to Firebase Console > Project Settings > General
    2. Scroll down to "Your apps" section
    3. If no web app exists, click "Add app" and choose Web
    4. Register your app and copy the configuration values
 
    ### Setting up NextAuth
+
    Generate a secure random string for `NEXTAUTH_SECRET`:
+
    ```bash
    openssl rand -base64 32
    ```
 
    ### Setting up Spotify
+
    1. Go to Spotify Developer Dashboard
    2. Create a new application or select existing one
    3. Add the redirect URI in the app settings
 
    ### Setting up JWT
+
    Generate a secure random string for `JWT_SECRET`:
+
    ```bash
    openssl rand -base64 32
    ```
 
    ### Setting up Google AI (GenKit)
+
    1. Go to Google AI Studio (https://makersuite.google.com/app/apikey)
    2. Create a new API key
    3. Copy the API key to `GEMINI_API_KEY`
@@ -210,6 +228,7 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
       - Vertex AI Service Agent
 
 4. **Run the development server**
+
    ```bash
    npm run dev
    ```
@@ -238,3 +257,31 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
 ## 📝 License
 
 MIT License - see [LICENSE](LICENSE) for details
+
+## Developer Tooling & Workflow
+
+This project uses automated tooling to ensure code quality and consistency:
+
+### Available Commands
+
+- `npm run lint` — Run ESLint on the codebase
+- `npm run format` — Format code with Prettier
+- `npm run ts:check` — Run TypeScript type checking
+
+### Pre-commit Hooks
+
+- Pre-commit hooks are set up with Husky and lint-staged.
+- On every commit, staged files are automatically linted and formatted. Commits will be blocked if there are any errors.
+
+### Editor Integration
+
+- VSCode users: Format-on-save and ESLint auto-fix are enabled by default (see `.vscode/settings.json`).
+
+### Configuration Files
+
+- ESLint: `eslint.config.mjs`
+- Prettier: `.prettierrc`
+- lint-staged: in `package.json`
+- Husky: `.husky/` directory
+
+For more details, see the user story in `docs/userStories/dev-experience-tooling.md`.
