@@ -18,6 +18,7 @@ interface IntroControlsProps {
   selectedTemplate?: PromptTemplate;
   currentTrack: SpotifyTrack;
   audioRef: React.RefObject<HTMLAudioElement | null>;
+  onSkip?: () => void;
 }
 
 export default function IntroControls({
@@ -26,6 +27,7 @@ export default function IntroControls({
   selectedTemplate,
   currentTrack,
   audioRef,
+  onSkip,
 }: IntroControlsProps) {
   const trackId = currentTrack?.id || undefined;
   const templateId = selectedTemplate?.id || undefined;
@@ -33,7 +35,6 @@ export default function IntroControls({
   const { generateIntro, isLoading: isGenerating, error: generateError } = useGenerateIntro();
   const { credits } = useUserCredits();
   const { isLow: isLowCredits } = useLowCredits();
-  const [skipped, setSkipped] = useState(false);
 
   const isLoading = introLoading || isGenerating;
   const error = introError || generateError;
@@ -166,18 +167,14 @@ export default function IntroControls({
 
   // Skip intro handler
   const handleSkipIntro = () => {
-    setSkipped(true);
+    // Pause intro audio if playing
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-    // Optionally trigger resume of Spotify playback here
+    // Call the onSkip callback to resume Spotify
+    onSkip?.();
   };
-
-  // Reset skipped state on track/template change
-  useEffect(() => {
-    setSkipped(false);
-  }, [trackId, templateId]);
 
   return (
     <>
@@ -213,7 +210,7 @@ export default function IntroControls({
       </div>
       {/* Intro script status and display */}
       <div className="mb-8">
-        {isLoading && !skipped && (
+        {isLoading && (
           <div className="flex items-center gap-2 text-green-600 mb-2" role="status" aria-live="polite">
             <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
             <span>Generating intro…</span>
@@ -226,10 +223,7 @@ export default function IntroControls({
             </button>
           </div>
         )}
-        {skipped && (
-          <div className="text-xs text-neutral-500 mb-2" role="status">Intro skipped. Resuming track…</div>
-        )}
-        {introScript && !isLoading && !error && !skipped && (
+        {introScript && !isLoading && !error && (
           <div className="bg-gray-100 dark:bg-gray-900 rounded p-3 sm:p-4 text-neutral-900 dark:text-neutral-100 text-base shadow-inner">
             {/* Flex row for label and regenerate button */}
             <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
@@ -327,7 +321,7 @@ export default function IntroControls({
             )}
           </div>
         )}
-        {error && !skipped && (
+        {error && (
           <div className="text-semantic-error mt-2 flex items-center gap-2" role="alert">
             {error.message || 'Failed to load or generate intro.'}
             <button

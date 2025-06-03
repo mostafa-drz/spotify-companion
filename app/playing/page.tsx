@@ -183,8 +183,8 @@ export default function NowPlayingPage() {
           setIntrosEnabled={setIntrosEnabled}
           selectedTemplate={selectedTemplate}
           currentTrack={track}
-          isIntroAudioPlaying={false}
           audioRef={audioRef}
+          onSkip={togglePlay}
         />
         {/* Hidden audio element for playback logic */}
         <audio
