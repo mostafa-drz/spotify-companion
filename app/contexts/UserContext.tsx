@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth';
 import { clientAuth, type FirebaseUser } from '@/app/lib/firebase-client';
 import { generateFirebaseToken } from '@/app/actions/auth';
+import { signOut as spotifySignOut } from '@/app/actions/auth';
 
 interface FirebaseAuthContextType {
   user: FirebaseUser | null;
@@ -19,6 +20,14 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    // we failed to refresh the access token, so we need to sign out
+    if (session?.error === "RefreshAccessTokenError") {
+      firebaseSignOut(clientAuth);
+      spotifySignOut();
+    }
+  }, [session]);
 
   useEffect(() => {
     const unsubscribe = clientAuth.onAuthStateChanged(

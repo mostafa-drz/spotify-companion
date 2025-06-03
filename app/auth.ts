@@ -14,6 +14,7 @@ declare module "next-auth" {
       image?: string | null;
     };
     accessToken?: string;
+    error?: "RefreshAccessTokenError";
   }
 }
 
@@ -23,7 +24,7 @@ declare module "next-auth/jwt" {
     accessToken?: string;
     refreshToken?: string;
     accessTokenExpires?: number;
-    error?: string;
+    error?: "RefreshAccessTokenError";
   }
 }
 
@@ -104,13 +105,22 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         return token;
       }
 
-      // Access token has expired, try to update it
-      return refreshAccessToken(token);
+      try {
+        // Access token has expired, try to update it
+        const refreshedTokens = await refreshAccessToken(token);
+        return refreshedTokens;
+      } catch (error) {
+        console.error("Error refreshing access token", error);
+        return {
+          ...token,
+          error: "RefreshAccessTokenError",
+        };
+      }
     },
     async session({ session, token }) {
-      // Use email as the user ID
       session.user.id = session.user.email as string;
       session.accessToken = token.accessToken;
+      session.error = token.error;
       return session;
     },
   },
@@ -122,28 +132,29 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Basic ${Buffer.from(
+          `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
+        ).toString("base64")}`,
       },
       body: new URLSearchParams({
-        client_id: process.env.SPOTIFY_CLIENT_ID as string,
-        client_secret: process.env.SPOTIFY_CLIENT_SECRET as string,
         grant_type: "refresh_token",
         refresh_token: token.refreshToken as string,
       }),
     });
 
-    const refreshedTokens = await response.json();
+    const tokens = await response.json();
 
     if (!response.ok) {
-      throw refreshedTokens;
+      throw tokens;
     }
 
     return {
       ...token,
-      accessToken: refreshedTokens.access_token,
-      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
-      // Fall back to old refresh token, but note that
-      // many providers give a new refresh token when refreshing
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
+      accessToken: tokens.access_token,
+      accessTokenExpires: Date.now() + tokens.expires_in * 1000,
+      // Spotify may not return a new refresh token, so we keep the old one
+      refreshToken: tokens.refresh_token ?? token.refreshToken,
+      error: undefined, // Clear any previous errors
     };
   } catch (error) {
     console.error("Error refreshing access token", error);
