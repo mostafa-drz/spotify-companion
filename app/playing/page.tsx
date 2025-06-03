@@ -185,6 +185,11 @@ export default function NowPlayingPage() {
           currentTrack={track}
           audioRef={audioRef}
           onSkip={togglePlay}
+          onPauseSpotify={() => {
+            if (isPlaying) {
+              togglePlay();
+            }
+          }}
         />
         {/* Hidden audio element for playback logic */}
         <audio

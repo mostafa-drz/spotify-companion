@@ -36,6 +36,15 @@ export function useAutoIntroOrchestration({
     }
   };
 
+  // Stop intro audio when Spotify starts playing
+  useEffect(() => {
+    if (isPlaying && audioRef.current && state === 'playing-intro') {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setState('idle');
+    }
+  }, [isPlaying, audioRef, state]);
+
   // Orchestrate auto-intro on track/template change
   useEffect(() => {
     if (!introsEnabled || !currentTrack?.id || !selectedTemplate?.id) {

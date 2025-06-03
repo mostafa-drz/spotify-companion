@@ -19,6 +19,7 @@ interface IntroControlsProps {
   currentTrack: SpotifyTrack;
   audioRef: React.RefObject<HTMLAudioElement | null>;
   onSkip?: () => void;
+  onPauseSpotify?: () => void;
 }
 
 export default function IntroControls({
@@ -28,6 +29,7 @@ export default function IntroControls({
   currentTrack,
   audioRef,
   onSkip,
+  onPauseSpotify,
 }: IntroControlsProps) {
   const trackId = currentTrack?.id || undefined;
   const templateId = selectedTemplate?.id || undefined;
@@ -42,8 +44,6 @@ export default function IntroControls({
   // Track last generated track/template to avoid duplicate calls
   const lastGenRef = useRef<{ trackId: string; templateId: string } | null>(null);
   const [pendingGen, setPendingGen] = useState(false);
-  const [isRetrying, setIsRetrying] = useState(false);
-  const [retryError, setRetryError] = useState<string | null>(null);
 
   // Add state for audio playback
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -53,7 +53,11 @@ export default function IntroControls({
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handlePlay = () => setIsAudioPlaying(true);
+    const handlePlay = () => {
+      setIsAudioPlaying(true);
+      // Pause Spotify when intro starts playing
+      onPauseSpotify?.();
+    };
     const handlePause = () => setIsAudioPlaying(false);
     const handleEnded = () => setIsAudioPlaying(false);
 
@@ -66,7 +70,7 @@ export default function IntroControls({
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [audioRef]);
+  }, [audioRef, onPauseSpotify]);
 
   // Handle play/pause
   const handlePlayPause = () => {
@@ -134,31 +138,6 @@ export default function IntroControls({
     });
   }
 
-  const handleRetryTTS = async () => {
-    if (!selectedTemplate || !currentTrack || !introScript) return;
-    
-    setIsRetrying(true);
-    setRetryError(null);
-    
-    try {
-      await generateIntro({
-        trackId: currentTrack.id || '',
-        track: { ...currentTrack },
-        templateId: selectedTemplate.id,
-        templateName: selectedTemplate.name,
-        language: selectedTemplate.language ?? 'en',
-        tone: selectedTemplate.tone as Tone ?? Tone.Conversational,
-        length: selectedTemplate.length ?? 60,
-        templatePrompt: selectedTemplate.prompt
-      });
-      await mutate();
-    } catch (err) {
-      setRetryError(err instanceof Error ? err.message : 'Failed to retry TTS generation');
-    } finally {
-      setIsRetrying(false);
-    }
-  };
-
   function msToTime(ms: number) {
     const minutes = Math.floor(ms / 60000);
     const seconds = ((ms % 60000) / 1000).toFixed(0);
@@ -200,7 +179,6 @@ export default function IntroControls({
             Enable AI Intros for Now Playing
           </Switch.Label>
         </Switch.Group>
-        <span className="ml-4 text-xs text-neutral-600 dark:text-neutral-300">-1 credit per intro</span>
         {isLowCredits && (
           <span className="ml-2 flex items-center text-yellow-600 text-xs">
             <ExclamationTriangleIcon className="w-4 h-4 mr-1" />
@@ -306,16 +284,18 @@ export default function IntroControls({
                   >
                     <ArrowUturnLeftIcon className="h-6 w-6 text-green-600" />
                   </button>
-                  <button
-                    type="button"
-                    aria-label="Skip Intro"
-                    title="Skip Intro"
-                    tabIndex={0}
-                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-yellow-100 dark:hover:bg-yellow-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50 transition-colors duration-200"
-                    onClick={handleSkipIntro}
-                  >
-                    Skip Intro
-                  </button>
+                  {isAudioPlaying && (
+                    <button
+                      type="button"
+                      aria-label="Skip Intro"
+                      title="Skip Intro"
+                      tabIndex={0}
+                      className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-yellow-100 dark:hover:bg-yellow-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50 transition-colors duration-200"
+                      onClick={handleSkipIntro}
+                    >
+                      Skip Intro
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -343,19 +323,13 @@ export default function IntroControls({
             onClick={handleRegenerate}
             disabled={isLoading || !selectedTemplate || credits.available <= 0}
           >
-            Generate Intro (-1 credit)
+            Generate Intro
           </button>
           {credits.available <= 0 && (
             <span className="text-xs text-red-600 ml-2">Not enough credits</span>
           )}
         </div>
       )}
-      <div>
-        <button onClick={handleRetryTTS} disabled={isRetrying} className="mt-2 text-xs text-blue-600 underline">
-          {isRetrying ? 'Retrying...' : 'Retry TTS'}
-        </button>
-        {retryError && <p style={{ color: 'red' }}>{retryError}</p>}
-      </div>
     </>
   );
 } 
