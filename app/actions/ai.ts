@@ -53,7 +53,7 @@ export async function generateIntroText(
   return introOutput;
 }
 
-export async function generateIntroAudio(userId: string, trackId: string, text: string) {
+export async function generateIntroAudio(userId: string, trackId: string, templateId: string, text: string) {
   // Generate TTS audio
   const { audioUrl } = await generateTTSAudio({
     text,
@@ -62,7 +62,8 @@ export async function generateIntroAudio(userId: string, trackId: string, text: 
   });
 
   // Update Firestore with audio URL using adminDb
-  const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(trackId);
+  const docId = getIntroDocId(trackId, templateId);
+  const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(docId);
   await introRef.set({ audioUrl }, { merge: true });
 
   return audioUrl;

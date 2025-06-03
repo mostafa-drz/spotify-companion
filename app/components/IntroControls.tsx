@@ -1,5 +1,6 @@
 import { Switch } from '@headlessui/react';
 import { PlayIcon, ArrowPathIcon, PauseIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { MarkdownContent } from '@/app/components/MarkdownContent';
 import { PromptTemplate, Tone } from '@/app/types/Prompt';
 import type { SpotifyTrack } from '@/app/types/Spotify';
@@ -8,6 +9,9 @@ import ProgressBar from './ui/ProgressBar';
 import { useEffect, useRef, useState } from 'react';
 import { useTrackIntro } from '@/app/lib/hooks/useTrackIntro';
 import { generateIntroAudio } from '../actions/ai';
+import { CpuChipIcon } from '@heroicons/react/24/outline';
+import { useUserCredits } from '@/app/lib/hooks/useUserCredits';
+import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
 
 interface IntroControlsProps {
   introsEnabled: boolean;
@@ -30,6 +34,9 @@ export default function IntroControls({
   const templateId = selectedTemplate?.id || undefined;
   const { intro: introScript, isLoading: introLoading, error: introError, mutate } = useTrackIntro(trackId, templateId);
   const { generateIntro, isLoading: isGenerating, error: generateError } = useGenerateIntro();
+  const { credits } = useUserCredits();
+  const { isLow: isLowCredits } = useLowCredits();
+  const [skipped, setSkipped] = useState(false);
 
   const isLoading = introLoading || isGenerating;
   const error = introError || generateError;
@@ -105,9 +112,25 @@ export default function IntroControls({
     const seconds = ((ms % 60000) / 1000).toFixed(0);
     return `${minutes}:${parseInt(seconds) < 10 ? '0' : ''}${seconds}`;
   }
+
+  // Skip intro handler
+  const handleSkipIntro = () => {
+    setSkipped(true);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    // Optionally trigger resume of Spotify playback here
+  };
+
+  // Reset skipped state on track/template change
+  useEffect(() => {
+    setSkipped(false);
+  }, [trackId, templateId]);
+
   return (
     <>
-      {/* Intros toggle */}
+      {/* Intros toggle and credit info */}
       <div className="flex items-center gap-3 mt-4 mb-6">
         <Switch.Group>
           <Switch
@@ -129,20 +152,39 @@ export default function IntroControls({
             Enable AI Intros for Now Playing
           </Switch.Label>
         </Switch.Group>
+        <span className="ml-4 text-xs text-neutral-600 dark:text-neutral-300">-1 credit per intro</span>
+        {isLowCredits && (
+          <span className="ml-2 flex items-center text-yellow-600 text-xs">
+            <ExclamationTriangleIcon className="w-4 h-4 mr-1" />
+            Low credits
+          </span>
+        )}
       </div>
       {/* Intro script status and display */}
       <div className="mb-8">
-        {isLoading && (
-          <div className="flex items-center gap-2 text-green-600 mb-2">
+        {isLoading && !skipped && (
+          <div className="flex items-center gap-2 text-green-600 mb-2" role="status" aria-live="polite">
             <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
-            <span>Generating…</span>
+            <span>Generating intro…</span>
+            <button
+              type="button"
+              className="ml-4 px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 text-xs font-medium border border-gray-300"
+              onClick={handleSkipIntro}
+            >
+              Skip Intro
+            </button>
           </div>
         )}
-        {introScript && !isLoading && !error && (
+        {skipped && (
+          <div className="text-xs text-neutral-500 mb-2" role="status">Intro skipped. Resuming track…</div>
+        )}
+        {introScript && !isLoading && !error && !skipped && (
           <div className="bg-gray-100 dark:bg-gray-900 rounded p-3 sm:p-4 text-neutral-900 dark:text-neutral-100 text-base shadow-inner">
             {/* Flex row for label and regenerate button */}
             <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-              <span className="font-semibold text-primary text-lg">Intro:</span>
+              <span className="font-semibold text-primary text-lg flex items-center gap-1">
+                <CpuChipIcon className="w-5 h-5" /> Intro:
+              </span>
               <button
                 type="button"
                 aria-label="Regenerate Intro"
@@ -166,12 +208,14 @@ export default function IntroControls({
               <div className="prose prose-neutral dark:prose-invert max-w-none text-base leading-relaxed">
                 <MarkdownContent content={introScript.introText} />
               </div>
-              {/* Success and error messages can be handled here if needed */}
             </div>
             {/* Audio playback controls */}
             {introScript.audioUrl && (
               <div className="mt-4 flex flex-col gap-2 items-center">
-                {/* Custom Progress Bar */}
+                <div className="flex items-center gap-2 w-full justify-center mb-1">
+                  <CpuChipIcon className="w-4 h-4 text-green-600" />
+                  <span className="text-xs text-neutral-700 dark:text-neutral-300">Playing: AI Intro</span>
+                </div>
                 <div className="flex items-center gap-2 w-full justify-center">
                   <span className="text-xs text-neutral w-10 text-right tabular-nums">
                     {audioRef.current?.currentTime ? msToTime(audioRef.current.currentTime * 1000) : '0:00'}
@@ -183,7 +227,6 @@ export default function IntroControls({
                     {audioRef.current?.duration ? msToTime(audioRef.current.duration * 1000) : '0:00'}
                   </span>
                 </div>
-                {/* Custom Controls Row */}
                 <div className="flex items-center justify-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 sm:px-3 py-2 border border-gray-200 dark:border-gray-700 mt-1 w-full max-w-xs">
                   <button
                     type="button"
@@ -222,13 +265,22 @@ export default function IntroControls({
                   >
                     <PauseIcon className="h-6 w-6 text-green-600" />
                   </button>
+                  <button
+                    type="button"
+                    aria-label="Skip Intro"
+                    title="Skip Intro"
+                    tabIndex={0}
+                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-yellow-100 dark:hover:bg-yellow-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50 transition-colors duration-200"
+                    onClick={handleSkipIntro}
+                  >
+                    Skip Intro
+                  </button>
                 </div>
-                {/* Hidden audio element for playback logic (should be rendered in parent) */}
               </div>
             )}
           </div>
         )}
-        {error && (
+        {error && !skipped && (
           <div className="text-semantic-error mt-2 flex items-center gap-2" role="alert">
             {error.message || 'Failed to load or generate intro.'}
             <button
@@ -236,13 +288,29 @@ export default function IntroControls({
               className="ml-2 px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 transition-colors text-sm font-medium border-b border-red-300"
               onClick={() => mutate()}
             >
-              Try Again
+              Retry
             </button>
           </div>
         )}
       </div>
+      {/* Manual mode: Generate Intro button */}
+      {!introsEnabled && (
+        <div className="flex items-center gap-2 mt-2">
+          <button
+            type="button"
+            className="px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 disabled:opacity-50"
+            onClick={handleRegenerate}
+            disabled={isLoading || !selectedTemplate || credits.available <= 0}
+          >
+            Generate Intro (-1 credit)
+          </button>
+          {credits.available <= 0 && (
+            <span className="text-xs text-red-600 ml-2">Not enough credits</span>
+          )}
+        </div>
+      )}
       <div>
-        <button onClick={handleRetryTTS} disabled={isRetrying}>
+        <button onClick={handleRetryTTS} disabled={isRetrying} className="mt-2 text-xs text-blue-600 underline">
           {isRetrying ? 'Retrying...' : 'Retry TTS'}
         </button>
         {retryError && <p style={{ color: 'red' }}>{retryError}</p>}

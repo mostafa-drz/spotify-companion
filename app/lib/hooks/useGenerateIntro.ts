@@ -33,7 +33,9 @@ export function useGenerateIntro() {
         arg.tone || Tone.Conversational,
         arg.length || 60
       );
-      const audioUrl = await generateIntroAudio(userId, arg.trackId, intro.markdown);
+
+      const audioUrl = await generateIntroAudio(userId, arg.trackId, arg.templateId, intro.markdown);
+
       return { ...intro, audioUrl };
     }
   );

@@ -12,6 +12,7 @@ import TemplateSelector from '@/app/components/TemplateSelector';
 import CreditBalance from '@/app/components/CreditBalance';
 import LowCreditBanner from '@/app/components/LowCreditBanner';
 import { useTrackIntro } from '@/app/lib/hooks/useTrackIntro';
+import { useAutoIntroOrchestration } from '@/app/lib/hooks/useAutoIntroOrchestration';
 
 declare global {
   interface Window {
@@ -36,52 +37,28 @@ export default function NowPlayingPage() {
     transferPlayback,
   } = useSpotifyPlayer();
   const [transferring, setTransferring] = useState(false);
-  const [introsEnabled, setIntrosEnabled] = useState(true);
-  const [isIntroAudioPlaying, setIsIntroAudioPlaying] = useState(false);
-  const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | undefined>(undefined);
   const { templates: userTemplates = [], isLoading: templatesLoading, error: templatesError } = useUserTemplates();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const trackId = currentTrack?.id || undefined;
   const templateId = selectedTemplate?.id || undefined;
   const { intro: currentIntro } = useTrackIntro(trackId, templateId);
+  const [introsEnabled, setIntrosEnabled] = useState(true);
+
+  // Integrate auto-intro orchestration
+  useAutoIntroOrchestration({
+    introsEnabled,
+    currentTrack: currentTrack ? (currentTrack as SpotifyTrack) : undefined,
+    selectedTemplate,
+    currentIntro,
+    audioRef,
+    isPlaying,
+    togglePlay,
+  });
 
   // Fallback for duration if not in context
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const duration = (currentTrack as any)?.duration_ms ?? 0;
-
-  // Effect: Orchestrate Spotify player pause/resume based on intro audio
-  useEffect(() => {
-    const handlePauseResume = async () => {
-      if (isIntroAudioPlaying) {
-        if (isPlaying) {
-          setWasSpotifyPlaying(true);
-          try {
-            await togglePlay();
-          } catch {
-            // Optionally handle error
-          }
-        } else {
-          setWasSpotifyPlaying(false);
-        }
-      } else {
-        if (wasSpotifyPlaying) {
-          try {
-            await togglePlay();
-          } catch {
-            // Optionally handle error
-          }
-          setWasSpotifyPlaying(false);
-        }
-      }
-    };
-    handlePauseResume();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isIntroAudioPlaying]);
-
-  // Handler for audio events
-  const handleIntroAudioPlay = () => setIsIntroAudioPlaying(true);
-  const handleIntroAudioPauseOrEnd = () => setIsIntroAudioPlaying(false);
 
   // Fetch the default prompt when session.user.id changes
   useEffect(() => {
@@ -206,16 +183,13 @@ export default function NowPlayingPage() {
           setIntrosEnabled={setIntrosEnabled}
           selectedTemplate={selectedTemplate}
           currentTrack={track}
-          isIntroAudioPlaying={isIntroAudioPlaying}
+          isIntroAudioPlaying={false}
           audioRef={audioRef}
         />
         {/* Hidden audio element for playback logic */}
         <audio
           ref={audioRef}
           src={currentIntro?.audioUrl || undefined}
-          onPlay={handleIntroAudioPlay}
-          onPause={handleIntroAudioPauseOrEnd}
-          onEnded={handleIntroAudioPauseOrEnd}
           preload="auto"
           style={{ display: 'none' }}
         />
