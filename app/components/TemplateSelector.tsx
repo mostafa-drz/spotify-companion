@@ -32,7 +32,7 @@ export default function TemplateSelector({
     isLoading,
     error,
     mutate
-  } = useUserTemplates(!providedTemplates && session?.user?.id ? session.user.id : undefined);
+  } = useUserTemplates();
 
   // Add a default option
   const allTemplates = [
@@ -160,7 +160,6 @@ export default function TemplateSelector({
         <TemplateManagementModal
           templates={providedTemplates || templates}
           onClose={() => setIsModalOpen(false)}
-          userId={session.user.id}
           onTemplatesChange={mutate}
           selectedTemplateId={selectedTemplate?.id}
         />

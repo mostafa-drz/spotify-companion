@@ -2,11 +2,9 @@
 
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
-import { useSession } from 'next-auth/react';
 
 export default function LowCreditBanner() {
-  const { data: session } = useSession();
-  const { isLow } = useLowCredits(session?.user?.id);
+  const { isLow } = useLowCredits();
   if (!isLow) return null;
 
   return (

@@ -1,6 +1,5 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
 import { useUserCredits } from '@/app/lib/hooks/useUserCredits';
 import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
@@ -11,9 +10,8 @@ interface CreditBalanceProps {
 }
 
 export default function CreditBalance({ showWarning = true, className = '' }: CreditBalanceProps) {
-  const { data: session } = useSession();
-  const { credits, isLoading } = useUserCredits(session?.user?.id);
-  const { isLow } = useLowCredits(session?.user?.id);
+  const { credits, isLoading } = useUserCredits();
+  const { isLow } = useLowCredits();
 
   if (isLoading) return null;
 

@@ -2,7 +2,14 @@
 
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import type { WebPlaybackTrack, WebPlaybackState } from '@/app/types/Spotify';
+import type { WebPlaybackTrack, WebPlaybackState, SpotifyNamespace } from '@/app/types/Spotify';
+
+declare global {
+  interface Window {
+    Spotify?: SpotifyNamespace;
+    onSpotifyWebPlaybackSDKReady?: () => void;
+  }
+}
 
 class SpotifyError extends Error {
   constructor(
@@ -19,8 +26,8 @@ class SpotifyError extends Error {
 interface SpotifyPlayer {
   connect: () => Promise<boolean>;
   disconnect: () => void;
-  addListener: (event: string, callback: (state: WebPlaybackState) => void) => void;
-  removeListener: (event: string, callback: (state: WebPlaybackState) => void) => void;
+  addListener: (event: string, callback: (payload: unknown) => void) => void;
+  removeListener: (event: string, callback: (payload: unknown) => void) => void;
   activateElement: () => Promise<void>;
   togglePlay: () => Promise<void>;
   nextTrack: () => Promise<void>;
@@ -76,11 +83,12 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
         name: 'Spotify Companion Player',
         getOAuthToken: (cb: (token: string) => void) => { cb(session.accessToken as string); },
         volume: 0.5,
-      });
+      }) as SpotifyPlayer;
       playerRef.current = playerInstance;
       setPlayer(playerInstance);
 
-      playerInstance.addListener('ready', ({ device_id }: { device_id: string }) => {
+      playerInstance.addListener('ready', (payload: unknown) => {
+        const { device_id } = payload as { device_id: string };
         setDeviceId(device_id);
         setIsReady(true);
         setError(null);
@@ -92,38 +100,42 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
         setError(new SpotifyError('Player not ready'));
       });
 
-      playerInstance.addListener('initialization_error', ({ message }: { message: string }) => {
+      playerInstance.addListener('initialization_error', (payload: unknown) => {
+        const { message } = payload as { message: string };
         setIsReady(false);
         setDeviceId(null);
         setError(new SpotifyError(`Initialization error: ${message}`));
       });
 
-      playerInstance.addListener('authentication_error', ({ message }: { message: string }) => {
+      playerInstance.addListener('authentication_error', (payload: unknown) => {
+        const { message } = payload as { message: string };
         setIsReady(false);
         setDeviceId(null);
         setError(new SpotifyError(`Authentication error: ${message}`, 401));
       });
 
-      playerInstance.addListener('account_error', ({ message }: { message: string }) => {
+      playerInstance.addListener('account_error', (payload: unknown) => {
+        const { message } = payload as { message: string };
         setIsReady(false);
         setDeviceId(null);
         setError(new SpotifyError(`Account error: ${message}`));
       });
 
-      playerInstance.addListener('playback_error', ({ message }: { message: string }) => {
+      playerInstance.addListener('playback_error', (payload: unknown) => {
+        const { message } = payload as { message: string };
         setIsReady(false);
         setDeviceId(null);
         setError(new SpotifyError(`Playback error: ${message}`));
       });
 
-      playerInstance.addListener('player_state_changed', (state: WebPlaybackState) => {
+      playerInstance.addListener('player_state_changed', (payload: unknown) => {
+        const state = payload as WebPlaybackState | null;
         if (!state) {
           setIsPlaying(false);
           setCurrentTrack(null);
           setPosition(0);
           return;
         }
-
         setIsPlaying(!state.paused);
         setPosition(state.position);
         if (state.track_window?.current_track) {

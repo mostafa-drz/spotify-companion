@@ -2,6 +2,7 @@ import { generateTrackIntro } from './genKit';
 import type { TrackMetadata } from '@/app/types/Spotify';
 import type { TrackIntro } from '@/app/types/Prompt';
 import { getTrackIntro, saveTrackIntro } from '@/app/lib/firestore';
+import { Tone } from '@/app/types/Prompt';
 
 /**
  * Generate or fetch intro for a track
@@ -53,7 +54,7 @@ export async function generateIntro(
       trackDetailsJSON: JSON.stringify(trackMetadata),
       templatePrompt,
       language,
-      tone,
+      tone: tone as Tone,
       length
     });
 

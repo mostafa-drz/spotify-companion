@@ -89,4 +89,8 @@ export interface TrackMetadata {
   playlistId?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface SpotifyNamespace {
+  Player: new (options: unknown) => unknown;
 } 
