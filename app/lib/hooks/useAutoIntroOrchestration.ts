@@ -86,11 +86,14 @@ export function useAutoIntroOrchestration({
     startIntroPlayback();
 
     return cleanup;
-  }, [introsEnabled, currentTrack?.id, selectedTemplate?.id, currentIntro?.audioUrl, isPlaying, togglePlay]);
+  }, [introsEnabled, currentTrack?.id, 
+    selectedTemplate?.id, 
+    currentIntro?.audioUrl, isPlaying, togglePlay, audioRef, orchestratedFor]);
 
   // Resume Spotify playback when intro audio ends
   useEffect(() => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
 
     const handleEnded = () => {
       setState('resuming');
@@ -112,13 +115,15 @@ export function useAutoIntroOrchestration({
       }
     };
 
-    audioRef.current.addEventListener('ended', handleEnded);
-    audioRef.current.addEventListener('error', handleError as EventListener);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError as EventListener);
 
     return () => {
       cleanup();
-      audioRef.current?.removeEventListener('ended', handleEnded);
-      audioRef.current?.removeEventListener('error', handleError as EventListener);
+      if (audio) {
+        audio.removeEventListener('ended', handleEnded);
+        audio.removeEventListener('error', handleError as EventListener);
+      }
     };
   }, [audioRef, togglePlay, isPlaying]);
 

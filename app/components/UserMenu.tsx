@@ -46,6 +46,7 @@ export default function UserMenu() {
       <Menu as="div" className="relative inline-block text-left">
         <Menu.Button className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-full">
           {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={avatarUrl}
               alt={user.name || user.email || 'User'}

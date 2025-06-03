@@ -40,6 +40,7 @@ export default function NowPlayingTrackInfo({
   return (
     <div className="mb-8">
       <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={track.album.images[0]?.url || "/track-placeholder.png"}
           alt={track.album.name}
