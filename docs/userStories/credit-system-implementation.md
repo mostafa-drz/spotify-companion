@@ -1,16 +1,20 @@
 # 💰 User Story: Simple Pay-as-You-Go Credit System
 
 ## Overview
+
 As a user, I want to use the app's AI features with a simple credit system that allows me to understand my usage and easily get more credits when needed. The system should be transparent, easy to understand, and seamlessly integrated into the existing user experience.
 
 ## User Journey
+
 1. **First-Time User**
+
    - User signs in with Spotify
    - Receives initial demo credits
    - Sees credit balance in the UI
    - Gets clear feedback when credits are used
 
 2. **Regular Usage**
+
    - User sees remaining credits
    - Gets notified when credits are low
    - Understands credit cost per operation
@@ -23,6 +27,7 @@ As a user, I want to use the app's AI features with a simple credit system that 
    - Understands how to get more credits
 
 ## Technical Implementation
+
 - Extend User model with credit fields
 - Add credit management actions
 - Integrate credit checks with AI and TTS services
@@ -31,6 +36,7 @@ As a user, I want to use the app's AI features with a simple credit system that 
 - Add error handling for credit-related issues
 
 ## Acceptance Criteria
+
 - [x] New users receive initial demo credits
 - [x] Credit balance is visible in UI
 - [x] Credit costs are transparent
@@ -41,6 +47,7 @@ As a user, I want to use the app's AI features with a simple credit system that 
 - [x] System is accessible and mobile-friendly
 
 ## Success Metrics
+
 - User understanding of credit system
 - Credit usage patterns
 - Support request patterns
@@ -48,6 +55,7 @@ As a user, I want to use the app's AI features with a simple credit system that 
 - Feature usage with credit system
 
 ## Implementation Plan
+
 1. Extend User model and add credit management
 2. Integrate credit system with existing services
 3. Add credit balance display and notifications
@@ -56,6 +64,7 @@ As a user, I want to use the app's AI features with a simple credit system that 
 6. Test and document the system
 
 ## Notes
+
 - Keep the system simple and transparent
 - Focus on user experience
 - Make it easy to extend for future features
@@ -63,12 +72,15 @@ As a user, I want to use the app's AI features with a simple credit system that 
 - All feedback should be inline and non-intrusive
 
 ## Status: ✅ Completed
+
 This user story defines a simple, transparent credit system that enhances the user experience while maintaining the app's minimal design philosophy.
 
 ## Subtasks
 
 ### 1. Core System
+
 - [x] Define credit system interfaces
+
   ```typescript
   interface User {
     availableCredits: number;
@@ -76,13 +88,14 @@ This user story defines a simple, transparent credit system that enhances the us
   }
 
   enum UserTransaction {
-    GENERATE_TRACK_INTRO = 'GENERATE_TRACK_INTRO'
+    GENERATE_TRACK_INTRO = 'GENERATE_TRACK_INTRO',
   }
 
   const TRANSACTION_COSTS = {
-    [UserTransaction.GENERATE_TRACK_INTRO]: 1
-  }
+    [UserTransaction.GENERATE_TRACK_INTRO]: 1,
+  };
   ```
+
 - [x] Implement credit management actions
   - [x] Initialize user credits on signup
   - [x] Check credit availability
@@ -90,6 +103,7 @@ This user story defines a simple, transparent credit system that enhances the us
   - [x] Handle failed operations (no credit deduction)
 
 ### 2. UI Integration
+
 - [x] Add credit balance display
   - [x] Show in user menu
   - [x] Show in now playing page
@@ -104,6 +118,7 @@ This user story defines a simple, transparent credit system that enhances the us
   - [x] Clear instructions
 
 ### 3. Service Integration
+
 - [x] Update AI generation service
   - [x] Add credit check before generation
   - [x] Add credit deduction after success
@@ -114,12 +129,13 @@ This user story defines a simple, transparent credit system that enhances the us
   - [x] Handle insufficient credits
 
 ### 4. Error Handling
+
 - [x] Add credit-specific errors
   ```typescript
   enum CreditError {
     INSUFFICIENT_CREDITS = 'INSUFFICIENT_CREDITS',
     OPERATION_FAILED = 'OPERATION_FAILED',
-    SYSTEM_ERROR = 'SYSTEM_ERROR'
+    SYSTEM_ERROR = 'SYSTEM_ERROR',
   }
   ```
 - [x] Add error recovery flows
@@ -128,6 +144,7 @@ This user story defines a simple, transparent credit system that enhances the us
   - [x] Clear error messages
 
 ### 5. Testing & Documentation
+
 - [x] Test credit system integration
   - [x] Credit initialization for new users
   - [x] Credit checks before operations
@@ -149,19 +166,23 @@ This user story defines a simple, transparent credit system that enhances the us
   - [x] Future enhancement possibilities
 
 ## Implementation Details
+
 ### Credit Display
+
 - Credit balance shown in user menu and now playing page
 - Low credit warning banner appears on now playing page when credits are low
 - Banner includes direct email link to hi@mostafa.xyz
 - Banner uses subtle yellow color scheme for visibility without being intrusive
 
 ### Credit Management
+
 - Initial credits given on signup
 - Credits deducted after successful operations
 - Failed operations don't deduct credits
 - Credit balance auto-refreshes every minute
 
 ### Service Integration
+
 - Credit checks performed at route level
 - AI intro generation requires 1 credit
 - Credits checked before operation starts
@@ -172,12 +193,14 @@ This user story defines a simple, transparent credit system that enhances the us
 - No separate credit cost for TTS to simplify user experience
 
 ### Contact Support
+
 - Simple email-based support system
 - Clear instructions in low credit banner
 - Direct mailto link for easy contact
 - Support email: hi@mostafa.xyz
 
 ### Testing Results
+
 - Credit initialization works correctly for new users
 - Credit checks prevent operations when insufficient
 - Credit deduction only happens after successful operations
@@ -186,9 +209,10 @@ This user story defines a simple, transparent credit system that enhances the us
 - Support contact flow is simple and effective
 
 ### Future Considerations
+
 - Credit packages
 - Referral system
 - Usage analytics
 - Automated credit top-up
 - Credit expiration
-- Different credit costs for different features 
+- Different credit costs for different features

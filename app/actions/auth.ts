@@ -1,12 +1,19 @@
 'use server';
 
-import { auth, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from '@/app/auth';
-import { generateCustomToken, verifyCustomToken } from '@/app/lib/firebase-admin';
+import {
+  auth,
+  signIn as nextAuthSignIn,
+  signOut as nextAuthSignOut,
+} from '@/app/auth';
+import {
+  generateCustomToken,
+  verifyCustomToken,
+} from '@/app/lib/firebase-admin';
 import { AuthError } from '@/app/lib/AuthError';
 
 /**
  * Authentication Actions
- * 
+ *
  * These server actions handle authentication-related operations:
  * - Firebase token generation and verification
  * - Spotify token refresh
@@ -32,7 +39,9 @@ export async function generateFirebaseToken(): Promise<{ token: string }> {
   }
 }
 
-export async function verifyFirebaseToken(token: string): Promise<{ uid: string }> {
+export async function verifyFirebaseToken(
+  token: string
+): Promise<{ uid: string }> {
   try {
     const uid = await verifyCustomToken(token);
     return { uid };

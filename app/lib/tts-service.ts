@@ -14,23 +14,29 @@ interface TTSOptions {
   };
 }
 
-export async function generateTTSAudio({ text, userId, trackId, voice }: TTSOptions) {
+export async function generateTTSAudio({
+  text,
+  userId,
+  trackId,
+  voice,
+}: TTSOptions) {
   try {
     // Use Chirp 3 voice (en-US-Neural2-F for female, en-US-Neural2-D for male)
-    const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
-      input: { text },
-      voice: {
-        languageCode: voice?.languageCode || 'en-US',
-        name: voice?.name || 'en-US-Neural2-F',
-      },
-      audioConfig: {
-        audioEncoding: protos.google.cloud.texttospeech.v1.AudioEncoding.MP3,
-        speakingRate: 1.0,
-        pitch: 0,
-        // Add natural pauses and emphasis
-        effectsProfileId: ['large-home-entertainment-class-device'],
-      },
-    };
+    const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest =
+      {
+        input: { text },
+        voice: {
+          languageCode: voice?.languageCode || 'en-US',
+          name: voice?.name || 'en-US-Neural2-F',
+        },
+        audioConfig: {
+          audioEncoding: protos.google.cloud.texttospeech.v1.AudioEncoding.MP3,
+          speakingRate: 1.0,
+          pitch: 0,
+          // Add natural pauses and emphasis
+          effectsProfileId: ['large-home-entertainment-class-device'],
+        },
+      };
 
     // Generate audio
     const [response] = await ttsClient.synthesizeSpeech(request);
@@ -63,4 +69,4 @@ export async function generateTTSAudio({ text, userId, trackId, voice }: TTSOpti
     console.error('TTS generation failed:', error);
     throw error;
   }
-} 
+}

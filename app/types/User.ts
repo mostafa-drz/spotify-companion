@@ -1,4 +1,4 @@
-import { UserPromptSettings } from "./Prompt";
+import { UserPromptSettings } from './Prompt';
 
 export interface User extends UserPromptSettings {
   id: string;

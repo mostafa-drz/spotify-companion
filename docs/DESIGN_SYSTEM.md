@@ -3,16 +3,19 @@
 ## 🎨 Color Palette
 
 ### Primary Colors
+
 - **Spotify Green** `#1DB954` - Primary brand color, used for main actions and highlights
 - **Dark Mode** `#121212` - Main background for dark mode
 - **Light Mode** `#FFFFFF` - Main background for light mode
 
 ### Secondary Colors
+
 - **Accent Purple** `#8B5CF6` - Used for secondary actions and highlights
 - **Neutral Gray** `#4B5563` - Used for text and borders
 - **Light Gray** `#F3F4F6` - Used for subtle backgrounds and dividers
 
 ### Semantic Colors
+
 - **Success** `#10B981` - For success states and confirmations
 - **Error** `#EF4444` - For error states and warnings
 - **Info** `#3B82F6` - For information and notifications
@@ -20,10 +23,12 @@
 ## 📝 Typography
 
 ### Font Family
+
 - **Primary**: Inter (Sans-serif)
 - **Fallback**: system-ui, -apple-system, sans-serif
 
 ### Font Sizes
+
 ```css
 text-xs: 0.75rem    /* 12px */
 text-sm: 0.875rem   /* 14px */
@@ -36,6 +41,7 @@ text-4xl: 2.25rem   /* 36px */
 ```
 
 ### Font Weights
+
 ```css
 font-light: 300
 font-normal: 400
@@ -47,6 +53,7 @@ font-bold: 700
 ## 🎯 Components
 
 ### Buttons
+
 ```css
 /* Primary Button */
 .btn-primary {
@@ -71,7 +78,8 @@ font-bold: 700
 ```
 
 ### Cards
-```css
+
+````css
 /* Music Card */
 .music-card {
   @apply bg-white dark:bg-[#121212] rounded-xl p-4
@@ -95,9 +103,10 @@ font-bold: 700
          dark:bg-gray-800 dark:border-gray-700
          pl-10; /* For search icon */
 }
-```
+````
 
 ## 🎨 Spacing System
+
 ```css
 space-1: 0.25rem  /* 4px */
 space-2: 0.5rem   /* 8px */
@@ -113,6 +122,7 @@ space-12: 3rem    /* 48px */
 ## 🎯 Layout
 
 ### Container
+
 ```css
 .container {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
@@ -120,6 +130,7 @@ space-12: 3rem    /* 48px */
 ```
 
 ### Grid System
+
 ```css
 .grid {
   @apply grid gap-4;
@@ -141,6 +152,7 @@ space-12: 3rem    /* 48px */
 ## 🎨 Animations
 
 ### Transitions
+
 ```css
 .transition-all {
   @apply transition-all duration-200 ease-in-out;
@@ -152,6 +164,7 @@ space-12: 3rem    /* 48px */
 ```
 
 ### Hover Effects
+
 ```css
 .hover-scale {
   @apply hover:scale-105 transition-transform duration-200;
@@ -163,11 +176,13 @@ space-12: 3rem    /* 48px */
 ```
 
 ## 🎯 Icons
+
 - Using Heroicons for consistent iconography
 - Size variants: sm (16px), md (20px), lg (24px)
 - Color follows text color by default
 
 ## 🎨 Dark Mode
+
 ```css
 /* Dark mode base styles */
 .dark {
@@ -185,6 +200,7 @@ space-12: 3rem    /* 48px */
 ```
 
 ## 🎯 Accessibility
+
 - Minimum contrast ratio: 4.5:1
 - Focus states visible on all interactive elements
 - Keyboard navigation support
@@ -193,10 +209,11 @@ space-12: 3rem    /* 48px */
 - All feedback (loading, errors, success) is handled via minimal inline messages—no toast notifications or popups, in line with the product's minimalism and accessibility philosophy.
 
 ## 🎨 Responsive Design
+
 - Mobile-first approach
 - Breakpoints:
   - sm: 640px
   - md: 768px
   - lg: 1024px
   - xl: 1280px
-  - 2xl: 1536px 
+  - 2xl: 1536px

@@ -27,6 +27,7 @@ This feature enhances the now playing experience by adding a detailed track info
 ## 2. Implementation Milestones
 
 ### **Milestone 1: Component Structure** ✅
+
 - [x] Create `TrackDetails` component
   - [x] Mobile-first responsive design
   - [x] Clean, minimal interface
@@ -36,6 +37,7 @@ This feature enhances the now playing experience by adding a detailed track info
 - [x] Basic component integration in now playing page
 
 ### **Milestone 2: Core Information Display** ✅
+
 - [x] Enhance primary information display
   - [x] Add loading state for album artwork
   - [x] Improve image loading performance
@@ -53,6 +55,7 @@ This feature enhances the now playing experience by adding a detailed track info
   - [x] Add proper spacing and alignment
 
 ### **Milestone 3: Visual Design & Integration** ✅
+
 - [x] Implement responsive layout
   - [x] Optimize for different screen sizes
   - [x] Add breakpoint-specific layouts
@@ -67,6 +70,7 @@ This feature enhances the now playing experience by adding a detailed track info
   - [x] Add proper component margins
 
 ### **Milestone 4: Polish & Optimization** 🔄
+
 - [x] Add loading states
   - [x] Add skeleton loading for all content
   - [x] Implement progressive loading
@@ -88,32 +92,40 @@ This feature enhances the now playing experience by adding a detailed track info
 ## Polish & QA Subtasks
 
 1. **Handle Missing Data Gracefully**
+
    - [x] Show “—” or “N/A” for missing release date, track count, or popularity
    - [x] Conditionally hide fields if data is not available
 
 2. **Popularity Bar Improvements**
+
    - [ ] Display actual popularity percentage (e.g., “78%”)
    - [ ] Hide the bar if popularity is missing
 
 3. **Spacing & Visual Hierarchy**
+
    - [ ] Add margin/padding between album art and track info
    - [ ] Review and adjust spacing for better readability
 
 4. **Reduce Redundancy**
+
    - [ ] Consolidate or differentiate duplicate track info sections
 
 5. **Audio Player Enhancements**
+
    - [ ] Add tooltips/ARIA labels to audio controls
    - [ ] Consider a more compact or visually integrated audio player
 
 6. **Accessibility Improvements**
+
    - [ ] Ensure all interactive elements are keyboard accessible
    - [ ] Add ARIA labels and test with a screen reader
 
 7. **Mobile Responsiveness**
+
    - [ ] Test and optimize layout for small screens
 
 8. **Visual Feedback**
+
    - [ ] Add hover/focus states to interactive elements
    - [ ] Add subtle animations for transitions
 
@@ -125,17 +137,20 @@ This feature enhances the now playing experience by adding a detailed track info
 ## 3. Technical Considerations
 
 - **Component Architecture:**
+
   - React component with TypeScript
   - Props interface for track data
   - Proper error boundaries
   - Loading states
 
 - **Data Management:**
+
   - Use existing track data from Spotify Web Playback SDK
   - Type-safe data handling
   - Proper null checks and fallbacks
 
 - **Styling:**
+
   - TailwindCSS for responsive design
   - Consistent with existing design system
   - Mobile-first approach

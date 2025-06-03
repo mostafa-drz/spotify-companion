@@ -2,7 +2,10 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth';
+import {
+  signInWithCustomToken,
+  signOut as firebaseSignOut,
+} from 'firebase/auth';
 import { clientAuth, type FirebaseUser } from '@/app/lib/firebase-client';
 import { generateFirebaseToken } from '@/app/actions/auth';
 import { signOut as spotifySignOut } from '@/app/actions/auth';
@@ -13,9 +16,15 @@ interface FirebaseAuthContextType {
   error: Error | null;
 }
 
-const FirebaseAuthContext = createContext<FirebaseAuthContextType | undefined>(undefined);
+const FirebaseAuthContext = createContext<FirebaseAuthContextType | undefined>(
+  undefined
+);
 
-export function FirebaseAuthProvider({ children }: { children: React.ReactNode }) {
+export function FirebaseAuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { data: session } = useSession();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +32,7 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     // we failed to refresh the access token, so we need to sign out
-    if (session?.error === "RefreshAccessTokenError") {
+    if (session?.error === 'RefreshAccessTokenError') {
       firebaseSignOut(clientAuth);
       spotifySignOut();
     }
@@ -55,17 +64,17 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     const signInToFirebase = async () => {
-        try {
-          setIsLoading(true);
-          setError(null);
-          const { token } = await generateFirebaseToken();
-          await signInWithCustomToken(clientAuth, token);
-        } catch (error) {
-          console.error('Error signing in to Firebase:', error);
-          setError(error as Error);
-        } finally {
-          setIsLoading(false);
-        }
+      try {
+        setIsLoading(true);
+        setError(null);
+        const { token } = await generateFirebaseToken();
+        await signInWithCustomToken(clientAuth, token);
+      } catch (error) {
+        console.error('Error signing in to Firebase:', error);
+        setError(error as Error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     const signOutFromFirebase = async () => {
@@ -100,7 +109,9 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
 export function useFirebaseAuth() {
   const context = useContext(FirebaseAuthContext);
   if (context === undefined) {
-    throw new Error('useFirebaseAuth must be used within a FirebaseAuthProvider');
+    throw new Error(
+      'useFirebaseAuth must be used within a FirebaseAuthProvider'
+    );
   }
   return context;
-} 
+}

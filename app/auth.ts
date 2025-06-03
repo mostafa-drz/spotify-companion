@@ -5,7 +5,7 @@ import { adminAuth } from './lib/firebase-admin';
 import { userExists, initializeNewUser } from './lib/firestore';
 
 // Extend the built-in session types
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
@@ -14,26 +14,26 @@ declare module "next-auth" {
       image?: string | null;
     };
     accessToken?: string;
-    error?: "RefreshAccessTokenError";
+    error?: 'RefreshAccessTokenError';
   }
 }
 
 // Extend the built-in token types
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
     accessToken?: string;
     refreshToken?: string;
     accessTokenExpires?: number;
-    error?: "RefreshAccessTokenError";
+    error?: 'RefreshAccessTokenError';
   }
 }
 
 const scope = [
-  "user-read-email",
-  "streaming",
-  "user-modify-playback-state",
-  "user-read-playback-state"
-].join(" ");
+  'user-read-email',
+  'streaming',
+  'user-modify-playback-state',
+  'user-read-playback-state',
+].join(' ');
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
@@ -51,7 +51,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   callbacks: {
     async jwt({ token, account, user }) {
@@ -76,7 +76,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 displayName: user.name || undefined,
                 photoURL: user.image || undefined,
               });
-              
+
               // Initialize user document with defaults
               await initializeNewUser(email, {
                 displayName: user.name || '',
@@ -92,7 +92,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             ...token,
             accessToken: account.access_token,
             refreshToken: account.refresh_token,
-            accessTokenExpires: account.expires_at ? account.expires_at * 1000 : 0,
+            accessTokenExpires: account.expires_at
+              ? account.expires_at * 1000
+              : 0,
           };
         } catch (error) {
           console.error('Error creating/getting Firebase user:', error);
@@ -110,10 +112,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const refreshedTokens = await refreshAccessToken(token);
         return refreshedTokens;
       } catch (error) {
-        console.error("Error refreshing access token", error);
+        console.error('Error refreshing access token', error);
         return {
           ...token,
-          error: "RefreshAccessTokenError",
+          error: 'RefreshAccessTokenError',
         };
       }
     },
@@ -128,16 +130,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
-    const response = await fetch("https://accounts.spotify.com/api/token", {
-      method: "POST",
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": `Basic ${Buffer.from(
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${Buffer.from(
           `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
-        ).toString("base64")}`,
+        ).toString('base64')}`,
       },
       body: new URLSearchParams({
-        grant_type: "refresh_token",
+        grant_type: 'refresh_token',
         refresh_token: token.refreshToken as string,
       }),
     });
@@ -157,10 +159,10 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       error: undefined, // Clear any previous errors
     };
   } catch (error) {
-    console.error("Error refreshing access token", error);
+    console.error('Error refreshing access token', error);
     return {
       ...token,
-      error: "RefreshAccessTokenError",
+      error: 'RefreshAccessTokenError',
     };
   }
 }

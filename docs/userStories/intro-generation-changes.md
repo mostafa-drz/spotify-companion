@@ -1,6 +1,7 @@
 # Intro Generation Integration Changes
 
 ## Executive Summary
+
 This feature will transform the playlist listening experience by adding AI-generated educational intros to each track. When complete, users will be able to:
 
 1. **Playlist-Specific Learning**: Configure custom, 1-minute educational intros for each playlist, with different prompt templates for different playlists.
@@ -10,6 +11,7 @@ This feature will transform the playlist listening experience by adding AI-gener
 3. **Smart Storage**: All generated intros will be efficiently stored in Firebase, with intelligent caching and cleanup to manage storage quotas.
 
 4. **Playlist Control**: Have full control over their experience through:
+
    - Playlist-specific prompt templates
    - Intro preferences per playlist
    - Playback controls
@@ -20,6 +22,7 @@ This feature will transform the playlist listening experience by adding AI-gener
 The implementation will leverage Google Vertex AI for content generation, Text-to-Speech services for audio creation, and Firebase for storage and analytics, all while maintaining a responsive and user-friendly interface.
 
 > **Workflow Note**: This implementation will follow a sequential approach:
+>
 > 1. We will focus on one task at a time
 > 2. Each task requires your approval before moving to the next
 > 3. After each approved task, I will show the remaining tasks
@@ -27,6 +30,7 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
 > 5. Update each subtask when done
 
 ## 1. Prompt Management System ✅
+
 - [x] Create prompt templates collection in Firestore
   - Implemented types and interfaces
   - Created default templates
@@ -53,6 +57,7 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - Created timestamp tracking
 
 ## 2. AI Integration ✅
+
 - [x] Update GenKit integration for intro generation
   - Implemented simplified AI service
   - Created basic types and interfaces
@@ -84,6 +89,7 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - Added playlist name support in prompts
 
 ## 3. Text-to-Speech Integration ✅
+
 - [x] Set up TTS service integration
   - Created TTS service with mock implementation
   - Added Firebase Storage integration
@@ -115,6 +121,7 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - Added playlist-aware file organization
 
 ## 4. Storage Management ✅
+
 - [x] Set up Firebase Storage structure
   - Implemented user-specific storage paths
   - Added metadata handling
@@ -141,6 +148,7 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - Created access validation
 
 ## 5. Playback System ✅
+
 - [x] Update track playback flow
   - Implemented PlaybackService singleton
   - Created audio element management
@@ -172,6 +180,7 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - Enhanced event data with playlist context
 
 ## 6. UI/UX Updates
+
 - [x] Design prompt selection interface
   - Created playlist settings panel
   - Added prompt template selection
@@ -200,6 +209,7 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - Implemented playlist name display
   - Added descriptive subtitles
 - [ ] Add responsive design
+
   - [x] Create mobile layout for playlist settings
     - Stack sections vertically
     - Adjust spacing for touch targets
@@ -234,18 +244,22 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - [ ] (Optional) Show a summary of current settings on the playlist page
 
 ## 7. Error Handling (MVP)
+
 > **Note**: For MVP, we'll focus on essential error handling that directly impacts user experience:
+>
 > - Basic error messages for common failures
 > - Simple retry for network issues
 > - Critical error notifications
-> 
+>
 > Post-MVP features to consider:
+>
 > - Advanced error recovery
 > - Complex retry strategies
 > - Comprehensive error logging
 > - Fallback options
 
 - [x] Create essential error types
+
   - Network errors (API failures, timeouts)
   - Playback errors (audio loading, format issues)
   - Generation errors (AI/TTS failures)
@@ -255,6 +269,7 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - Created error codes and messages
 
 - [x] Implement basic error recovery
+
   - Simple retry for network requests
   - Basic error boundaries
   - Essential fallback states
@@ -263,6 +278,7 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - Created error category detection
 
 - [x] Add critical user feedback
+
   - Error messages for common failures
   - Success notifications
   - Loading states
@@ -279,10 +295,11 @@ The implementation will leverage Google Vertex AI for content generation, Text-t
   - Essential error events in Firestore
 
 ## Priority Order
+
 1. ✅ Prompt Management System
 2. ✅ AI Integration
 3. ✅ Text-to-Speech Integration
 4. ✅ Storage Management
 5. ✅ Playback System
 6. ✅ UI/UX Updates
-7. ✅ Error Handling 
+7. ✅ Error Handling

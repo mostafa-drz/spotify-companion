@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
 import ClientProviders from './ClientProviders';
 import Header from './components/Header';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Nowtune AI",
-  description: "AI-powered educational intros for your currently playing Spotify track",
+  title: 'Nowtune AI',
+  description:
+    'AI-powered educational intros for your currently playing Spotify track',
 };
 
 export default function RootLayout({
@@ -18,7 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${inter.className} min-h-screen bg-gray-50 dark:bg-[#121212]`}>
+      <body
+        className={`${inter.className} min-h-screen bg-gray-50 dark:bg-[#121212]`}
+      >
         <ClientProviders>
           <div className="flex flex-col min-h-screen">
             <Header />

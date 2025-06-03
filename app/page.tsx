@@ -1,9 +1,9 @@
-import LoginButton from "@/app/components/SignInButton";
-import TermsWrapper from "@/app/components/TermsWrapper";
-import ErrorBoundary from "@/app/components/ErrorBoundary";
-import { Suspense } from "react";
-import Image from "next/image";
-import heroMusic from "@/public/hero-music.png";
+import LoginButton from '@/app/components/SignInButton';
+import TermsWrapper from '@/app/components/TermsWrapper';
+import ErrorBoundary from '@/app/components/ErrorBoundary';
+import { Suspense } from 'react';
+import Image from 'next/image';
+import heroMusic from '@/public/hero-music.png';
 
 export default function Home() {
   return (
@@ -32,7 +32,8 @@ export default function Home() {
                     Discover Music&apos;s Hidden Stories
                   </h1>
                   <p className="text-lg text-neutral">
-                    Enhance your Spotify experience with educational insights about your favorite tracks.
+                    Enhance your Spotify experience with educational insights
+                    about your favorite tracks.
                   </p>
                   <div className="pt-4">
                     <TermsWrapper>
@@ -57,7 +58,8 @@ export default function Home() {
                     Connect Your Spotify
                   </h2>
                   <p className="text-lg text-neutral">
-                    Start by connecting your Spotify account. We&apos;ll sync with your current playback to provide real-time insights.
+                    Start by connecting your Spotify account. We&apos;ll sync
+                    with your current playback to provide real-time insights.
                   </p>
                 </div>
                 <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center">
@@ -80,7 +82,9 @@ export default function Home() {
                     Play Your Music
                   </h2>
                   <p className="text-lg text-neutral">
-                    As you listen to your favorite tracks, we&apos;ll automatically detect what&apos;s playing and prepare fascinating insights.
+                    As you listen to your favorite tracks, we&apos;ll
+                    automatically detect what&apos;s playing and prepare
+                    fascinating insights.
                   </p>
                 </div>
               </div>
@@ -95,7 +99,9 @@ export default function Home() {
                     Discover Hidden Stories
                   </h2>
                   <p className="text-lg text-neutral">
-                    Get instant access to educational content about the music you love - from historical context to interesting facts about the artists and their creative process.
+                    Get instant access to educational content about the music
+                    you love - from historical context to interesting facts
+                    about the artists and their creative process.
                   </p>
                 </div>
                 <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center">

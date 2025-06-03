@@ -1,9 +1,11 @@
 # Template-Based Intro Caching
 
 ## User Story
+
 As a music enthusiast, I want to be able to switch between different AI-generated intros for the same track based on different templates, so that I can explore and compare different perspectives on the music I'm listening to without waiting for regeneration.
 
 ## Business Value
+
 - Reduces API costs by caching intros per template/track combination
 - Increases user engagement by encouraging exploration of different perspectives
 - Enhances user experience by providing instant access to previously generated intros
@@ -12,22 +14,26 @@ As a music enthusiast, I want to be able to switch between different AI-generate
 ## Technical Implementation
 
 ### Data Model Changes
+
 - Update Firestore schema to store intros with template context
 - Add template identifier to intro cache key
 - Migrate existing intros to default template
 
 ### Backend Changes
+
 - Modify intro generation endpoint to accept template context
 - Update caching logic to consider template in cache key
 - Add migration script for existing intros
 
 ### Frontend Changes
+
 - Update UI to show template context with intros
 - Add template switching with instant intro loading
 - Implement intro history view (optional)
 - Add visual indicators for cached vs. newly generated intros
 
 ## Acceptance Criteria
+
 1. When a user switches templates for a track:
    - If an intro exists for that template/track combination, it loads instantly
    - If no intro exists, a new one is generated and cached
@@ -39,12 +45,14 @@ As a music enthusiast, I want to be able to switch between different AI-generate
 ## Subtasks
 
 ### 1. Data Model Updates
+
 - [ ] Design and document new Firestore schema for template-based intros
 - [ ] Create migration plan for existing intros
 - [ ] Implement schema changes in Firestore
 - [ ] Write and test migration script
 
 ### 2. Backend Implementation
+
 - [ ] Update intro generation API to handle template context
 - [ ] Modify caching logic to include template in cache key
 - [ ] Add template validation and error handling
@@ -52,6 +60,7 @@ As a music enthusiast, I want to be able to switch between different AI-generate
 - [ ] Add tests for new template-based caching
 
 ### 3. Frontend Template Integration
+
 - [ ] Update template selector to handle cached intros
 - [ ] Add template context to intro display
 - [ ] Implement instant loading of cached intros
@@ -59,6 +68,7 @@ As a music enthusiast, I want to be able to switch between different AI-generate
 - [ ] Update regenerate button to work with templates
 
 ### 4. UI/UX Improvements
+
 - [ ] Design and implement template switching UI
 - [ ] Add visual indicators for cached vs. new intros
 - [ ] Create template context display
@@ -66,6 +76,7 @@ As a music enthusiast, I want to be able to switch between different AI-generate
 - [ ] Add keyboard navigation support
 
 ### 5. Testing & Quality Assurance
+
 - [ ] Write unit tests for new template-based caching
 - [ ] Test migration of existing intros
 - [ ] Verify cache behavior with different templates
@@ -73,6 +84,7 @@ As a music enthusiast, I want to be able to switch between different AI-generate
 - [ ] Perform accessibility testing
 
 ### 6. Documentation & Deployment
+
 - [ ] Update API documentation
 - [ ] Document new template-based caching feature
 - [ ] Create user guide for template switching
@@ -80,6 +92,7 @@ As a music enthusiast, I want to be able to switch between different AI-generate
 - [ ] Monitor performance and usage after deployment
 
 ## Notes
+
 - Consider adding a "favorite" or "pin" feature for preferred intros
 - Explore adding a history view to compare different template intros
 - Consider adding template categories or tags for better organization
@@ -87,12 +100,14 @@ As a music enthusiast, I want to be able to switch between different AI-generate
 - Consider adding a cleanup policy for unused cached intros
 
 ## Dependencies
+
 - Existing template system
 - Current intro generation system
 - Firestore database
 - Frontend state management
 
 ## Estimation
+
 - Data Model Updates: 2 days
 - Backend Implementation: 3 days
 - Frontend Template Integration: 3 days
@@ -100,4 +115,4 @@ As a music enthusiast, I want to be able to switch between different AI-generate
 - Testing & Quality Assurance: 2 days
 - Documentation & Deployment: 1 day
 
-Total: 13 days 
+Total: 13 days

@@ -1,8 +1,18 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useSession } from 'next-auth/react';
-import type { WebPlaybackTrack, WebPlaybackState, SpotifyNamespace } from '@/app/types/Spotify';
+import type {
+  WebPlaybackTrack,
+  WebPlaybackState,
+  SpotifyNamespace,
+} from '@/app/types/Spotify';
 
 declare global {
   interface Window {
@@ -53,16 +63,24 @@ interface SpotifyPlayerContextType {
   transferPlayback: (play: boolean) => Promise<void>;
 }
 
-const SpotifyPlayerContext = createContext<SpotifyPlayerContextType | undefined>(undefined);
+const SpotifyPlayerContext = createContext<
+  SpotifyPlayerContextType | undefined
+>(undefined);
 
-export function SpotifyPlayerProvider({ children }: { children: React.ReactNode }) {
+export function SpotifyPlayerProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { data: session } = useSession();
   const [player, setPlayer] = useState<SpotifyPlayer | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<SpotifyError | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<WebPlaybackTrack | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<WebPlaybackTrack | null>(
+    null
+  );
   const [position, setPosition] = useState(0);
   const playerRef = useRef<SpotifyPlayer | null>(null);
 
@@ -81,7 +99,9 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
       if (!window.Spotify) return;
       const playerInstance = new window.Spotify.Player({
         name: 'Spotify Companion Player',
-        getOAuthToken: (cb: (token: string) => void) => { cb(session.accessToken as string); },
+        getOAuthToken: (cb: (token: string) => void) => {
+          cb(session.accessToken as string);
+        },
         volume: 0.5,
       }) as SpotifyPlayer;
       playerRef.current = playerInstance;
@@ -158,14 +178,17 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
     }
     try {
       await playerRef.current?.activateElement();
-      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ uris: [uri] }),
-      });
+      await fetch(
+        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ uris: [uri] }),
+        }
+      );
     } catch (error) {
       if (error instanceof SpotifyError) {
         throw error;
@@ -179,12 +202,15 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
       throw new SpotifyError('Player not ready');
     }
     try {
-      await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${session?.accessToken}`,
-        },
-      });
+      await fetch(
+        `https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        }
+      );
     } catch (error) {
       if (error instanceof SpotifyError) {
         throw error;
@@ -198,12 +224,15 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
       throw new SpotifyError('Player not ready');
     }
     try {
-      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${session?.accessToken}`,
-        },
-      });
+      await fetch(
+        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        }
+      );
     } catch (error) {
       if (error instanceof SpotifyError) {
         throw error;
@@ -270,7 +299,8 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
 
   // Transfer playback to this device
   const transferPlayback = async (play: boolean = true): Promise<void> => {
-    if (!deviceId || !session?.accessToken) throw new SpotifyError('No device or access token');
+    if (!deviceId || !session?.accessToken)
+      throw new SpotifyError('No device or access token');
     try {
       const res = await fetch('https://api.spotify.com/v1/me/player', {
         method: 'PUT',
@@ -287,7 +317,9 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
         throw new SpotifyError('Failed to transfer playback');
       }
     } catch (err) {
-      throw new SpotifyError((err as Error).message || 'Failed to transfer playback');
+      throw new SpotifyError(
+        (err as Error).message || 'Failed to transfer playback'
+      );
     }
   };
 
@@ -318,6 +350,9 @@ export function SpotifyPlayerProvider({ children }: { children: React.ReactNode 
 
 export function useSpotifyPlayer() {
   const ctx = useContext(SpotifyPlayerContext);
-  if (!ctx) throw new Error('useSpotifyPlayer must be used within SpotifyPlayerProvider');
+  if (!ctx)
+    throw new Error(
+      'useSpotifyPlayer must be used within SpotifyPlayerProvider'
+    );
   return ctx;
-} 
+}

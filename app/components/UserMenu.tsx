@@ -24,7 +24,12 @@ export default function UserMenu() {
   const user = session?.user;
   const avatarUrl = user?.image;
   const userInitials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+    ? user.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
     : user?.email?.[0]?.toUpperCase() || '?';
 
   if (!session) {
@@ -57,7 +62,10 @@ export default function UserMenu() {
               {userInitials}
             </span>
           )}
-          <ChevronDownIcon className="w-5 h-5 text-neutral" aria-hidden="true" />
+          <ChevronDownIcon
+            className="w-5 h-5 text-neutral"
+            aria-hidden="true"
+          />
         </Menu.Button>
         <Transition
           as={Fragment}
@@ -135,7 +143,9 @@ export default function UserMenu() {
                     <button
                       type="submit"
                       className={classNames(
-                        active ? 'bg-primary/10 text-primary' : 'text-foreground',
+                        active
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-foreground',
                         'block w-full text-left px-4 py-2 text-sm rounded-md transition-colors'
                       )}
                     >
@@ -152,11 +162,8 @@ export default function UserMenu() {
       <ContactModal />
       <DeleteAccountModal />
       {showTerms && (
-        <TermsModal
-          onClose={() => setShowTerms(false)}
-          isSignup={false}
-        />
+        <TermsModal onClose={() => setShowTerms(false)} isSignup={false} />
       )}
     </>
   );
-} 
+}

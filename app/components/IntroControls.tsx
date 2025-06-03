@@ -1,5 +1,10 @@
 import { Switch } from '@headlessui/react';
-import { PlayIcon, ArrowPathIcon, PauseIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
+import {
+  PlayIcon,
+  ArrowPathIcon,
+  PauseIcon,
+  ArrowUturnLeftIcon,
+} from '@heroicons/react/24/solid';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { MarkdownContent } from '@/app/components/MarkdownContent';
 import { PromptTemplate, Tone } from '@/app/types/Prompt';
@@ -33,8 +38,17 @@ export default function IntroControls({
 }: IntroControlsProps) {
   const trackId = currentTrack?.id || undefined;
   const templateId = selectedTemplate?.id || undefined;
-  const { intro: introScript, isLoading: introLoading, error: introError, mutate } = useTrackIntro(trackId, templateId);
-  const { generateIntro, isLoading: isGenerating, error: generateError } = useGenerateIntro();
+  const {
+    intro: introScript,
+    isLoading: introLoading,
+    error: introError,
+    mutate,
+  } = useTrackIntro(trackId, templateId);
+  const {
+    generateIntro,
+    isLoading: isGenerating,
+    error: generateError,
+  } = useGenerateIntro();
   const { credits } = useUserCredits();
   const { isLow: isLowCredits } = useLowCredits();
 
@@ -42,7 +56,9 @@ export default function IntroControls({
   const error = introError || generateError;
 
   // Track last generated track/template to avoid duplicate calls
-  const lastGenRef = useRef<{ trackId: string; templateId: string } | null>(null);
+  const lastGenRef = useRef<{ trackId: string; templateId: string } | null>(
+    null
+  );
   const [pendingGen, setPendingGen] = useState(false);
 
   // Add state for audio playback
@@ -75,7 +91,7 @@ export default function IntroControls({
   // Handle play/pause
   const handlePlayPause = () => {
     if (!audioRef.current) return;
-    
+
     if (isAudioPlaying) {
       audioRef.current.pause();
     } else {
@@ -91,7 +107,8 @@ export default function IntroControls({
   };
 
   useEffect(() => {
-    if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading) return;
+    if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading)
+      return;
     if (introScript) {
       setPendingGen(false);
       return;
@@ -100,7 +117,9 @@ export default function IntroControls({
     if (
       introsEnabled &&
       !pendingGen &&
-      (!lastGen || lastGen.trackId !== currentTrack.id || lastGen.templateId !== selectedTemplate.id)
+      (!lastGen ||
+        lastGen.trackId !== currentTrack.id ||
+        lastGen.templateId !== selectedTemplate.id)
     ) {
       setPendingGen(true);
       generateIntro({
@@ -109,38 +128,44 @@ export default function IntroControls({
         templateId: selectedTemplate.id,
         templateName: selectedTemplate.name,
         language: selectedTemplate.language ?? 'en',
-        tone: selectedTemplate.tone as Tone ?? Tone.Conversational,
+        tone: (selectedTemplate.tone as Tone) ?? Tone.Conversational,
         length: selectedTemplate.length ?? 60,
-        templatePrompt: selectedTemplate.prompt
+        templatePrompt: selectedTemplate.prompt,
       }).then(async () => {
         await mutate();
         setPendingGen(false);
-        lastGenRef.current = { trackId: currentTrack.id || '', templateId: selectedTemplate.id };
+        lastGenRef.current = {
+          trackId: currentTrack.id || '',
+          templateId: selectedTemplate.id,
+        };
       });
     }
-  }, [selectedTemplate?.id, 
-    currentTrack?.id, 
-    generateIntro, 
-    mutate, 
-    isLoading, 
-    introScript, 
-    currentTrack, 
-    selectedTemplate, 
-    lastGenRef, 
+  }, [
+    selectedTemplate?.id,
+    currentTrack?.id,
+    generateIntro,
+    mutate,
+    isLoading,
+    introScript,
+    currentTrack,
+    selectedTemplate,
+    lastGenRef,
     pendingGen,
-    introsEnabled]);
+    introsEnabled,
+  ]);
 
   function handleRegenerate() {
-    if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading) return;
+    if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading)
+      return;
     generateIntro({
       trackId: currentTrack.id || '',
       track: { ...currentTrack },
       templateId: selectedTemplate.id,
       templateName: selectedTemplate.name,
       language: selectedTemplate.language ?? 'en',
-      tone: selectedTemplate.tone as Tone ?? Tone.Conversational,
+      tone: (selectedTemplate.tone as Tone) ?? Tone.Conversational,
       length: selectedTemplate.length ?? 60,
-      templatePrompt: selectedTemplate.prompt
+      templatePrompt: selectedTemplate.prompt,
     }).then(async () => {
       await mutate();
     });
@@ -197,8 +222,15 @@ export default function IntroControls({
       {/* Intro script status and display */}
       <div className="mb-8">
         {isLoading && (
-          <div className="flex items-center gap-2 text-green-600 mb-2" role="status" aria-live="polite">
-            <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+          <div
+            className="flex items-center gap-2 text-green-600 mb-2"
+            role="status"
+            aria-live="polite"
+          >
+            <span
+              className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin"
+              aria-label="Loading"
+            />
             <span>Generating intro…</span>
             <button
               type="button"
@@ -226,11 +258,16 @@ export default function IntroControls({
                 disabled={isLoading || !currentTrack}
               >
                 {isLoading ? (
-                  <span className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+                  <span
+                    className="inline-block h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin"
+                    aria-label="Loading"
+                  />
                 ) : (
                   <>
                     <ArrowPathIcon className="h-5 w-5 text-green-600" />
-                    <span className="font-medium text-green-700 dark:text-green-300 text-sm hidden sm:inline">Regenerate Intro</span>
+                    <span className="font-medium text-green-700 dark:text-green-300 text-sm hidden sm:inline">
+                      Regenerate Intro
+                    </span>
                   </>
                 )}
               </button>
@@ -245,17 +282,26 @@ export default function IntroControls({
               <div className="mt-4 flex flex-col gap-2 items-center">
                 <div className="flex items-center gap-2 w-full justify-center mb-1">
                   <CpuChipIcon className="w-4 h-4 text-green-600" />
-                  <span className="text-xs text-neutral-700 dark:text-neutral-300">Playing: AI Intro</span>
+                  <span className="text-xs text-neutral-700 dark:text-neutral-300">
+                    Playing: AI Intro
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 w-full justify-center">
                   <span className="text-xs text-neutral w-10 text-right tabular-nums">
-                    {audioRef.current?.currentTime ? msToTime(audioRef.current.currentTime * 1000) : '0:00'}
+                    {audioRef.current?.currentTime
+                      ? msToTime(audioRef.current.currentTime * 1000)
+                      : '0:00'}
                   </span>
                   <div className="flex-1 max-w-xs">
-                    <ProgressBar audioRef={audioRef} isPlaying={isAudioPlaying} />
+                    <ProgressBar
+                      audioRef={audioRef}
+                      isPlaying={isAudioPlaying}
+                    />
                   </div>
                   <span className="text-xs text-neutral w-10 tabular-nums">
-                    {audioRef.current?.duration ? msToTime(audioRef.current.duration * 1000) : '0:00'}
+                    {audioRef.current?.duration
+                      ? msToTime(audioRef.current.duration * 1000)
+                      : '0:00'}
                   </span>
                 </div>
                 <div className="flex items-center justify-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 sm:px-3 py-2 border border-gray-200 dark:border-gray-700 mt-1 w-full max-w-xs">
@@ -310,7 +356,10 @@ export default function IntroControls({
           </div>
         )}
         {error && (
-          <div className="text-semantic-error mt-2 flex items-center gap-2" role="alert">
+          <div
+            className="text-semantic-error mt-2 flex items-center gap-2"
+            role="alert"
+          >
             {error.message || 'Failed to load or generate intro.'}
             <button
               type="button"
@@ -334,10 +383,12 @@ export default function IntroControls({
             Generate Intro
           </button>
           {credits.available <= 0 && (
-            <span className="text-xs text-red-600 ml-2">Not enough credits</span>
+            <span className="text-xs text-red-600 ml-2">
+              Not enough credits
+            </span>
           )}
         </div>
       )}
     </>
   );
-} 
+}

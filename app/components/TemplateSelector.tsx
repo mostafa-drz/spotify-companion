@@ -2,7 +2,11 @@
 
 import { Fragment, useState } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon, Cog6ToothIcon } from '@heroicons/react/20/solid';
+import {
+  CheckIcon,
+  ChevronUpDownIcon,
+  Cog6ToothIcon,
+} from '@heroicons/react/20/solid';
 import { useSession } from 'next-auth/react';
 import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
 import type { PromptTemplate } from '@/app/types/Prompt';
@@ -27,19 +31,12 @@ export default function TemplateSelector({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Use SWR hook if templates are not provided
-  const {
-    templates,
-    isLoading,
-    error,
-    mutate
-  } = useUserTemplates();
+  const { templates, isLoading, error, mutate } = useUserTemplates();
 
   // Add a default option
-  const allTemplates = [
-    ...(providedTemplates || templates),
-  ];
+  const allTemplates = [...(providedTemplates || templates)];
 
-  if(!selectedTemplate && allTemplates.length > 0) {
+  if (!selectedTemplate && allTemplates.length > 0) {
     onSelect(allTemplates[0]);
   }
 
@@ -53,20 +50,27 @@ export default function TemplateSelector({
   }
 
   if (!providedTemplates && error) {
-    return <div className="text-semantic-error">{error.message || 'Failed to load templates'}</div>;
+    return (
+      <div className="text-semantic-error">
+        {error.message || 'Failed to load templates'}
+      </div>
+    );
   }
 
   return (
     <div className="w-full max-w-md">
-      <label className="block text-sm font-medium text-foreground mb-1" id="template-label">
+      <label
+        className="block text-sm font-medium text-foreground mb-1"
+        id="template-label"
+      >
         Select Template
       </label>
       <div className="flex items-start gap-2">
         <div className="flex-1">
           <Listbox
             value={selectedTemplate?.id || ''}
-            onChange={id => {
-              const template = allTemplates.find(t => t.id === id);
+            onChange={(id) => {
+              const template = allTemplates.find((t) => t.id === id);
               if (template) onSelect(template);
             }}
           >
@@ -74,12 +78,18 @@ export default function TemplateSelector({
               Select Template
             </Listbox.Label>
             <div className="relative">
-              <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm" aria-labelledby="template-label">
+              <Listbox.Button
+                className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm"
+                aria-labelledby="template-label"
+              >
                 <span className="block truncate">
                   {selectedTemplate?.name || 'Default Template'}
                 </span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                  <ChevronUpDownIcon
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
                 </span>
               </Listbox.Button>
               <Transition
@@ -94,18 +104,25 @@ export default function TemplateSelector({
                       key={template.id || 'default'}
                       className={({ active }) =>
                         `relative cursor-pointer select-none py-2 pl-10 pr-4 transition-colors ${
-                          active ? 'bg-primary/10 text-primary' : 'text-foreground'
+                          active
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-foreground'
                         }`
                       }
                       value={template.id}
                     >
                       {({ selected }) => (
                         <>
-                          <span className={`block truncate font-medium ${selected ? 'text-primary' : ''} flex items-center`}>
+                          <span
+                            className={`block truncate font-medium ${selected ? 'text-primary' : ''} flex items-center`}
+                          >
                             {template.name}
                             {introCounts[template.id] ? (
                               <span className="ml-2 inline-block align-middle">
-                                <span className="h-2 w-2 rounded-full bg-green-500 inline-block" title="Intro available" />
+                                <span
+                                  className="h-2 w-2 rounded-full bg-green-500 inline-block"
+                                  title="Intro available"
+                                />
                               </span>
                             ) : null}
                           </span>
@@ -118,7 +135,10 @@ export default function TemplateSelector({
                           )}
                           {selected ? (
                             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary">
-                              <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                              <CheckIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
                             </span>
                           ) : null}
                         </>
@@ -135,7 +155,9 @@ export default function TemplateSelector({
                       disabled
                       className="relative cursor-pointer select-none py-2 pl-10 pr-4 text-primary/80 hover:text-primary/100"
                     >
-                      <span className="block font-medium">+ Create New Template</span>
+                      <span className="block font-medium">
+                        + Create New Template
+                      </span>
                     </Listbox.Option>
                   )}
                 </Listbox.Options>
@@ -166,4 +188,4 @@ export default function TemplateSelector({
       )}
     </div>
   );
-} 
+}

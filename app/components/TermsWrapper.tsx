@@ -48,9 +48,7 @@ export default function TermsWrapper({ children }: TermsWrapperProps) {
 
   return (
     <>
-      <div onClick={handleClick}>
-        {children}
-      </div>
+      <div onClick={handleClick}>{children}</div>
 
       {showTerms && (
         <TermsModal
@@ -60,4 +58,4 @@ export default function TermsWrapper({ children }: TermsWrapperProps) {
       )}
     </>
   );
-} 
+}

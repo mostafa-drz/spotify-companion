@@ -39,7 +39,8 @@ export default class ErrorBoundary extends Component<Props, State> {
             Something went wrong
           </h2>
           <p className="text-sm text-semantic-error/80">
-            We&apos;re sorry, but something went wrong. Please try refreshing the page.
+            We&apos;re sorry, but something went wrong. Please try refreshing
+            the page.
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -53,4 +54,4 @@ export default class ErrorBoundary extends Component<Props, State> {
 
     return this.props.children;
   }
-} 
+}

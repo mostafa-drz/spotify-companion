@@ -25,7 +25,10 @@ export async function generateIntroText(
   length: number = 60
 ) {
   // Check if user has sufficient credits
-  const hasCredits = await hasSufficientCredits(userId, UserTransaction.GENERATE_TRACK_INTRO);
+  const hasCredits = await hasSufficientCredits(
+    userId,
+    UserTransaction.GENERATE_TRACK_INTRO
+  );
   if (!hasCredits) {
     throw new Error('Insufficient credits to generate intro');
   }
@@ -44,7 +47,11 @@ export async function generateIntroText(
 
   // Save to Firestore using adminDb
   const docId = getIntroDocId(trackId, templateId);
-  const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(docId);
+  const introRef = adminDb
+    .collection('users')
+    .doc(userId)
+    .collection('trackIntros')
+    .doc(docId);
   await introRef.set(introOutput);
 
   // Deduct credits after successful generation
@@ -53,7 +60,12 @@ export async function generateIntroText(
   return introOutput;
 }
 
-export async function generateIntroAudio(userId: string, trackId: string, templateId: string, text: string) {
+export async function generateIntroAudio(
+  userId: string,
+  trackId: string,
+  templateId: string,
+  text: string
+) {
   // Generate TTS audio
   const { audioUrl } = await generateTTSAudio({
     text,
@@ -63,8 +75,12 @@ export async function generateIntroAudio(userId: string, trackId: string, templa
 
   // Update Firestore with audio URL using adminDb
   const docId = getIntroDocId(trackId, templateId);
-  const introRef = adminDb.collection('users').doc(userId).collection('trackIntros').doc(docId);
+  const introRef = adminDb
+    .collection('users')
+    .doc(userId)
+    .collection('trackIntros')
+    .doc(docId);
   await introRef.set({ audioUrl }, { merge: true });
 
   return audioUrl;
-} 
+}

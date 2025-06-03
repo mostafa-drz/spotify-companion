@@ -18,4 +18,4 @@ export function useUserTemplates() {
     error,
     mutate, // for revalidation after add/edit/delete
   };
-} 
+}

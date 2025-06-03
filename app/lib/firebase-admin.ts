@@ -8,7 +8,7 @@ import { auth } from '@/app/auth';
 if (!getApps().length) {
   initializeApp({
     credential: applicationDefault(),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET_URI
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET_URI,
   });
 }
 
@@ -55,4 +55,4 @@ export async function verifyAuth() {
     console.error('Error verifying authentication:', error);
     throw new Error('Unauthorized: Invalid user session');
   }
-} 
+}

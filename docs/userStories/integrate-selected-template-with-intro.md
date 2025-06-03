@@ -1,9 +1,11 @@
 # 🎵 User Story: Template Selection in Now Playing
 
 ## Overview
+
 As a user, I want to select and apply different intro templates while listening to music, so that I can get varied perspectives and information about each track. I want to be able to switch templates on the fly and have them immediately applied to the current track's intro.
 
 ## User Journey
+
 1. User opens the Now Playing page
 2. User sees the currently playing track and its intro
 3. User can select a different template from a dropdown
@@ -12,6 +14,7 @@ As a user, I want to select and apply different intro templates while listening 
 6. User can quickly switch between templates without leaving the Now Playing page
 
 ## Technical Implementation
+
 - ✅ Integrate template selection UI with Now Playing page
 - ✅ Modify intro generation to use selected template
 - ✅ Add template switching functionality
@@ -20,6 +23,7 @@ As a user, I want to select and apply different intro templates while listening 
 - ✅ Ensure real-time updates
 
 ## Acceptance Criteria
+
 - [x] Template selector is visible on Now Playing page
 - [x] User can select from available templates
 - [x] Selected template is used for intro generation
@@ -30,6 +34,7 @@ As a user, I want to select and apply different intro templates while listening 
 - [x] Clear feedback when template is changed
 
 ## Success Metrics
+
 - Template switching frequency
 - Intro regeneration success rate
 - User satisfaction with template variety
@@ -38,6 +43,7 @@ As a user, I want to select and apply different intro templates while listening 
 ## Implementation Plan
 
 ### Phase 1: Analysis & Design ✅
+
 - [x] Review current Now Playing page implementation
   - [x] Analyze intro generation flow
   - [x] Identify integration points
@@ -52,6 +58,7 @@ As a user, I want to select and apply different intro templates while listening 
   - [x] Plan state management
 
 ### Phase 2: Core Integration ✅
+
 - [x] Add template selector component
   - [x] Create dropdown interface
   - [x] Add template list loading
@@ -66,6 +73,7 @@ As a user, I want to select and apply different intro templates while listening 
   - [x] Handle template updates
 
 ### Phase 3: UI/UX Enhancement ✅
+
 - [x] Add loading states
   - [x] Show loading during template switch
   - [x] Add regeneration progress indicator
@@ -80,13 +88,16 @@ As a user, I want to select and apply different intro templates while listening 
   - [x] Add template preview
 
 ## Implementation Details
+
 1. **Template Selector Component**
+
    - Consolidated `TemplateSelector` and `NowPlayingTemplateSelector` into a single component
    - Added support for both dropdown and select variants
    - Implemented loading and error states
    - Added template fetching from Firestore
 
 2. **Database Operations**
+
    - Moved all Firestore operations to `firestore.ts`
    - Added functions for managing track intros
    - Added functions for managing default prompts
@@ -99,6 +110,7 @@ As a user, I want to select and apply different intro templates while listening 
    - Ensured type safety throughout
 
 ## Notes
+
 - Consider caching generated intros per template
 - Add analytics for template usage
 - Consider adding template preview
@@ -106,4 +118,5 @@ As a user, I want to select and apply different intro templates while listening 
 - Consider adding template categories
 
 ## Status: ✅ Complete
+
 The template selection feature has been successfully implemented and is ready for use. All core functionality is working as expected, with proper error handling and user feedback in place.

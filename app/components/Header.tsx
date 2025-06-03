@@ -11,8 +11,8 @@ export default async function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo/Brand */}
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="text-2xl font-bold text-[#1DB954] hover:text-opacity-90 transition-all duration-200"
           >
             Spotify Companion
@@ -20,11 +20,16 @@ export default async function Header() {
 
           {/* Navigation */}
           <nav className="flex items-center gap-6">
-            <Link href="/playing" className="text-neutral hover:text-primary transition-colors font-medium">Now Playing</Link>
+            <Link
+              href="/playing"
+              className="text-neutral hover:text-primary transition-colors font-medium"
+            >
+              Now Playing
+            </Link>
             {session ? <UserMenu /> : <SignInButton />}
           </nav>
         </div>
       </div>
     </header>
   );
-} 
+}

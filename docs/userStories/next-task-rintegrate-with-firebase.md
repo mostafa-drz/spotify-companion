@@ -26,62 +26,60 @@ As a user, I want to log into the application using my Spotify account. Upon suc
 
 ### Technical Architecture Overview
 
-* **Authentication**: Use Auth.js (NextAuth.js) with the Spotify provider to handle OAuth2 login and manage user sessions with JWTs.
+- **Authentication**: Use Auth.js (NextAuth.js) with the Spotify provider to handle OAuth2 login and manage user sessions with JWTs.
 
-* **Session Strategy**: Stateless session management via JWTs, including the Spotify access token and refresh token for authorized API access.
+- **Session Strategy**: Stateless session management via JWTs, including the Spotify access token and refresh token for authorized API access.
 
-* **Server-Side Token Management**: Refresh Spotify tokens server-side before expiry and re-embed in the session JWT as needed.
+- **Server-Side Token Management**: Refresh Spotify tokens server-side before expiry and re-embed in the session JWT as needed.
 
-* **Firebase Access**: Use Firebase Admin SDK on the backend to create a Firebase Custom Token after successful login.
+- **Firebase Access**: Use Firebase Admin SDK on the backend to create a Firebase Custom Token after successful login.
 
-* **Client-Side Firebase Auth**: The custom token is sent to the client where Firebase's SDK signs in the user using `signInWithCustomToken`, enabling access to Firestore, Storage, and Genkit.
+- **Client-Side Firebase Auth**: The custom token is sent to the client where Firebase's SDK signs in the user using `signInWithCustomToken`, enabling access to Firestore, Storage, and Genkit.
 
-* **Access Control**: Firestore and Storage rules are written per user, based on their UID from Firebase Auth, ensuring user-level data segregation.
+- **Access Control**: Firestore and Storage rules are written per user, based on their UID from Firebase Auth, ensuring user-level data segregation.
 
-* **Data Flow**: User signs in via Spotify → NextAuth session created → Firebase Custom Token generated → Client signs in to Firebase → Access granted to Firebase services.
+- **Data Flow**: User signs in via Spotify → NextAuth session created → Firebase Custom Token generated → Client signs in to Firebase → Access granted to Firebase services.
 
-* **Compliance & Security**: All access is scoped per user. Sensitive tokens are not exposed to the client. Firebase and Spotify sessions are managed independently but linked logically through a verified identity.
+- **Compliance & Security**: All access is scoped per user. Sensitive tokens are not exposed to the client. Firebase and Spotify sessions are managed independently but linked logically through a verified identity.
 
 ### Acceptance Criteria
 
-* **Spotify Authentication**:
+- **Spotify Authentication**:
   Users can authenticate using their Spotify accounts without any technical hindrances.
 
-* **Session Management**:
+- **Session Management**:
   User sessions are managed efficiently, ensuring a seamless experience across different sessions.
 
-* **Access to Features**:
+- **Access to Features**:
   Authenticated users have access to all features that require user identification, including data storage and AI functionalities.
 
-* **Security Compliance**:
+- **Security Compliance**:
   All user data interactions comply with security standards, ensuring data privacy and integrity.
 
-* **Error Handling**:
+- **Error Handling**:
   The application gracefully handles any errors during authentication or data interactions, providing clear feedback to the user.
 
 ---
 
 ### References
 
-* Auth.js (NextAuth.js) Spotify Provider Docs:
+- Auth.js (NextAuth.js) Spotify Provider Docs:
   [https://next-auth.js.org/providers/spotify](https://next-auth.js.org/providers/spotify)
 
-* Auth.js Firebase Adapter Guide:
+- Auth.js Firebase Adapter Guide:
   [https://authjs.dev/getting-started/adapters/firebase](https://authjs.dev/getting-started/adapters/firebase)
 
-* Firebase Custom Auth with Custom Tokens:
+- Firebase Custom Auth with Custom Tokens:
   [https://firebase.google.com/docs/auth/web/custom-auth](https://firebase.google.com/docs/auth/web/custom-auth)
 
-* Firebase Rules Overview:
+- Firebase Rules Overview:
   [https://firebase.google.com/docs/rules](https://firebase.google.com/docs/rules)
 
-* Next.js App Router Documentation:
+- Next.js App Router Documentation:
   [https://nextjs.org/docs/app/building-your-application/routing](https://nextjs.org/docs/app/building-your-application/routing)
 
-* Firebase Web SDK Authentication Docs:
+- Firebase Web SDK Authentication Docs:
   [https://firebase.google.com/docs/auth/web/start](https://firebase.google.com/docs/auth/web/start)
 
-* Genkit (AI in Firebase Ecosystem):
+- Genkit (AI in Firebase Ecosystem):
   [https://firebase.google.com/genkit](https://firebase.google.com/genkit)
-
-  

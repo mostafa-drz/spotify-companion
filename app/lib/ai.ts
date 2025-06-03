@@ -6,19 +6,19 @@ import { Tone } from '@/app/types/Prompt';
 
 /**
  * Generate or fetch intro for a track
- * 
+ *
  * This function:
  * 1. Verifies user authentication
  * 2. Checks Firestore for cached intro
  * 3. Generates new intro if cache miss or parameters changed
  * 4. Caches the result in Firestore
- * 
+ *
  * Cache invalidation is based on:
  * - Language
  * - Tone
  * - Length
  * - Template prompt
- * 
+ *
  * @param userId - The user's ID
  * @param trackMetadata - Track information from Spotify
  * @param templateId - ID of the template used to generate this intro
@@ -27,7 +27,7 @@ import { Tone } from '@/app/types/Prompt';
  * @param language - Language code (default: 'en')
  * @param tone - Optional tone for the intro
  * @param length - Optional duration in seconds
- * 
+ *
  * @returns Promise<TrackIntro> - The generated or cached intro
  * @throws Error if generation fails or user is not authenticated
  */
@@ -43,7 +43,11 @@ export async function generateIntro(
 ): Promise<TrackIntro> {
   try {
     // Check if we have a cached intro for this track+template
-    const cachedIntro = await getTrackIntro(userId, trackMetadata.id, templateId);
+    const cachedIntro = await getTrackIntro(
+      userId,
+      trackMetadata.id,
+      templateId
+    );
 
     if (cachedIntro) {
       return cachedIntro;
@@ -55,7 +59,7 @@ export async function generateIntro(
       templatePrompt,
       language,
       tone: tone as Tone,
-      length
+      length,
     });
 
     // Save the intro to Firestore

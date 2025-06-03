@@ -3,20 +3,20 @@ import { cn } from '@/app/lib/utils';
 
 interface ProgressBarProps {
   value?: number; // starting value (ms)
-  max?: number;   // duration (ms)
+  max?: number; // duration (ms)
   showLabel?: boolean;
   className?: string;
   audioRef?: React.RefObject<HTMLAudioElement | null>;
   isPlaying?: boolean;
 }
 
-export default function ProgressBar({ 
-  value = 0, 
-  max = 100, 
+export default function ProgressBar({
+  value = 0,
+  max = 100,
   showLabel = false,
   className,
   audioRef,
-  isPlaying
+  isPlaying,
 }: ProgressBarProps) {
   const [progress, setProgress] = useState(value);
   const [duration, setDuration] = useState(max);
@@ -65,7 +65,7 @@ export default function ProgressBar({
   }, [value, max, audioRef]);
 
   const percentage = Math.min(100, Math.max(0, (progress / duration) * 100));
-  
+
   return (
     <div className={cn('w-full', className)}>
       <div className="relative h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -85,4 +85,4 @@ export default function ProgressBar({
       )}
     </div>
   );
-} 
+}

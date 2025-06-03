@@ -21,8 +21,9 @@ export const DEFAULT_TEMPLATES: PromptTemplate[] = [
   {
     id: 'genre-context',
     name: 'Genre & Context',
-    prompt: 'Describe the genre of this track and its cultural or historical context.',
+    prompt:
+      'Describe the genre of this track and its cultural or historical context.',
     isSystem: true,
     createdAt: new Date().toISOString(),
   },
-]; 
+];

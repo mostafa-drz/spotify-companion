@@ -8,12 +8,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-opacity-50 disabled:pointer-events-none disabled:opacity-50';
-    
+    const baseStyles =
+      'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-opacity-50 disabled:pointer-events-none disabled:opacity-50';
+
     const variants = {
-      primary: 'bg-primary text-white hover:bg-primary-dark focus-visible:ring-primary',
-      secondary: 'bg-secondary text-white hover:bg-secondary-light focus-visible:ring-secondary',
-      ghost: 'bg-transparent text-neutral hover:bg-neutral-light focus-visible:ring-neutral',
+      primary:
+        'bg-primary text-white hover:bg-primary-dark focus-visible:ring-primary',
+      secondary:
+        'bg-secondary text-white hover:bg-secondary-light focus-visible:ring-secondary',
+      ghost:
+        'bg-transparent text-neutral hover:bg-neutral-light focus-visible:ring-neutral',
     };
 
     const sizes = {

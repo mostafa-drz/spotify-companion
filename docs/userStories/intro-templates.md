@@ -1,9 +1,11 @@
 # 🎵 User Story: Customizable Track Intro Templates
 
 ## Overview
+
 As a user, I want to customize how track intros are generated, so that I can receive personalized and relevant information about each track I listen to. I want to be able to save and reuse my preferred intro styles, and have them automatically applied to new tracks while maintaining the ability to customize individual track intros.
 
 ## User Journey
+
 1. User opens the app and navigates to the templates section
 2. User sees a list of system templates and their own custom templates
 3. User can select a template to use for generating track intros
@@ -11,6 +13,7 @@ As a user, I want to customize how track intros are generated, so that I can rec
 5. User can set a default template for all new tracks
 
 ## Technical Implementation
+
 - Store templates in Firestore
 - Use Firebase Authentication for user management
 - Implement client-side state management with React hooks
@@ -19,6 +22,7 @@ As a user, I want to customize how track intros are generated, so that I can rec
 - Use TypeScript for type safety and better developer experience
 
 ## Acceptance Criteria
+
 - [x] Users can view system templates
 - [x] Users can create custom templates
 - [x] Users can edit their templates
@@ -30,6 +34,7 @@ As a user, I want to customize how track intros are generated, so that I can rec
 - [ ] Templates are used in track intro generation
 
 ## Success Metrics
+
 - Number of custom templates created per user
 - Template usage frequency
 - User satisfaction with generated intros
@@ -38,6 +43,7 @@ As a user, I want to customize how track intros are generated, so that I can rec
 ## Implementation Plan
 
 ### Phase 1: Data Structure & Client-Side Operations ✅
+
 - [x] Update Firebase schema
   - [x] Create `promptTemplates` collection
   - [x] Add user prompt settings to user documents
@@ -56,6 +62,7 @@ As a user, I want to customize how track intros are generated, so that I can rec
   - [x] Ensure type safety
 
 ### Phase 2: UI Components ✅
+
 - [x] Create template selector
   - [x] Add dropdown interface
   - [x] Show system and user templates
@@ -70,6 +77,7 @@ As a user, I want to customize how track intros are generated, so that I can rec
   - [x] Add submit/cancel actions
 
 ### Phase 3: Integration & Flow ✅
+
 - [x] Implement default prompt handling
   - [x] Add default prompt state
   - [x] Add set/clear default actions
@@ -80,6 +88,7 @@ As a user, I want to customize how track intros are generated, so that I can rec
   - [x] Add error handling
 
 ### Phase 4: Polish & Error Handling ✅
+
 - [x] Add loading states
   - [x] Add loading indicators for template operations
     - [x] Add spinner for template creation/update/delete
@@ -103,9 +112,11 @@ As a user, I want to customize how track intros are generated, so that I can rec
   - [x] Add tooltips for better UX
 
 ## Next Steps
+
 All required phases have been completed. The template system is now ready for use in track intro generation.
 
 ## Technical Approach
+
 ```typescript
 // Type definitions
 interface PromptTemplate {
@@ -124,7 +135,16 @@ interface UserPromptSettings {
 }
 
 // Client-side operations with toast notifications
-const { templates, loading, error, defaultPrompt, createTemplate, updateTemplate, deleteTemplate, setDefaultPrompt } = usePromptTemplates();
+const {
+  templates,
+  loading,
+  error,
+  defaultPrompt,
+  createTemplate,
+  updateTemplate,
+  deleteTemplate,
+  setDefaultPrompt,
+} = usePromptTemplates();
 
 // Example usage
 try {
@@ -143,14 +163,15 @@ async function getSystemTemplates() {
     .collection('promptTemplates')
     .where('isSystem', '==', true)
     .get();
-  return templates.docs.map(doc => ({
+  return templates.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data()
+    ...doc.data(),
   }));
 }
 ```
 
 ## Notes
+
 - No analytics tracking required
 - No rate limiting needed
 - No validation requirements for now

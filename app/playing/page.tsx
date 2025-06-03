@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useSession } from "next-auth/react";
-import { useSpotifyPlayer } from "@/app/contexts/SpotifyPlayerContext";
-import { useState, useEffect, useRef } from "react";
-import type { SpotifyTrack } from "@/app/types/Spotify";
+import { useSession } from 'next-auth/react';
+import { useSpotifyPlayer } from '@/app/contexts/SpotifyPlayerContext';
+import { useState, useEffect, useRef } from 'react';
+import type { SpotifyTrack } from '@/app/types/Spotify';
 import type { PromptTemplate } from '@/app/types/Prompt';
 import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
 import NowPlayingTrackInfo from '@/app/components/NowPlayingTrackInfo';
@@ -37,8 +37,14 @@ export default function NowPlayingPage() {
     transferPlayback,
   } = useSpotifyPlayer();
   const [transferring, setTransferring] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | undefined>(undefined);
-  const { templates: userTemplates = [], isLoading: templatesLoading, error: templatesError } = useUserTemplates();
+  const [selectedTemplate, setSelectedTemplate] = useState<
+    PromptTemplate | undefined
+  >(undefined);
+  const {
+    templates: userTemplates = [],
+    isLoading: templatesLoading,
+    error: templatesError,
+  } = useUserTemplates();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const trackId = currentTrack?.id || undefined;
   const templateId = selectedTemplate?.id || undefined;
@@ -66,7 +72,7 @@ export default function NowPlayingPage() {
     // Remove unused code
   }, [session?.user?.id]);
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return <div className="p-8 text-neutral">Loading...</div>;
   }
 
@@ -89,7 +95,9 @@ export default function NowPlayingPage() {
   if (!isReady) {
     return (
       <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818] text-center text-neutral">
-        <h2 className="text-xl font-semibold mb-2">Spotify Player is loading...</h2>
+        <h2 className="text-xl font-semibold mb-2">
+          Spotify Player is loading...
+        </h2>
         <p>Waiting for the Spotify Web Playback SDK to connect.</p>
       </div>
     );
@@ -99,8 +107,13 @@ export default function NowPlayingPage() {
   if (!currentTrack && session.accessToken) {
     return (
       <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818] text-center text-neutral">
-        <h2 className="text-xl font-semibold mb-2">Playback is on another device</h2>
-        <p className="mb-4">To enable AI intros and real-time controls, playback needs to happen in this browser tab.</p>
+        <h2 className="text-xl font-semibold mb-2">
+          Playback is on another device
+        </h2>
+        <p className="mb-4">
+          To enable AI intros and real-time controls, playback needs to happen
+          in this browser tab.
+        </p>
         <button
           className="btn btn-primary px-6 py-2 rounded font-semibold disabled:opacity-60"
           disabled={transferring}
@@ -115,7 +128,7 @@ export default function NowPlayingPage() {
             }
           }}
         >
-          {transferring ? "Transferring..." : "Play in this browser"}
+          {transferring ? 'Transferring...' : 'Play in this browser'}
         </button>
       </div>
     );
@@ -125,7 +138,9 @@ export default function NowPlayingPage() {
     return (
       <div className="max-w-xl mx-auto mt-12 p-6 rounded-lg shadow bg-white dark:bg-[#181818] text-center text-neutral">
         <h2 className="text-xl font-semibold mb-2">Nothing is playing</h2>
-        <p>Start playing a track on Spotify to see the now playing companion.</p>
+        <p>
+          Start playing a track on Spotify to see the now playing companion.
+        </p>
       </div>
     );
   }
@@ -156,12 +171,18 @@ export default function NowPlayingPage() {
         {/* --- Template Selector (Above Intro Section) --- */}
         <div className="mb-6">
           {templatesLoading ? (
-            <div className="flex items-center gap-2 text-neutral" role="status" aria-live="polite">
+            <div
+              className="flex items-center gap-2 text-neutral"
+              role="status"
+              aria-live="polite"
+            >
               <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
               <span>Loading templates…</span>
             </div>
           ) : templatesError ? (
-            <div className="text-semantic-error" role="alert">{templatesError}</div>
+            <div className="text-semantic-error" role="alert">
+              {templatesError}
+            </div>
           ) : (
             <>
               <TemplateSelector
@@ -171,7 +192,9 @@ export default function NowPlayingPage() {
               />
               {/* Minimal inline feedback for template selection */}
               {userTemplates.length === 0 && (
-                <div className="text-xs text-neutral mt-2" role="status">No templates found. Create one to get started.</div>
+                <div className="text-xs text-neutral mt-2" role="status">
+                  No templates found. Create one to get started.
+                </div>
               )}
             </>
           )}
@@ -201,4 +224,4 @@ export default function NowPlayingPage() {
       </div>
     </div>
   );
-} 
+}

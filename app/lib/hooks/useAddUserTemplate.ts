@@ -19,4 +19,4 @@ export function useAddUserTemplate() {
     error,
     isAdding: isMutating,
   };
-} 
+}

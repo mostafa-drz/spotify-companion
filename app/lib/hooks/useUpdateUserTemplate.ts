@@ -8,7 +8,10 @@ export function useUpdateUserTemplate() {
   const userId = session?.user?.id;
   const { trigger, error, isMutating } = useSWRMutation(
     ['user-templates', userId],
-    (_, { arg }: { arg: { templateId: string; updates: Partial<PromptTemplate> } }) => {
+    (
+      _,
+      { arg }: { arg: { templateId: string; updates: Partial<PromptTemplate> } }
+    ) => {
       if (!userId) throw new Error('User not authenticated');
       return updateUserPromptTemplate(userId, arg.templateId, arg.updates);
     }
@@ -19,4 +22,4 @@ export function useUpdateUserTemplate() {
     error,
     isUpdating: isMutating,
   };
-} 
+}

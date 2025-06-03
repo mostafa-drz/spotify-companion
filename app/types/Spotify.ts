@@ -93,4 +93,4 @@ export interface TrackMetadata {
 
 export interface SpotifyNamespace {
   Player: new (options: unknown) => unknown;
-} 
+}

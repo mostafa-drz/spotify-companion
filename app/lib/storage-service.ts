@@ -36,16 +36,16 @@ export async function uploadFile(
         metadata: {
           ...fileMetadata,
           userId,
-          uploadedAt: new Date().toISOString()
-        }
-      }
+          uploadedAt: new Date().toISOString(),
+        },
+      },
     });
 
     // Get file metadata
     const [fileMetadataResult] = await fileRef.getMetadata();
     const [url] = await fileRef.getSignedUrl({
       action: 'read',
-      expires: '03-01-2500' // Long expiration for now
+      expires: '03-01-2500', // Long expiration for now
     });
 
     if (!fileMetadataResult) {
@@ -59,7 +59,7 @@ export async function uploadFile(
       contentType: fileMetadataResult.contentType || 'application/octet-stream',
       metadata: fileMetadataResult.metadata as Record<string, string>,
       createdAt: new Date(fileMetadataResult.timeCreated || Date.now()),
-      lastAccessed: new Date()
+      lastAccessed: new Date(),
     };
 
     return { success: true, data: storageFile };
@@ -69,13 +69,17 @@ export async function uploadFile(
       success: false,
       error: {
         code: 'UPLOAD_FAILED',
-        message: error instanceof Error ? error.message : 'Failed to upload file'
-      }
+        message:
+          error instanceof Error ? error.message : 'Failed to upload file',
+      },
     };
   }
 }
 
-export async function deleteFile(userId: string, path: string): Promise<StorageResult> {
+export async function deleteFile(
+  userId: string,
+  path: string
+): Promise<StorageResult> {
   try {
     const fileRef = adminStorage.bucket().file(`users/${userId}/${path}`);
     await fileRef.delete();
@@ -86,8 +90,9 @@ export async function deleteFile(userId: string, path: string): Promise<StorageR
       success: false,
       error: {
         code: 'DELETE_FAILED',
-        message: error instanceof Error ? error.message : 'Failed to delete file'
-      }
+        message:
+          error instanceof Error ? error.message : 'Failed to delete file',
+      },
     };
   }
-} 
+}

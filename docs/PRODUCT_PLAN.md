@@ -1,23 +1,29 @@
 # 🎵 Spotify Companion — Product Plan
 
 ## 📋 Overview
+
 Spotify Companion is a minimal web application that enhances users' music listening experience by providing educational insights about their Spotify playlist tracks. Users can connect their Spotify account and receive AI-generated educational intros about the track currently playing on their Spotify device.
 
 ## 🎯 Product Vision
+
 Spotify Companion creates a seamless, educational experience that helps users discover the rich history and context behind their favorite music. The app focuses on being:
+
 - **Educational**: Provide meaningful insights about music
 - **Fun**: Make learning about music engaging and enjoyable
 - **Fast**: Quick, 1-minute blurbs that don't interrupt the listening experience
 - **Integrated**: Seamlessly enhances the experience of whatever is currently playing on Spotify
 
 ## 🚀 v0.1 MVP Objectives
+
 1. **User Authentication**
+
    - Spotify OAuth integration
    - Secure user session management
    - Basic user profile storage
    - Credit system initialization
 
 2. **Now Playing Integration**
+
    - Use Spotify Web Playback SDK for real-time playback state, control, and event listening
    - App acts as a playback controller and intro injector
    - On play/track change, intercept playback, play intro, then resume track
@@ -26,6 +32,7 @@ Spotify Companion creates a seamless, educational experience that helps users di
    - Allow user to customize prompt template per track
 
 3. **AI Integration**
+
    - Integration with Google Vertex AI via Firebase client SDK
    - Generate educational blurbs using Dotprompt format
    - Support for multiple output formats (markdown + SSML)
@@ -48,6 +55,7 @@ Spotify Companion creates a seamless, educational experience that helps users di
 ## 🛠 Technical Stack
 
 ### Frontend
+
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: TailwindCSS
@@ -57,6 +65,7 @@ Spotify Companion creates a seamless, educational experience that helps users di
 - **Server Actions**: Using Next.js server actions for form submissions and data mutations
 
 ### Backend
+
 - **Authentication**: NextAuth.js with Spotify provider
 - **Database**: Firebase Firestore (client SDK)
 - **AI Service**: Google Vertex AI via Firebase client SDK
@@ -64,6 +73,7 @@ Spotify Companion creates a seamless, educational experience that helps users di
 - **Architecture**: Serverless-first approach with minimal API routes
 
 ### Development Tools
+
 - **Package Manager**: npm
 - **Linting**: ESLint
 - **Type Checking**: TypeScript
@@ -72,6 +82,7 @@ Spotify Companion creates a seamless, educational experience that helps users di
 ## 📅 Development Phases
 
 ### Phase 1: Project Setup for Spotify Companion ✅
+
 - [x] Initialize Next.js project
 - [x] Configure TypeScript
 - [x] Set up TailwindCSS
@@ -79,6 +90,7 @@ Spotify Companion creates a seamless, educational experience that helps users di
 - [x] Basic project structure
 
 ### Phase 2: Authentication & Real-Time Track Integration
+
 - [ ] Set up Spotify OAuth with NextAuth.js
 - [ ] Implement login/logout flow
 - [ ] Create user profile storage in Firestore
@@ -86,6 +98,7 @@ Spotify Companion creates a seamless, educational experience that helps users di
 - [ ] Display track metadata and playback controls
 
 ### Phase 3: AI Integration
+
 - [ ] Set up Google Vertex AI via Firebase client SDK
 - [ ] Implement Dotprompt system for intro generation
 - [ ] Create prompt input interface with server actions
@@ -94,6 +107,7 @@ Spotify Companion creates a seamless, educational experience that helps users di
 - [ ] Add loading states and error handling
 
 ### Phase 4: Polish & Deploy
+
 - [ ] Error handling (all feedback is handled via minimal inline messages—no toast notifications or popups)
 - [ ] Loading states (no toast notifications or popups)
 - [ ] Responsive design
@@ -101,7 +115,9 @@ Spotify Companion creates a seamless, educational experience that helps users di
 - [ ] Deploy to production
 
 ## 🔐 Environment Setup
+
 Required environment variables:
+
 ```env
 # Firebase
 NEXT_PUBLIC_FIREBASE_API_KEY=
@@ -124,7 +140,8 @@ GOOGLE_CLOUD_PROJECT=
 ```
 
 ## 🎨 UI/UX Guidelines
-- **Color Scheme**: 
+
+- **Color Scheme**:
   - Primary: Green (#16a34a)
   - Secondary: Gray (#4b5563)
   - Background: Light Gray (#f9fafb)
@@ -133,17 +150,21 @@ GOOGLE_CLOUD_PROJECT=
 - **Components**: Minimal, clean design with clear hierarchy
 
 ## 🔄 Future Enhancements for Spotify Companion (Post-MVP)
+
 1. **Audio Integration**
+
    - Text-to-Speech for blurbs
    - Audio preview of tracks
    - Custom voice selection
 
 2. **Social Features**
+
    - Share blurbs
    - Save favorite insights
    - Create custom collections
 
 3. **Advanced AI Features**
+
    - Multiple prompt templates per track or genre
    - Focus on specific aspects (instruments, history, etc.)
    - Custom prompt suggestions
@@ -151,11 +172,13 @@ GOOGLE_CLOUD_PROJECT=
    - Advanced tone customization
 
 4. **Analytics & Insights**
+
    - Track usage patterns
    - Popular prompts
    - User engagement metrics
 
 5. **User Preferences**
+
    - Global settings for default behavior
    - Cross-playlist preferences
    - User-specific defaults
@@ -170,6 +193,7 @@ GOOGLE_CLOUD_PROJECT=
    - Different credit costs for different features
 
 ## 📊 Success Metrics
+
 - User engagement (time spent per session)
 - Number of tracks analyzed
 - User retention
@@ -178,12 +202,14 @@ GOOGLE_CLOUD_PROJECT=
 - Intro playback rate per track
 
 ## 🔒 Privacy & Security
+
 - Secure OAuth implementation
 - Data minimization
 - Clear privacy policy
 - Regular security audits
 
 ## 💰 Cost Considerations
+
 - Firebase usage limits
 - Vertex AI API costs
 - Spotify API rate limits
@@ -195,4 +221,5 @@ GOOGLE_CLOUD_PROJECT=
   - Low credit warnings and notifications
 
 ## 📝 Development Workflow
+
 1. Feature branches from `

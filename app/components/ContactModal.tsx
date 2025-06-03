@@ -64,8 +64,8 @@ export default function ContactModal() {
                   </p>
                   <div className="space-y-2">
                     <p className="font-medium">Email us at:</p>
-                    <a 
-                      href="mailto:hi@mostafa.xyz" 
+                    <a
+                      href="mailto:hi@mostafa.xyz"
                       className="text-primary hover:underline"
                     >
                       hi@mostafa.xyz
@@ -79,4 +79,4 @@ export default function ContactModal() {
       </Dialog>
     </Transition>
   );
-} 
+}

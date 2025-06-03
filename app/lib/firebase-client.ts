@@ -28,4 +28,4 @@ export type FirebaseUser = {
 };
 
 // Auth state change listener type
-export type AuthStateChangeCallback = (user: FirebaseUser | null) => void; 
+export type AuthStateChangeCallback = (user: FirebaseUser | null) => void;

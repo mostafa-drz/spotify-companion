@@ -12,7 +12,12 @@ interface UseAutoIntroOrchestrationProps {
   togglePlay: () => void;
 }
 
-type OrchestrationState = 'idle' | 'waiting' | 'playing-intro' | 'resuming' | 'error';
+type OrchestrationState =
+  | 'idle'
+  | 'waiting'
+  | 'playing-intro'
+  | 'resuming'
+  | 'error';
 
 export function useAutoIntroOrchestration({
   introsEnabled,
@@ -86,9 +91,16 @@ export function useAutoIntroOrchestration({
     startIntroPlayback();
 
     return cleanup;
-  }, [introsEnabled, currentTrack?.id, 
-    selectedTemplate?.id, 
-    currentIntro?.audioUrl, isPlaying, togglePlay, audioRef, orchestratedFor]);
+  }, [
+    introsEnabled,
+    currentTrack?.id,
+    selectedTemplate?.id,
+    currentIntro?.audioUrl,
+    isPlaying,
+    togglePlay,
+    audioRef,
+    orchestratedFor,
+  ]);
 
   // Resume Spotify playback when intro audio ends
   useEffect(() => {
@@ -135,9 +147,9 @@ export function useAutoIntroOrchestration({
     cleanup();
   }, [currentTrack?.id, selectedTemplate?.id, introsEnabled]);
 
-  return { 
+  return {
     state,
     error,
-    isOrchestrating: state !== 'idle' && state !== 'error'
+    isOrchestrating: state !== 'idle' && state !== 'error',
   };
-} 
+}

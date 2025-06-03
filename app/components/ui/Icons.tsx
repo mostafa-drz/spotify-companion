@@ -9,4 +9,4 @@ export function RobotIcon(props: React.ComponentProps<'svg'>) {
 
 export function MusicNoteIcon(props: React.ComponentProps<'svg'>) {
   return <MusicalNoteIcon {...props} />;
-} 
+}

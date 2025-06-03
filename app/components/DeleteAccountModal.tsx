@@ -77,7 +77,8 @@ export default function DeleteAccountModal() {
                 </div>
                 <div className="space-y-4">
                   <p className="text-foreground/80">
-                    Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your data.
+                    Are you sure you want to delete your account? This action
+                    cannot be undone and will permanently remove all your data.
                   </p>
                   <div className="flex justify-end gap-3">
                     <button

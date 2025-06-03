@@ -27,6 +27,7 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
 ## 2. High-Level Milestones
 
 ### **Milestone 1: Visual Design & Assets**
+
 - [ ] Design system integration
   - Color palette refinement
   - Typography system
@@ -42,6 +43,7 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
   - Desktop (> 1024px)
 
 ### **Milestone 2: Hero Section Implementation**
+
 - [x] Layout structure
   - Split design (illustration + content)
   - Responsive behavior
@@ -56,6 +58,7 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
   - Button hover states
 
 ### **Milestone 3: Features Section**
+
 - [ ] Feature cards
   - Real-time insights
   - Educational content
@@ -69,6 +72,7 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
   - Spacing
 
 ### **Milestone 4: Interactive Elements**
+
 - [ ] Connect button
   - Hover states
   - Loading animation
@@ -83,6 +87,7 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
   - Error states
 
 ### **Milestone 5: Performance & Polish**
+
 - [ ] Performance optimization
   - Image optimization
   - Animation performance
@@ -101,6 +106,7 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
 ## 3. Technical Considerations
 
 - **Design System Integration:**
+
   - Use existing color palette:
     - Primary: Spotify Green (#1DB954)
     - Dark Mode: (#121212)
@@ -118,6 +124,7 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
   - Follow container and grid system patterns
 
 - **Animations:**
+
   - Use existing transition classes:
     - `.transition-all`
     - `.transition-transform`
@@ -127,12 +134,14 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
   - Maintain consistent duration (200ms)
 
 - **Illustrations:**
+
   - Use Heroicons for feature icons
   - Maintain consistent icon sizes (sm: 16px, md: 20px, lg: 24px)
   - SVG format for custom illustrations
   - Support dark/light mode color schemes
 
 - **Responsive Design:**
+
   - Follow mobile-first approach
   - Use defined breakpoints:
     - sm: 640px
@@ -166,6 +175,7 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
 ## 5. Implementation Details
 
 ### **Hero Section**
+
 ```tsx
 <section className="min-h-screen flex items-center justify-center bg-white dark:bg-[#121212]">
   <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8">
@@ -173,37 +183,35 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
     <div className="relative hover-lift">
       <AnimatedIllustration />
     </div>
-    
+
     {/* Content */}
     <div className="flex flex-col justify-center space-y-6">
       <h1 className="text-4xl md:text-5xl font-bold text-primary">
         Discover Music's Hidden Stories
       </h1>
       <p className="text-lg text-neutral">
-        Enhance your Spotify experience with educational insights about your favorite tracks.
+        Enhance your Spotify experience with educational insights about your
+        favorite tracks.
       </p>
-      <button className="btn-primary hover-scale">
-        Connect with Spotify
-      </button>
+      <button className="btn-primary hover-scale">Connect with Spotify</button>
     </div>
   </div>
 </section>
 ```
 
 ### **Features Section**
+
 ```tsx
 <section className="py-16 bg-neutral-light dark:bg-[#121212]">
   <div className="container mx-auto px-4">
     <div className="grid-cols-3">
-      {features.map(feature => (
+      {features.map((feature) => (
         <div key={feature.id} className="music-card hover-lift">
           <div className="flex items-center space-4">
             <feature.icon className="w-6 h-6 text-primary" />
             <h3 className="text-xl font-semibold">{feature.title}</h3>
           </div>
-          <p className="mt-4 text-neutral">
-            {feature.description}
-          </p>
+          <p className="mt-4 text-neutral">{feature.description}</p>
         </div>
       ))}
     </div>
@@ -212,15 +220,17 @@ This feature introduces a minimal, elegant landing page for Spotify Companion th
 ```
 
 ### **Animation Examples**
+
 ```tsx
 // Using Tailwind transition classes
 const fadeIn = {
-  className: "transition-all duration-200 ease-in-out opacity-0 hover:opacity-100"
+  className:
+    'transition-all duration-200 ease-in-out opacity-0 hover:opacity-100',
 };
 
 // Using Tailwind hover effects
 const cardHover = {
-  className: "hover-lift transition-transform duration-200"
+  className: 'hover-lift transition-transform duration-200',
 };
 ```
 
@@ -229,17 +239,21 @@ const cardHover = {
 ## 7. First Task: Visual Design & Assets
 
 ### A. Design System Integration
+
 1. **Color Implementation**
+
    - [x] Use Tailwind color classes from config
    - [x] Test color contrast ratios
    - [x] Verify dark mode support
 
 2. **Typography Setup**
+
    - [x] Verify Inter font loading
    - [x] Use Tailwind typography classes
    - [x] Test responsive text scaling
 
 3. **Spacing System**
+
    - [x] Use Tailwind spacing utilities
    - [x] Document spacing patterns
    - [x] Test responsive spacing
@@ -250,7 +264,9 @@ const cardHover = {
    - [x] Create feature card component
 
 ### B. Asset Preparation
+
 1. **Illustrations**
+
    - [x] Select/create hero illustration
    - [x] Design feature icons
    - [ ] Create loading states
@@ -261,7 +277,9 @@ const cardHover = {
    - [x] Test dark mode compatibility
 
 ### C. Documentation
+
 1. **Component Documentation**
+
    - [x] Document new components
    - [x] Create usage examples
    - [x] Add accessibility notes
@@ -276,12 +294,15 @@ const cardHover = {
 ## 8. Next Task: Loading States
 
 ### A. Implementation
+
 1. **Page Load States**
+
    - [x] Create loading skeleton for hero section
    - [x] Create loading skeleton for features
    - [x] Implement smooth transitions
 
 2. **Authentication States**
+
    - [ ] ~~Add loading state to connect button~~ (Skipped - server component)
    - [ ] ~~Handle authentication errors~~ (Skipped - server component)
    - [ ] ~~Show success state~~ (Skipped - server component)
@@ -301,7 +322,7 @@ const cardHover = {
 - Analytics integration
 - Multi-language support
 - Custom illustrations per feature
-- Interactive demo section 
+- Interactive demo section
 
 ## 9. Status & Next Steps
 
@@ -312,8 +333,9 @@ const cardHover = {
 - [x] Accessibility and design system integration complete.
 
 **Note:**
+
 - The "How It Works" steps will be revisited and updated after the `/playing` experience is finalized to ensure the landing page accurately reflects the final user journey.
 
 ---
 
-**Status:** ✅ Closed for now — ready for review and future iteration after `/playing` is complete. 
+**Status:** ✅ Closed for now — ready for review and future iteration after `/playing` is complete.

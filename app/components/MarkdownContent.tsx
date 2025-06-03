@@ -14,7 +14,10 @@ interface CodeProps {
   children?: React.ReactNode;
 }
 
-export function MarkdownContent({ content, className = '' }: MarkdownContentProps) {
+export function MarkdownContent({
+  content,
+  className = '',
+}: MarkdownContentProps) {
   return (
     <div className={`prose dark:prose-invert max-w-none ${className}`}>
       <ReactMarkdown
@@ -31,13 +34,22 @@ export function MarkdownContent({ content, className = '' }: MarkdownContentProp
           ),
           // Style headings
           h1: ({ ...props }) => (
-            <h1 {...props} className="text-2xl font-bold text-foreground mt-6 mb-4" />
+            <h1
+              {...props}
+              className="text-2xl font-bold text-foreground mt-6 mb-4"
+            />
           ),
           h2: ({ ...props }) => (
-            <h2 {...props} className="text-xl font-bold text-foreground mt-5 mb-3" />
+            <h2
+              {...props}
+              className="text-xl font-bold text-foreground mt-5 mb-3"
+            />
           ),
           h3: ({ ...props }) => (
-            <h3 {...props} className="text-lg font-bold text-foreground mt-4 mb-2" />
+            <h3
+              {...props}
+              className="text-lg font-bold text-foreground mt-4 mb-2"
+            />
           ),
           // Style paragraphs
           p: ({ ...props }) => (
@@ -45,19 +57,30 @@ export function MarkdownContent({ content, className = '' }: MarkdownContentProp
           ),
           // Style lists
           ul: ({ ...props }) => (
-            <ul {...props} className="list-disc list-inside my-3 text-foreground/90" />
+            <ul
+              {...props}
+              className="list-disc list-inside my-3 text-foreground/90"
+            />
           ),
           ol: ({ ...props }) => (
-            <ol {...props} className="list-decimal list-inside my-3 text-foreground/90" />
+            <ol
+              {...props}
+              className="list-decimal list-inside my-3 text-foreground/90"
+            />
           ),
           // Style code blocks
-          code: ({ inline, ...props }: CodeProps) => (
+          code: ({ inline, ...props }: CodeProps) =>
             inline ? (
-              <code {...props} className="bg-gray-100 dark:bg-gray-800 rounded px-1.5 py-0.5 text-sm" />
+              <code
+                {...props}
+                className="bg-gray-100 dark:bg-gray-800 rounded px-1.5 py-0.5 text-sm"
+              />
             ) : (
-              <code {...props} className="block bg-gray-100 dark:bg-gray-800 rounded p-3 my-3 text-sm overflow-x-auto" />
-            )
-          ),
+              <code
+                {...props}
+                className="block bg-gray-100 dark:bg-gray-800 rounded p-3 my-3 text-sm overflow-x-auto"
+              />
+            ),
           // Style blockquotes
           blockquote: ({ ...props }) => (
             <blockquote
@@ -71,4 +94,4 @@ export function MarkdownContent({ content, className = '' }: MarkdownContentProp
       </ReactMarkdown>
     </div>
   );
-} 
+}

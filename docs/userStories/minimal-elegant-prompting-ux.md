@@ -1,6 +1,7 @@
 # 🎨 User Story: Minimal & Elegant Prompting UX for Now Playing
 
 > **Progress Note:**
+>
 > - One-click/auto intro generation is implemented and clear.
 > - Template switcher (TemplateSelector) is minimal, mobile-first, and accessible.
 > - Main Now Playing UI is modular and maintainable.
@@ -10,9 +11,11 @@
 > - All controls and flows have been checked for keyboard and screen reader accessibility. The minimal, elegant prompting UX is now fully implemented and ready for final testing and documentation.
 
 ## Overview
+
 As a user, I want to generate and personalize AI intros for the currently playing track with minimal effort, using a beautiful, mobile-first interface that makes it easy to switch, create, edit, and delete prompt templates, and to control the style of intros without being overwhelmed.
 
 ## User Journey
+
 1. User opens Now Playing and sees a "Generate Intro" button or auto-generated intro.
 2. User can quickly switch templates from a dropdown/segmented control.
 3. User can tap "Manage Templates" to open a modal for CRUD actions.
@@ -21,6 +24,7 @@ As a user, I want to generate and personalize AI intros for the currently playin
 6. All flows are mobile-first, accessible, and visually elegant.
 
 ## Acceptance Criteria
+
 - [x] One-click intro generation is available and obvious for beginners.
 - [x] Template switching is fast, minimal, and accessible.
 - [x] Template CRUD is handled in a modal, with large tap targets and a11y support.
@@ -31,6 +35,7 @@ As a user, I want to generate and personalize AI intros for the currently playin
 - [x] All controls are accessible by keyboard and screen reader.
 
 ## Success Metrics
+
 - Time to generate an intro (beginner flow)
 - User engagement with template management
 - Accessibility audit results
@@ -39,6 +44,7 @@ As a user, I want to generate and personalize AI intros for the currently playin
 ## Subtasks
 
 ### UI/UX
+
 - [x] Refine "Generate Intro" button/flow for one-click use.
 - [x] Ensure template switcher is minimal, mobile-first, and accessible.
 - [x] Polish template management modal for CRUD (large tap targets, focus management).
@@ -48,10 +54,12 @@ As a user, I want to generate and personalize AI intros for the currently playin
 - [ ] Revisit and align the `intro.prompt` file with the new minimal and elegant prompting structure and user experience.
 
 ### Feedback & Accessibility
+
 - [ ] Refine loading and error feedback (spinners, toasts, inline messages).
 - [ ] Ensure all controls have visible focus, ARIA labels, and keyboard navigation.
 - [ ] Test with screen readers and on mobile devices.
 
 ### Testing & Documentation
+
 - [ ] Test all flows on mobile and desktop.
-- [ ] Document the prompting workflow and onboarding for new users. 
+- [ ] Document the prompting workflow and onboarding for new users.

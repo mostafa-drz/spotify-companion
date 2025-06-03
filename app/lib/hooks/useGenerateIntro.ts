@@ -34,7 +34,12 @@ export function useGenerateIntro() {
         arg.length || 60
       );
 
-      const audioUrl = await generateIntroAudio(userId, arg.trackId, arg.templateId, intro.markdown);
+      const audioUrl = await generateIntroAudio(
+        userId,
+        arg.trackId,
+        arg.templateId,
+        intro.markdown
+      );
 
       return { ...intro, audioUrl };
     }
@@ -46,4 +51,4 @@ export function useGenerateIntro() {
     isLoading: isMutating,
     reset,
   };
-} 
+}

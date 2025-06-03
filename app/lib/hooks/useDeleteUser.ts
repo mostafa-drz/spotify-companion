@@ -12,4 +12,4 @@ export function useDeleteUser() {
     error,
     isDeleting: isMutating,
   };
-} 
+}

@@ -17,11 +17,11 @@ export function useTrackIntro(trackId?: string, templateId?: string) {
       return null;
     }
   );
-  
+
   return {
     intro: data,
     isLoading,
     error,
     mutate, // for revalidation
   };
-} 
+}

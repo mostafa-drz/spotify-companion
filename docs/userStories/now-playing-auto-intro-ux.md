@@ -20,6 +20,7 @@
 ## Tasks
 
 ### 1. Explore and Document Current Implementation
+
 - [x] Review the Now Playing page (`app/playing/page.tsx`) for how intros are triggered, played, and how playback is managed.
 - [x] Identify where in the codebase intro generation is handled (both text and audio), and how the UI is updated during this process.
 - [x] Review backend/server actions related to intro generation and caching.
@@ -27,32 +28,37 @@
 - [x] Document any code that handles edge cases (e.g., rapid track skipping, playback transfer).
 
 ### 2. Design the Improved Workflow
-- [x] Define the exact UI states:  
-  - Generating intro  
-  - Playing intro  
-  - Resuming track  
+
+- [x] Define the exact UI states:
+  - Generating intro
+  - Playing intro
+  - Resuming track
   - Error/skip states
 - [x] Specify where and how to show credit usage and warnings.
 - [x] Design the "Skip Intro" and "Generate Intro" button behaviors.
 - [x] Ensure accessibility and minimal, inline feedback (no popups/toasts).
 
 ### 3. Backend/Server Actions Review
+
 - [x] Ensure intro generation (text/audio) is efficient and not duplicated for the same track/template.
 - [x] Confirm that intro caching works as expected and is used by the UI.
 - [x] Check if backend can support pre-generation or queuing for upcoming tracks (for future scalability).
 
 ### 4. Implement UI/UX Improvements
+
 - [x] Add/modify UI components to reflect the new workflow (loading spinners, progress bars, state messages).
 - [x] Integrate credit usage display and warnings.
 - [x] Implement "Skip Intro" and manual "Generate Intro" actions.
 - [x] Ensure playback controls are appropriately enabled/disabled during each state.
 
 ### 5. Testing & Edge Cases
+
 - [ ] Test rapid track skipping, playback transfer, and low-credit scenarios.
 - [ ] Ensure no duplicate intros are generated.
 - [ ] Validate that the experience is smooth on both desktop and mobile.
 
 ### 6. Documentation & Handover
+
 - [ ] Update user documentation to reflect the new workflow.
 - [ ] Add comments and code documentation for future maintainers.
 
@@ -63,4 +69,4 @@
 - Should "Skip Intro" immediately resume the track, or also allow the user to cancel intro generation if it's still loading?
 - Is there a maximum acceptable wait time for intro generation before we auto-skip and resume music?
 - Should we pre-generate intros for the next track in the queue for power users, or is on-demand generation sufficient for MVP?
-- How should we handle credit exhaustion mid-playlist (auto-disable intros, prompt user, etc.)? 
+- How should we handle credit exhaustion mid-playlist (auto-disable intros, prompt user, etc.)?

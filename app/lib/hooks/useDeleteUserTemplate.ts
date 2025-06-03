@@ -18,4 +18,4 @@ export function useDeleteUserTemplate() {
     error,
     isDeleting: isMutating,
   };
-} 
+}

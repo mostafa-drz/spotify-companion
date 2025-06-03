@@ -27,4 +27,4 @@ export interface SpotifyPlayer {
   seek(position_ms: number): Promise<void>;
   previousTrack(): Promise<void>;
   nextTrack(): Promise<void>;
-} 
+}
