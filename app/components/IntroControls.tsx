@@ -8,7 +8,6 @@ import { useGenerateIntro } from '@/app/lib/hooks/useGenerateIntro';
 import ProgressBar from './ui/ProgressBar';
 import { useEffect, useRef, useState } from 'react';
 import { useTrackIntro } from '@/app/lib/hooks/useTrackIntro';
-import { generateIntroAudio } from '../actions/ai';
 import { CpuChipIcon } from '@heroicons/react/24/outline';
 import { useUserCredits } from '@/app/lib/hooks/useUserCredits';
 import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
@@ -18,7 +17,6 @@ interface IntroControlsProps {
   setIntrosEnabled: (enabled: boolean) => void;
   selectedTemplate?: PromptTemplate;
   currentTrack: SpotifyTrack;
-  isIntroAudioPlaying: boolean;
   audioRef: React.RefObject<HTMLAudioElement | null>;
 }
 
@@ -27,7 +25,6 @@ export default function IntroControls({
   setIntrosEnabled,
   selectedTemplate,
   currentTrack,
-  isIntroAudioPlaying,
   audioRef,
 }: IntroControlsProps) {
   const trackId = currentTrack?.id || undefined;
@@ -46,6 +43,47 @@ export default function IntroControls({
   const [pendingGen, setPendingGen] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
+
+  // Add state for audio playback
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+
+  // Listen to audio events to update playback state
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handlePlay = () => setIsAudioPlaying(true);
+    const handlePause = () => setIsAudioPlaying(false);
+    const handleEnded = () => setIsAudioPlaying(false);
+
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [audioRef]);
+
+  // Handle play/pause
+  const handlePlayPause = () => {
+    if (!audioRef.current) return;
+    
+    if (isAudioPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+  };
+
+  // Handle replay
+  const handleReplay = () => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = 0;
+    audioRef.current.play();
+  };
 
   useEffect(() => {
     if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading) return;
@@ -96,10 +134,23 @@ export default function IntroControls({
   }
 
   const handleRetryTTS = async () => {
+    if (!selectedTemplate || !currentTrack || !introScript) return;
+    
     setIsRetrying(true);
     setRetryError(null);
+    
     try {
-      await generateIntroAudio('', trackId || '', introScript?.introText || '');
+      await generateIntro({
+        trackId: currentTrack.id || '',
+        track: { ...currentTrack },
+        templateId: selectedTemplate.id,
+        templateName: selectedTemplate.name,
+        language: selectedTemplate.language ?? 'en',
+        tone: selectedTemplate.tone as Tone ?? Tone.Conversational,
+        length: selectedTemplate.length ?? 60,
+        templatePrompt: selectedTemplate.prompt
+      });
+      await mutate();
     } catch (err) {
       setRetryError(err instanceof Error ? err.message : 'Failed to retry TTS generation');
     } finally {
@@ -221,49 +272,45 @@ export default function IntroControls({
                     {audioRef.current?.currentTime ? msToTime(audioRef.current.currentTime * 1000) : '0:00'}
                   </span>
                   <div className="flex-1 max-w-xs">
-                    <ProgressBar audioRef={audioRef} isPlaying={isIntroAudioPlaying} />
+                    <ProgressBar audioRef={audioRef} isPlaying={isAudioPlaying} />
                   </div>
                   <span className="text-xs text-neutral w-10 tabular-nums">
                     {audioRef.current?.duration ? msToTime(audioRef.current.duration * 1000) : '0:00'}
                   </span>
                 </div>
                 <div className="flex items-center justify-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 sm:px-3 py-2 border border-gray-200 dark:border-gray-700 mt-1 w-full max-w-xs">
-                  <button
-                    type="button"
-                    aria-label="Play"
-                    title="Play"
-                    tabIndex={0}
-                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
-                    onClick={() => audioRef.current?.play()}
-                    disabled={isIntroAudioPlaying}
-                  >
-                    <PlayIcon className="h-6 w-6 text-green-600" />
-                  </button>
+                  {!isAudioPlaying ? (
+                    <button
+                      type="button"
+                      aria-label="Play"
+                      title="Play"
+                      tabIndex={0}
+                      className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
+                      onClick={handlePlayPause}
+                    >
+                      <PlayIcon className="h-6 w-6 text-green-600" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-label="Pause"
+                      title="Pause"
+                      tabIndex={0}
+                      className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
+                      onClick={handlePlayPause}
+                    >
+                      <PauseIcon className="h-6 w-6 text-green-600" />
+                    </button>
+                  )}
                   <button
                     type="button"
                     aria-label="Replay Audio"
                     title="Replay Audio"
                     tabIndex={0}
                     className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
-                    onClick={() => {
-                      if (audioRef.current) {
-                        audioRef.current.currentTime = 0;
-                        audioRef.current.play();
-                      }
-                    }}
+                    onClick={handleReplay}
                   >
                     <ArrowUturnLeftIcon className="h-6 w-6 text-green-600" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Pause"
-                    title="Pause"
-                    tabIndex={0}
-                    className="p-2 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200"
-                    onClick={() => audioRef.current?.pause()}
-                    disabled={!isIntroAudioPlaying}
-                  >
-                    <PauseIcon className="h-6 w-6 text-green-600" />
                   </button>
                   <button
                     type="button"

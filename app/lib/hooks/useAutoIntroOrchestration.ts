@@ -12,6 +12,8 @@ interface UseAutoIntroOrchestrationProps {
   togglePlay: () => void;
 }
 
+type OrchestrationState = 'idle' | 'waiting' | 'playing-intro' | 'resuming' | 'error';
+
 export function useAutoIntroOrchestration({
   introsEnabled,
   currentTrack,
@@ -22,49 +24,106 @@ export function useAutoIntroOrchestration({
   togglePlay,
 }: UseAutoIntroOrchestrationProps) {
   const [orchestratedFor, setOrchestratedFor] = useState<string | null>(null);
-  const [state, setState] = useState<'idle' | 'waiting' | 'playing-intro' | 'resuming'>('idle');
+  const [state, setState] = useState<OrchestrationState>('idle');
+  const [error, setError] = useState<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup function
+  const cleanup = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
 
   // Orchestrate auto-intro on track/template change
   useEffect(() => {
-    if (!introsEnabled || !currentTrack?.id || !selectedTemplate?.id) return;
+    if (!introsEnabled || !currentTrack?.id || !selectedTemplate?.id) {
+      setState('idle');
+      return;
+    }
+
     const key = `${currentTrack.id}_${selectedTemplate.id}`;
     if (orchestratedFor === key) return;
 
-    // 1. Pause Spotify playback if playing
-    if (isPlaying) {
-      togglePlay();
-      setState('waiting');
-    }
+    const startIntroPlayback = async () => {
+      try {
+        // 1. Pause Spotify playback if playing
+        if (isPlaying) {
+          togglePlay();
+          setState('waiting');
+        }
 
-    // 2. Wait for intro audio to be ready
-    if (currentIntro?.audioUrl && audioRef.current) {
-      // 3. Play intro audio
-      audioRef.current.currentTime = 0;
-      audioRef.current.play();
-      setState('playing-intro');
-      setOrchestratedFor(key);
-    }
-  }, [introsEnabled, currentTrack?.id, selectedTemplate?.id, currentIntro?.audioUrl]);
+        // 2. Wait for intro audio to be ready
+        if (currentIntro?.audioUrl && audioRef.current) {
+          // 3. Play intro audio
+          audioRef.current.currentTime = 0;
+          await audioRef.current.play();
+          setState('playing-intro');
+          setOrchestratedFor(key);
+          setError(null);
+        }
+      } catch (err) {
+        console.error('Failed to play intro:', err);
+        setError(err instanceof Error ? err.message : 'Failed to play intro');
+        setState('error');
+        // Resume Spotify if we failed to play intro
+        if (!isPlaying) {
+          togglePlay();
+        }
+      }
+    };
+
+    startIntroPlayback();
+
+    return cleanup;
+  }, [introsEnabled, currentTrack?.id, selectedTemplate?.id, currentIntro?.audioUrl, isPlaying, togglePlay]);
 
   // Resume Spotify playback when intro audio ends
   useEffect(() => {
     if (!audioRef.current) return;
+
     const handleEnded = () => {
       setState('resuming');
       togglePlay();
-      setTimeout(() => setState('idle'), 500); // Reset state after resuming
+      // Reset state after resuming
+      timeoutRef.current = setTimeout(() => {
+        setState('idle');
+        setError(null);
+      }, 500);
     };
+
+    const handleError = (e: ErrorEvent) => {
+      console.error('Audio playback error:', e);
+      setError('Failed to play intro audio');
+      setState('error');
+      // Resume Spotify if we had an error
+      if (!isPlaying) {
+        togglePlay();
+      }
+    };
+
     audioRef.current.addEventListener('ended', handleEnded);
+    audioRef.current.addEventListener('error', handleError as EventListener);
+
     return () => {
+      cleanup();
       audioRef.current?.removeEventListener('ended', handleEnded);
+      audioRef.current?.removeEventListener('error', handleError as EventListener);
     };
-  }, [audioRef, togglePlay]);
+  }, [audioRef, togglePlay, isPlaying]);
 
   // Reset orchestration on track/template change
   useEffect(() => {
     setOrchestratedFor(null);
     setState('idle');
+    setError(null);
+    cleanup();
   }, [currentTrack?.id, selectedTemplate?.id, introsEnabled]);
 
-  return { state };
+  return { 
+    state,
+    error,
+    isOrchestrating: state !== 'idle' && state !== 'error'
+  };
 } 
