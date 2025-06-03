@@ -9,7 +9,13 @@ export function useTrackIntro(trackId?: string, templateId?: string) {
   const shouldFetch = Boolean(userId && trackId && templateId);
   const { data, error, isLoading, mutate } = useSWR<TrackIntro | null>(
     shouldFetch ? ['track-intro', userId, trackId, templateId] : null,
-    () => getTrackIntro(userId!, trackId!, templateId!)
+    async () => {
+      const cachedIntro = await getTrackIntro(userId!, trackId!, templateId!);
+      if (cachedIntro) {
+        return cachedIntro;
+      }
+      return null;
+    }
   );
   
   return {

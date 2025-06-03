@@ -10,7 +10,6 @@ interface TemplateManagementModalProps {
   templates: PromptTemplate[];
   onClose: () => void;
   selectedTemplateId?: string;
-  userId: string;
   onTemplatesChange: () => void;
 }
 
@@ -21,11 +20,11 @@ const EXAMPLE_PROMPTS = [
   'Tell me about the genre and its history.'
 ];
 
-export default function TemplateManagementModal({ templates, onClose, selectedTemplateId, userId, onTemplatesChange }: TemplateManagementModalProps) {
-  const { mutate: mutateTemplates } = useUserTemplates(userId);
-  const { addTemplate } = useAddUserTemplate(userId);
-  const { updateTemplate } = useUpdateUserTemplate(userId);
-  const { deleteTemplate } = useDeleteUserTemplate(userId);
+export default function TemplateManagementModal({ templates, onClose, selectedTemplateId, onTemplatesChange }: TemplateManagementModalProps) {
+  const { mutate: mutateTemplates } = useUserTemplates();
+  const { addTemplate } = useAddUserTemplate();
+  const { updateTemplate } = useUpdateUserTemplate();
+  const { deleteTemplate } = useDeleteUserTemplate();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);

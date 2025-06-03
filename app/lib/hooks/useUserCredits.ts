@@ -1,7 +1,10 @@
 import useSWR from 'swr';
 import { getUserCredits } from '@/app/actions/credits';
+import { useSession } from 'next-auth/react';
 
-export function useUserCredits(userId?: string) {
+export function useUserCredits() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const shouldFetch = Boolean(userId);
   const { data, error, isLoading, mutate } = useSWR<{ available: number; used: number }>(
     shouldFetch ? ['user-credits', userId] : null,

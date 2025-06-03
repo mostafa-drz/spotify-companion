@@ -1,12 +1,13 @@
 import { Switch } from '@headlessui/react';
 import { PlayIcon, ArrowPathIcon, PauseIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { MarkdownContent } from '@/app/components/MarkdownContent';
-import type { PromptTemplate } from '@/app/types/Prompt';
+import { PromptTemplate, Tone } from '@/app/types/Prompt';
 import type { SpotifyTrack } from '@/app/types/Spotify';
 import { useGenerateIntro } from '@/app/lib/hooks/useGenerateIntro';
 import ProgressBar from './ui/ProgressBar';
 import { useEffect, useRef, useState } from 'react';
 import { useTrackIntro } from '@/app/lib/hooks/useTrackIntro';
+import { generateIntroAudio } from '../actions/ai';
 
 interface IntroControlsProps {
   introsEnabled: boolean;
@@ -36,6 +37,8 @@ export default function IntroControls({
   // Track last generated track/template to avoid duplicate calls
   const lastGenRef = useRef<{ trackId: string; templateId: string } | null>(null);
   const [pendingGen, setPendingGen] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [retryError, setRetryError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading) return;
@@ -50,13 +53,12 @@ export default function IntroControls({
     ) {
       setPendingGen(true);
       generateIntro({
-        userId: '',
         trackId: currentTrack.id || '',
         track: { ...currentTrack },
         templateId: selectedTemplate.id,
         templateName: selectedTemplate.name,
         language: selectedTemplate.language ?? 'en',
-        tone: selectedTemplate.tone ?? 'conversational',
+        tone: selectedTemplate.tone as Tone ?? Tone.Conversational,
         length: selectedTemplate.length ?? 60,
         templatePrompt: selectedTemplate.prompt
       }).then(async () => {
@@ -73,13 +75,12 @@ export default function IntroControls({
   function handleRegenerate() {
     if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading) return;
     generateIntro({
-      userId: '',
       trackId: currentTrack.id || '',
       track: { ...currentTrack },
       templateId: selectedTemplate.id,
       templateName: selectedTemplate.name,
       language: selectedTemplate.language ?? 'en',
-      tone: selectedTemplate.tone ?? 'conversational',
+      tone: selectedTemplate.tone as Tone ?? Tone.Conversational,
       length: selectedTemplate.length ?? 60,
       templatePrompt: selectedTemplate.prompt
     }).then(async () => {
@@ -87,10 +88,22 @@ export default function IntroControls({
     });
   }
 
+  const handleRetryTTS = async () => {
+    setIsRetrying(true);
+    setRetryError(null);
+    try {
+      await generateIntroAudio('', trackId || '', introScript?.introText || '');
+    } catch (err) {
+      setRetryError(err instanceof Error ? err.message : 'Failed to retry TTS generation');
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
   function msToTime(ms: number) {
-    const min = Math.floor(ms / 60000);
-    const sec = Math.floor((ms % 60000) / 1000);
-    return `${min}:${sec.toString().padStart(2, '0')}`;
+    const minutes = Math.floor(ms / 60000);
+    const seconds = ((ms % 60000) / 1000).toFixed(0);
+    return `${minutes}:${parseInt(seconds) < 10 ? '0' : ''}${seconds}`;
   }
   return (
     <>
@@ -227,6 +240,12 @@ export default function IntroControls({
             </button>
           </div>
         )}
+      </div>
+      <div>
+        <button onClick={handleRetryTTS} disabled={isRetrying}>
+          {isRetrying ? 'Retrying...' : 'Retry TTS'}
+        </button>
+        {retryError && <p style={{ color: 'red' }}>{retryError}</p>}
       </div>
     </>
   );

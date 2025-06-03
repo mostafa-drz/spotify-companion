@@ -15,7 +15,7 @@ export interface PromptTemplate {
 export interface IntroPromptInput {
   trackDetailsJSON: string;
   language: string;
-  tone: string;
+  tone: Tone;
   length: string;
   templatePrompt: string;
 }
@@ -48,3 +48,11 @@ export interface TrackIntro {
   createdAt?: string;
   updatedAt?: string;
 } 
+
+export enum Tone {
+  Casual = 'casual',
+  Academic = 'academic',
+  Storytelling = 'storytelling',
+  Conversational = 'conversational',
+  Professional = 'professional',
+}

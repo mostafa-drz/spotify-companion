@@ -40,7 +40,7 @@ export default function NowPlayingPage() {
   const [isIntroAudioPlaying, setIsIntroAudioPlaying] = useState(false);
   const [wasSpotifyPlaying, setWasSpotifyPlaying] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | undefined>(undefined);
-  const { templates: userTemplates = [], isLoading: templatesLoading, error: templatesError } = useUserTemplates(session?.user?.id);
+  const { templates: userTemplates = [], isLoading: templatesLoading, error: templatesError } = useUserTemplates();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const trackId = currentTrack?.id || undefined;
   const templateId = selectedTemplate?.id || undefined;
