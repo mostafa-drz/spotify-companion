@@ -36,9 +36,12 @@ export default function TemplateSelector({
 
   // Add a default option
   const allTemplates = [
-    { id: '', name: 'Default Template', prompt: '', isSystem: false, createdAt: '', updatedAt: '' },
     ...(providedTemplates || templates),
   ];
+
+  if(!selectedTemplate && allTemplates.length > 0) {
+    onSelect(allTemplates[0]);
+  }
 
   if (!providedTemplates && isLoading) {
     return (
