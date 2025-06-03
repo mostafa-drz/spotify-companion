@@ -98,6 +98,7 @@ export default function IntroControls({
     }
     const lastGen = lastGenRef.current;
     if (
+      introsEnabled &&
       !pendingGen &&
       (!lastGen || lastGen.trackId !== currentTrack.id || lastGen.templateId !== selectedTemplate.id)
     ) {
@@ -120,7 +121,14 @@ export default function IntroControls({
   }, [selectedTemplate?.id, 
     currentTrack?.id, 
     generateIntro, 
-    mutate, isLoading, introScript, currentTrack, selectedTemplate, lastGenRef, pendingGen]);
+    mutate, 
+    isLoading, 
+    introScript, 
+    currentTrack, 
+    selectedTemplate, 
+    lastGenRef, 
+    pendingGen,
+    introsEnabled]);
 
   function handleRegenerate() {
     if (!selectedTemplate || !selectedTemplate.id || !currentTrack || isLoading) return;
@@ -315,7 +323,7 @@ export default function IntroControls({
         )}
       </div>
       {/* Manual mode: Generate Intro button */}
-      {!introsEnabled && (
+      {!introsEnabled && !introScript && (
         <div className="flex items-center gap-2 mt-2">
           <button
             type="button"
