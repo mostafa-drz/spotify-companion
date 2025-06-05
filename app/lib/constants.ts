@@ -7,14 +7,16 @@ export const DEFAULT_TEMPLATES: PromptTemplate[] = [
   {
     id: 'about-artist',
     name: 'About the Artist',
-    prompt: 'Give a brief background about the artist of this track.',
+    prompt:
+      'Provide a brief, engaging background about the artist of this track, focusing on their musical journey and notable achievements.',
     isSystem: true,
     createdAt: new Date().toISOString(),
   },
   {
     id: 'track-story',
     name: 'Track Story',
-    prompt: 'Tell the story or inspiration behind this track.',
+    prompt:
+      'Share the story or inspiration behind this track, including any interesting facts about its creation or meaning.',
     isSystem: true,
     createdAt: new Date().toISOString(),
   },
@@ -22,7 +24,7 @@ export const DEFAULT_TEMPLATES: PromptTemplate[] = [
     id: 'genre-context',
     name: 'Genre & Context',
     prompt:
-      'Describe the genre of this track and its cultural or historical context.',
+      'Explain the genre of this track and its cultural or historical significance, including how it fits into the broader musical landscape.',
     isSystem: true,
     createdAt: new Date().toISOString(),
   },

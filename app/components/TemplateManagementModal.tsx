@@ -19,10 +19,12 @@ interface TemplateManagementModalProps {
 }
 
 const EXAMPLE_PROMPTS = [
-  'Share a fun fact about this track or its artist.',
-  'Describe the mood and style of this song.',
-  'Explain the meaning behind the lyrics.',
-  'Tell me about the genre and its history.',
+  'Share a fun fact about this track or its artist, focusing on something unique or surprising.',
+  'Describe the mood and style of this song, including its emotional impact and musical elements.',
+  'Explain the meaning behind the lyrics, including any cultural or personal significance.',
+  "Tell me about the genre and its history, including how this track fits into the genre's evolution.",
+  'Discuss the production techniques used in this track, highlighting innovative or notable aspects.',
+  'Explore the cultural impact of this song, including its influence on music and society.',
 ];
 
 export default function TemplateManagementModal({
@@ -252,10 +254,11 @@ export default function TemplateManagementModal({
                   </span>{' '}
                   Examples:
                 </div>
-                <ul className="text-xs text-neutral-400 space-y-0.5">
+                <ul className="text-xs text-neutral-400 space-y-1.5">
                   {EXAMPLE_PROMPTS.map((ex, i) => (
-                    <li key={i} className="pl-2">
-                      {ex}
+                    <li key={i} className="pl-2 flex items-start gap-2">
+                      <span className="text-neutral-500">•</span>
+                      <span>{ex}</span>
                     </li>
                   ))}
                 </ul>
