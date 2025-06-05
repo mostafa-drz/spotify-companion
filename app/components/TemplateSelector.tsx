@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect, useMemo } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import {
   CheckIcon,
@@ -38,11 +38,17 @@ export default function TemplateSelector({
   const { templates, isLoading, error, mutate } = useUserTemplates();
 
   // Add a default option
-  const allTemplates = [...(providedTemplates || templates)];
+  const allTemplates = useMemo(
+    () => [...(providedTemplates || templates)],
+    [providedTemplates, templates]
+  );
 
-  if (!selectedTemplate && allTemplates.length > 0) {
-    onSelect(allTemplates[0]);
-  }
+  // Move initial template selection to useEffect
+  useEffect(() => {
+    if (!selectedTemplate && allTemplates.length > 0) {
+      onSelect(allTemplates[0]);
+    }
+  }, [selectedTemplate, allTemplates, onSelect]);
 
   const handleTemplateSwitch = async (id: string) => {
     const template = allTemplates.find((t) => t.id === id);

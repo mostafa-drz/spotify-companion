@@ -36,7 +36,6 @@ export default function NowPlayingTrackInfo({
   duration,
   isPlaying,
   error,
-  transferError,
   onPlayPause,
   onNext,
   onPrev,
@@ -61,25 +60,9 @@ export default function NowPlayingTrackInfo({
           <div className="text-sm sm:text-base text-neutral-700 dark:text-neutral-300 mb-2 whitespace-normal break-words">
             {track.album.name}
           </div>
-          <div className="text-xs text-neutral-700 dark:text-neutral-300 mt-2 break-words">
-            Track ID: {track.id ?? '—'}
+          <div className="text-xs text-red-500 mt-2" role="alert">
+            {error}
           </div>
-          <div className="text-xs text-neutral-700 dark:text-neutral-300 break-words">
-            Playable: {track.is_playable ? 'Yes' : 'No'}
-          </div>
-          <div className="text-xs text-neutral-700 dark:text-neutral-300 break-words">
-            Type: {track.type} ({track.media_type})
-          </div>
-          {error && (
-            <div className="text-xs text-red-500 mt-2" role="alert">
-              {error}
-            </div>
-          )}
-          {transferError && (
-            <div className="text-xs text-red-500 mt-2" role="alert">
-              {transferError}
-            </div>
-          )}
         </div>
       </div>
       <div className="mb-4">
