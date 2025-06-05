@@ -54,6 +54,7 @@ export default function TermsWrapper({ children }: TermsWrapperProps) {
         <TermsModal
           onClose={() => setShowTerms(false)}
           onAccept={handleAcceptTerms}
+          isSignup={!hasTermsCookie()}
         />
       )}
     </>
