@@ -9,7 +9,7 @@ import {
   generateCustomToken,
   verifyCustomToken,
 } from '@/app/lib/firebase-admin';
-import { AuthError } from '@/app/lib/AuthError';
+import { redirect } from 'next/navigation';
 
 /**
  * Authentication Actions
@@ -21,42 +21,47 @@ import { AuthError } from '@/app/lib/AuthError';
  */
 
 // Firebase Token Management
-export async function generateFirebaseToken(): Promise<{ token: string }> {
+export async function generateFirebaseToken(): Promise<{
+  token: string;
+} | null> {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      throw new AuthError('Not authenticated', 'UNAUTHENTICATED', 401);
+      // Instead of throwing, redirect to home page
+      redirect('/');
     }
 
     const token = await generateCustomToken(session.user.id);
     return { token };
   } catch (error) {
     console.error('Error generating Firebase token:', error);
-    if (error instanceof AuthError) {
-      throw error;
-    }
-    throw new AuthError('Failed to generate token', 'TOKEN_GENERATION_FAILED');
+    // Instead of throwing, redirect to home page
+    redirect('/');
   }
 }
 
 export async function verifyFirebaseToken(
   token: string
-): Promise<{ uid: string }> {
+): Promise<{ uid: string } | null> {
   try {
     const uid = await verifyCustomToken(token);
     return { uid };
   } catch (error) {
     console.error('Error verifying Firebase token:', error);
-    throw new AuthError('Invalid token', 'INVALID_TOKEN', 401);
+    // Instead of throwing, redirect to home page
+    redirect('/');
   }
 }
 
 // Spotify Token Management
-export async function refreshSpotifyToken(): Promise<{ accessToken: string }> {
+export async function refreshSpotifyToken(): Promise<{
+  accessToken: string;
+} | null> {
   try {
     const session = await auth();
     if (!session?.accessToken) {
-      throw new AuthError('Not authenticated', 'UNAUTHENTICATED', 401);
+      // Instead of throwing, redirect to home page
+      redirect('/');
     }
 
     // The token refresh is handled by NextAuth's JWT callback
@@ -64,10 +69,8 @@ export async function refreshSpotifyToken(): Promise<{ accessToken: string }> {
     return { accessToken: session.accessToken };
   } catch (error) {
     console.error('Error refreshing Spotify token:', error);
-    if (error instanceof AuthError) {
-      throw error;
-    }
-    throw new AuthError('Failed to refresh token', 'TOKEN_REFRESH_FAILED');
+    // Instead of throwing, redirect to home page
+    redirect('/');
   }
 }
 

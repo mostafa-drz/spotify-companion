@@ -9,6 +9,7 @@ import {
 import { clientAuth, type FirebaseUser } from '@/app/lib/firebase-client';
 import { generateFirebaseToken } from '@/app/actions/auth';
 import { signOut as spotifySignOut } from '@/app/actions/auth';
+import { useRouter } from 'next/navigation';
 
 interface FirebaseAuthContextType {
   user: FirebaseUser | null;
@@ -25,18 +26,28 @@ export function FirebaseAuthProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    // we failed to refresh the access token, so we need to sign out
-    if (session?.error === 'RefreshAccessTokenError') {
-      firebaseSignOut(clientAuth);
-      spotifySignOut();
+    // Handle session invalidation
+    if (status === 'unauthenticated') {
+      const handleSignOut = async () => {
+        try {
+          await firebaseSignOut(clientAuth);
+          await spotifySignOut();
+          setUser(null);
+          router.push('/');
+        } catch (error) {
+          console.error('Error during sign out:', error);
+        }
+      };
+      handleSignOut();
     }
-  }, [session]);
+  }, [status, router]);
 
   useEffect(() => {
     const unsubscribe = clientAuth.onAuthStateChanged(
@@ -67,8 +78,10 @@ export function FirebaseAuthProvider({
       try {
         setIsLoading(true);
         setError(null);
-        const { token } = await generateFirebaseToken();
-        await signInWithCustomToken(clientAuth, token);
+        const result = await generateFirebaseToken();
+        if (result) {
+          await signInWithCustomToken(clientAuth, result.token);
+        }
       } catch (error) {
         console.error('Error signing in to Firebase:', error);
         setError(error as Error);
@@ -86,11 +99,11 @@ export function FirebaseAuthProvider({
       } catch (error) {
         console.error('Error signing out:', error);
         setError(error as Error);
-        throw error;
       } finally {
         setIsLoading(false);
       }
     };
+
     if (session?.user?.id && !user) {
       signInToFirebase();
     }

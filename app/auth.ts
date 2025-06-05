@@ -113,16 +113,28 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         return refreshedTokens;
       } catch (error) {
         console.error('Error refreshing access token', error);
+        // Return token with undefined values instead of null
         return {
           ...token,
+          accessToken: undefined,
+          refreshToken: undefined,
+          accessTokenExpires: undefined,
           error: 'RefreshAccessTokenError',
         };
       }
     },
     async session({ session, token }) {
+      // If token has error or no access token, return session with error
+      if (token.error || !token.accessToken) {
+        return {
+          ...session,
+          accessToken: undefined,
+          error: 'RefreshAccessTokenError',
+        };
+      }
+
       session.user.id = session.user.email as string;
       session.accessToken = token.accessToken;
-      session.error = token.error;
       return session;
     },
   },
@@ -147,21 +159,30 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     const tokens = await response.json();
 
     if (!response.ok) {
-      throw tokens;
+      // Return token with undefined values instead of null
+      return {
+        ...token,
+        accessToken: undefined,
+        refreshToken: undefined,
+        accessTokenExpires: undefined,
+        error: 'RefreshAccessTokenError',
+      };
     }
 
     return {
       ...token,
       accessToken: tokens.access_token,
       accessTokenExpires: Date.now() + tokens.expires_in * 1000,
-      // Spotify may not return a new refresh token, so we keep the old one
       refreshToken: tokens.refresh_token ?? token.refreshToken,
-      error: undefined, // Clear any previous errors
     };
   } catch (error) {
     console.error('Error refreshing access token', error);
+    // Return token with undefined values instead of null
     return {
       ...token,
+      accessToken: undefined,
+      refreshToken: undefined,
+      accessTokenExpires: undefined,
       error: 'RefreshAccessTokenError',
     };
   }
