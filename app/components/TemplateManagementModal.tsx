@@ -11,6 +11,7 @@ interface TemplateManagementModalProps {
   onClose: () => void;
   selectedTemplateId?: string;
   onTemplatesChange: () => void;
+  initialEditing?: PromptTemplate;
 }
 
 const EXAMPLE_PROMPTS = [
@@ -25,6 +26,7 @@ export default function TemplateManagementModal({
   onClose,
   selectedTemplateId,
   onTemplatesChange,
+  initialEditing,
 }: TemplateManagementModalProps) {
   const { mutate: mutateTemplates } = useUserTemplates();
   const { addTemplate } = useAddUserTemplate();
@@ -33,14 +35,16 @@ export default function TemplateManagementModal({
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<PromptTemplate | null>(null);
+  const [formOpen, setFormOpen] = useState(!!initialEditing);
+  const [editing, setEditing] = useState<PromptTemplate | null>(
+    initialEditing || null
+  );
   const [form, setForm] = useState({
-    name: '',
-    prompt: '',
-    tone: '',
-    length: '',
-    language: '',
+    name: initialEditing?.name || '',
+    prompt: initialEditing?.prompt || '',
+    tone: initialEditing?.tone || '',
+    length: initialEditing?.length?.toString() || '',
+    language: initialEditing?.language || '',
   });
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);

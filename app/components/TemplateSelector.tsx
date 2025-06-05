@@ -6,6 +6,7 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
   Cog6ToothIcon,
+  PencilSquareIcon,
 } from '@heroicons/react/20/solid';
 import { useSession } from 'next-auth/react';
 import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
@@ -29,6 +30,9 @@ export default function TemplateSelector({
 }: TemplateSelectorProps) {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isQuickEditOpen, setIsQuickEditOpen] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
+  const [switchError, setSwitchError] = useState<string | null>(null);
 
   // Use SWR hook if templates are not provided
   const { templates, isLoading, error, mutate } = useUserTemplates();
@@ -39,6 +43,22 @@ export default function TemplateSelector({
   if (!selectedTemplate && allTemplates.length > 0) {
     onSelect(allTemplates[0]);
   }
+
+  const handleTemplateSwitch = async (id: string) => {
+    const template = allTemplates.find((t) => t.id === id);
+    if (!template) return;
+
+    setIsSwitching(true);
+    setSwitchError(null);
+    try {
+      await onSelect(template);
+    } catch (error) {
+      setSwitchError('Failed to switch template');
+      console.error('Template switch error:', error);
+    } finally {
+      setIsSwitching(false);
+    }
+  };
 
   if (!providedTemplates && isLoading) {
     return (
@@ -57,6 +77,14 @@ export default function TemplateSelector({
     );
   }
 
+  const renderTemplateSettings = (template: PromptTemplate) => {
+    const settings = [];
+    if (template.tone) settings.push(`Tone: ${template.tone}`);
+    if (template.language) settings.push(`Language: ${template.language}`);
+    if (template.length) settings.push(`Length: ${template.length}s`);
+    return settings.join(' • ');
+  };
+
   return (
     <div className="w-full max-w-md">
       <label
@@ -69,29 +97,38 @@ export default function TemplateSelector({
         <div className="flex-1">
           <Listbox
             value={selectedTemplate?.id || ''}
-            onChange={(id) => {
-              const template = allTemplates.find((t) => t.id === id);
-              if (template) onSelect(template);
-            }}
+            onChange={handleTemplateSwitch}
+            disabled={isSwitching}
           >
             <Listbox.Label className="sr-only" id="template-label">
               Select Template
             </Listbox.Label>
             <div className="relative">
               <Listbox.Button
-                className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm"
+                className={`relative w-full cursor-pointer rounded-lg bg-white dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-md border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-all duration-200 ${
+                  isSwitching ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
                 aria-labelledby="template-label"
               >
                 <span className="block truncate">
                   {selectedTemplate?.name || 'Default Template'}
                 </span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  <ChevronUpDownIcon
-                    className="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
+                  {isSwitching ? (
+                    <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+                  ) : (
+                    <ChevronUpDownIcon
+                      className="h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                  )}
                 </span>
               </Listbox.Button>
+              {switchError && (
+                <div className="mt-1 text-sm text-semantic-error">
+                  {switchError}
+                </div>
+              )}
               <Transition
                 as={Fragment}
                 leave="transition ease-in duration-100"
@@ -107,9 +144,10 @@ export default function TemplateSelector({
                           active
                             ? 'bg-primary/10 text-primary'
                             : 'text-foreground'
-                        }`
+                        } ${isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`
                       }
                       value={template.id}
+                      disabled={isSwitching}
                     >
                       {({ selected }) => (
                         <>
@@ -131,6 +169,11 @@ export default function TemplateSelector({
                               {template.prompt.length > 80
                                 ? template.prompt.slice(0, 80) + '...'
                                 : template.prompt}
+                            </span>
+                          )}
+                          {renderTemplateSettings(template) && (
+                            <span className="block text-xs text-neutral mt-0.5">
+                              {renderTemplateSettings(template)}
                             </span>
                           )}
                           {selected ? (
@@ -165,18 +208,38 @@ export default function TemplateSelector({
             </div>
           </Listbox>
         </div>
-        <button
-          type="button"
-          aria-label="Manage templates"
-          title="Manage templates"
-          className="ml-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary transition-colors duration-200 h-[42px] mt-0.5"
-          tabIndex={0}
-          onClick={() => setIsModalOpen(true)}
-          style={{ alignSelf: 'flex-start' }}
-        >
-          <Cog6ToothIcon className="w-5 h-5" aria-hidden="true" />
-          <span className="font-medium text-sm">Manage Templates</span>
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            aria-label="Quick edit template"
+            title="Quick edit template"
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary transition-colors duration-200 h-[42px] mt-0.5 ${
+              isSwitching ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            tabIndex={0}
+            onClick={() => setIsQuickEditOpen(true)}
+            disabled={!selectedTemplate || isSwitching}
+            style={{ alignSelf: 'flex-start' }}
+          >
+            <PencilSquareIcon className="w-5 h-5" aria-hidden="true" />
+            <span className="font-medium text-sm">Quick Edit</span>
+          </button>
+          <button
+            type="button"
+            aria-label="Manage templates"
+            title="Manage templates"
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary transition-colors duration-200 h-[42px] mt-0.5 ${
+              isSwitching ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            tabIndex={0}
+            onClick={() => setIsModalOpen(true)}
+            disabled={isSwitching}
+            style={{ alignSelf: 'flex-start' }}
+          >
+            <Cog6ToothIcon className="w-5 h-5" aria-hidden="true" />
+            <span className="font-medium text-sm">Manage</span>
+          </button>
+        </div>
       </div>
       {isModalOpen && session?.user?.id && (
         <TemplateManagementModal
@@ -184,6 +247,15 @@ export default function TemplateSelector({
           onClose={() => setIsModalOpen(false)}
           onTemplatesChange={mutate}
           selectedTemplateId={selectedTemplate?.id}
+        />
+      )}
+      {isQuickEditOpen && selectedTemplate && session?.user?.id && (
+        <TemplateManagementModal
+          templates={providedTemplates || templates}
+          onClose={() => setIsQuickEditOpen(false)}
+          onTemplatesChange={mutate}
+          selectedTemplateId={selectedTemplate.id}
+          initialEditing={selectedTemplate}
         />
       )}
     </div>
