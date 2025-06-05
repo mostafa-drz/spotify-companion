@@ -145,7 +145,7 @@ export default function TemplateManagementModal({
 
   return (
     <Modal onClose={onClose}>
-      <div className="max-w-xl w-full p-8 rounded-lg bg-neutral-900 shadow-lg">
+      <div className="max-w-xl w-full p-8 rounded-lg bg-neutral-900 shadow-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center gap-2 mb-4">
           <h2 className="text-2xl font-bold">Manage Templates</h2>
           <button
