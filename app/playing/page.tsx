@@ -9,10 +9,10 @@ import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
 import NowPlayingTrackInfo from '@/app/components/NowPlayingTrackInfo';
 import IntroControls from '@/app/components/IntroControls';
 import TemplateSelector from '@/app/components/TemplateSelector';
-import CreditBalance from '@/app/components/CreditBalance';
 import LowCreditBanner from '@/app/components/LowCreditBanner';
 import { useTrackIntro } from '@/app/lib/hooks/useTrackIntro';
 import { useAutoIntroOrchestration } from '@/app/lib/hooks/useAutoIntroOrchestration';
+import { useRouter } from 'next/navigation';
 
 declare global {
   interface Window {
@@ -25,6 +25,7 @@ declare global {
 
 export default function NowPlayingPage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const {
     currentTrack,
     position,
@@ -51,6 +52,13 @@ export default function NowPlayingPage() {
   const { intro: currentIntro } = useTrackIntro(trackId, templateId);
   const [introsEnabled, setIntrosEnabled] = useState(true);
 
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/');
+    }
+  }, [status, router]);
+
   // Integrate auto-intro orchestration
   useAutoIntroOrchestration({
     introsEnabled,
@@ -66,22 +74,12 @@ export default function NowPlayingPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const duration = (currentTrack as any)?.duration_ms ?? 0;
 
-  // Fetch the default prompt when session.user.id changes
-  useEffect(() => {
-    if (!session?.user?.id) return;
-    // Remove unused code
-  }, [session?.user?.id]);
-
   if (status === 'loading') {
     return <div className="p-8 text-neutral">Loading...</div>;
   }
 
   if (!session) {
-    return (
-      <div className="p-8 text-semantic-error text-center">
-        Please log in with Spotify to use the Now Playing companion.
-      </div>
-    );
+    return null; // Will redirect due to useEffect
   }
 
   if (error) {
@@ -153,7 +151,6 @@ export default function NowPlayingPage() {
         <LowCreditBanner />
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Now Playing</h1>
-          <CreditBalance className="text-lg" />
         </div>
         <NowPlayingTrackInfo
           track={track}

@@ -20,12 +20,6 @@ export default async function Header() {
 
           {/* Navigation */}
           <nav className="flex items-center gap-6">
-            <Link
-              href="/playing"
-              className="text-neutral hover:text-primary transition-colors font-medium"
-            >
-              Now Playing
-            </Link>
             {session ? <UserMenu /> : <SignInButton />}
           </nav>
         </div>
