@@ -154,20 +154,8 @@ export default function NowPlayingPage() {
           <h1 className="text-2xl font-bold">Now Playing</h1>
           <CreditBalance className="text-sm" />
         </div>
-        <NowPlayingTrackInfo
-          track={track}
-          position={position}
-          duration={duration}
-          isPlaying={isPlaying}
-          error={typeof error === 'string' ? error : undefined}
-          isReady={isReady}
-          onTransferPlayback={transferPlayback}
-          onPlayPause={togglePlay}
-          onNext={nextTrack}
-          onPrev={previousTrack}
-          controlsDisabled={!isReady || !!error}
-        />
-        {/* --- Template Selector (Above Intro Section) --- */}
+
+        {/* --- Template Selector (Controls) --- */}
         <div className="mb-6">
           {templatesLoading ? (
             <div
@@ -199,7 +187,7 @@ export default function NowPlayingPage() {
           )}
         </div>
 
-        {/* --- Intro Section (Below Player) --- */}
+        {/* --- Intro Controls --- */}
         <IntroControls
           introsEnabled={introsEnabled}
           setIntrosEnabled={setIntrosEnabled}
@@ -213,6 +201,22 @@ export default function NowPlayingPage() {
             }
           }}
         />
+
+        {/* --- Now Playing Track Info (Display) --- */}
+        <NowPlayingTrackInfo
+          track={track}
+          position={position}
+          duration={duration}
+          isPlaying={isPlaying}
+          error={typeof error === 'string' ? error : undefined}
+          isReady={isReady}
+          onTransferPlayback={transferPlayback}
+          onPlayPause={togglePlay}
+          onNext={nextTrack}
+          onPrev={previousTrack}
+          controlsDisabled={!isReady || !!error}
+        />
+
         {/* Hidden audio element for playback logic */}
         <audio
           ref={audioRef}
