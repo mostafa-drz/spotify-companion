@@ -331,7 +331,7 @@ export default function IntroControls({
       </div>
       {/* Manual mode: Generate Intro button */}
       {!introsEnabled && !introScript && (
-        <div className="flex items-center gap-2 -mt-8">
+        <div className="flex justify-center gap-2">
           <button
             type="button"
             className="px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 disabled:opacity-50"

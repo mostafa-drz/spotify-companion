@@ -146,8 +146,12 @@ export default function NowPlayingPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Now Playing</h1>
+        <LowCreditBanner />
+      </div>
       {/* AI Intro Toggle at the top */}
-      <div className="w-full max-w-2xl mx-auto mb-8">
+      <div className="w-full max-w-2xl mx-auto my-4">
         <AIIntroToggle
           introsEnabled={introsEnabled}
           setIntrosEnabled={setIntrosEnabled}
@@ -155,12 +159,21 @@ export default function NowPlayingPage() {
         />
       </div>
       <div className="flex flex-col gap-8">
-        <LowCreditBanner />
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Now Playing</h1>
+        <div className="mt-8">
+          <NowPlayingTrackInfo
+            track={track}
+            position={position}
+            duration={duration}
+            isPlaying={isPlaying}
+            error={typeof error === 'string' ? error : undefined}
+            isReady={isReady}
+            onTransferPlayback={transferPlayback}
+            onPlayPause={togglePlay}
+            onNext={nextTrack}
+            onPrev={previousTrack}
+            controlsDisabled={!isReady || !!error}
+          />
         </div>
-
-        {/* Top section: always full width with a max, centered */}
         <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
           <TemplateSelector
             onSelect={setSelectedTemplate}
@@ -178,22 +191,6 @@ export default function NowPlayingPage() {
                 togglePlay();
               }
             }}
-          />
-        </div>
-        {/* Content section: full width, left-aligned */}
-        <div className="mt-8">
-          <NowPlayingTrackInfo
-            track={track}
-            position={position}
-            duration={duration}
-            isPlaying={isPlaying}
-            error={typeof error === 'string' ? error : undefined}
-            isReady={isReady}
-            onTransferPlayback={transferPlayback}
-            onPlayPause={togglePlay}
-            onNext={nextTrack}
-            onPrev={previousTrack}
-            controlsDisabled={!isReady || !!error}
           />
         </div>
       </div>
