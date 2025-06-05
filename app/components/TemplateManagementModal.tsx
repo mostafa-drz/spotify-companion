@@ -5,7 +5,11 @@ import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
 import { useAddUserTemplate } from '@/app/lib/hooks/useAddUserTemplate';
 import { useUpdateUserTemplate } from '@/app/lib/hooks/useUpdateUserTemplate';
 import { useDeleteUserTemplate } from '@/app/lib/hooks/useDeleteUserTemplate';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/24/outline';
 
 interface TemplateManagementModalProps {
   templates: PromptTemplate[];
@@ -49,6 +53,7 @@ export default function TemplateManagementModal({
   const [saving, setSaving] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -139,7 +144,45 @@ export default function TemplateManagementModal({
   return (
     <Modal onClose={onClose}>
       <div className="max-w-xl w-full p-8 rounded-lg bg-neutral-900 shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">Manage Templates</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-2xl font-bold">Manage Templates</h2>
+          <button
+            type="button"
+            aria-label="Show help about template management"
+            className="focus:outline-none"
+            onClick={() => setHelpOpen((v) => !v)}
+          >
+            <InformationCircleIcon
+              className={`w-5 h-5 transition-colors ${helpOpen ? 'text-green-500' : 'text-neutral-400'} hover:text-green-500 focus:text-green-500`}
+            />
+          </button>
+        </div>
+        {helpOpen && (
+          <div className="mb-6 rounded bg-neutral-800 text-neutral-100 text-sm p-4 shadow-lg border border-neutral-700 animate-fade-in">
+            <div className="font-semibold mb-1 text-green-400">
+              How Template Management Works
+            </div>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>
+                Create, edit, or delete intro templates for your AI track
+                intros.
+              </li>
+              <li>
+                Each template has a <b>Name</b> and a <b>Prompt</b> (what the AI
+                will talk about).
+              </li>
+              <li>
+                Advanced options: <b>Tone</b>, <b>Length</b>, and{' '}
+                <b>Language</b> let you further customize intros.
+              </li>
+              <li>Switch between templates anytime in the Now Playing view.</li>
+              <li>
+                Templates are saved to your account and can be reused for any
+                track.
+              </li>
+            </ul>
+          </div>
+        )}
         <div className="text-neutral mb-6">
           Create, edit, or delete your intro templates here.
         </div>
