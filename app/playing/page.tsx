@@ -10,7 +10,6 @@ import NowPlayingTrackInfo from '@/app/components/NowPlayingTrackInfo';
 import IntroControls from '@/app/components/IntroControls';
 import TemplateSelector from '@/app/components/TemplateSelector';
 import LowCreditBanner from '@/app/components/LowCreditBanner';
-import CreditBalance from '@/app/components/CreditBalance';
 import { useTrackIntro } from '@/app/lib/hooks/useTrackIntro';
 import { useAutoIntroOrchestration } from '@/app/lib/hooks/useAutoIntroOrchestration';
 import { useRouter } from 'next/navigation';
@@ -148,7 +147,6 @@ export default function NowPlayingPage() {
         <LowCreditBanner />
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Now Playing</h1>
-          <CreditBalance className="text-sm" />
         </div>
 
         {/* Top section: always full width with a max, centered */}

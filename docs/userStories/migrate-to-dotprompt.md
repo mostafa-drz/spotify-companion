@@ -25,11 +25,11 @@ To improve maintainability and simplify our AI integration, we will migrate the 
 ## 3. Acceptance Criteria
 
 - [x] All intro generation uses a `.prompt` file in Dotprompt format.  
-      _`app/lib/prompts/intro.prompt` exists and is well-formed._
+       _`app/lib/prompts/intro.prompt` exists and is well-formed._
 - [x] Input schema includes: `trackDetailsJSON`, `userAreaOfInterest`, `language`, `tone?`, `length?`.  
-      _Schema is defined in the prompt file._
+       _Schema is defined in the prompt file._
 - [x] Output schema includes: `markdown`, `ssml`, `duration`, `error?`.  
-      _Schema is defined in the prompt file._
+       _Schema is defined in the prompt file._
 - [x] Single source of truth for AI interactions using GenKit.
       _Implemented in `genKit.ts` using proper prompt loading._
 - [x] Simplified caching mechanism using Firestore.

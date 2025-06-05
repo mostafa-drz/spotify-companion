@@ -6,7 +6,6 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
   Cog6ToothIcon,
-  PencilSquareIcon,
 } from '@heroicons/react/20/solid';
 import { useSession } from 'next-auth/react';
 import { useUserTemplates } from '@/app/lib/hooks/useUserTemplates';
@@ -215,21 +214,6 @@ export default function TemplateSelector({
           </Listbox>
         </div>
         <div className="flex gap-2">
-          <button
-            type="button"
-            aria-label="Quick edit template"
-            title="Quick edit template"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary transition-colors duration-200 h-[42px] mt-0.5 ${
-              isSwitching ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-            tabIndex={0}
-            onClick={() => setIsQuickEditOpen(true)}
-            disabled={!selectedTemplate || isSwitching}
-            style={{ alignSelf: 'flex-start' }}
-          >
-            <PencilSquareIcon className="w-5 h-5" aria-hidden="true" />
-            <span className="font-medium text-sm">Quick Edit</span>
-          </button>
           <button
             type="button"
             aria-label="Manage templates"
