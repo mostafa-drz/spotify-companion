@@ -13,6 +13,8 @@ import LowCreditBanner from '@/app/components/LowCreditBanner';
 import { useTrackIntro } from '@/app/lib/hooks/useTrackIntro';
 import { useAutoIntroOrchestration } from '@/app/lib/hooks/useAutoIntroOrchestration';
 import { useRouter } from 'next/navigation';
+import AIIntroToggle from '@/app/components/AIIntroToggle';
+import { useLowCredits } from '@/app/lib/hooks/useLowCredits';
 
 declare global {
   interface Window {
@@ -47,6 +49,7 @@ export default function NowPlayingPage() {
   const templateId = selectedTemplate?.id || undefined;
   const { intro: currentIntro } = useTrackIntro(trackId, templateId);
   const [introsEnabled, setIntrosEnabled] = useState(true);
+  const { isLow: isLowCredits } = useLowCredits();
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -143,6 +146,14 @@ export default function NowPlayingPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* AI Intro Toggle at the top */}
+      <div className="w-full max-w-2xl mx-auto mb-8">
+        <AIIntroToggle
+          introsEnabled={introsEnabled}
+          setIntrosEnabled={setIntrosEnabled}
+          isLowCredits={isLowCredits}
+        />
+      </div>
       <div className="flex flex-col gap-8">
         <LowCreditBanner />
         <div className="flex items-center justify-between">
@@ -158,7 +169,6 @@ export default function NowPlayingPage() {
           />
           <IntroControls
             introsEnabled={introsEnabled}
-            setIntrosEnabled={setIntrosEnabled}
             selectedTemplate={selectedTemplate}
             currentTrack={track}
             audioRef={audioRef}

@@ -39,7 +39,7 @@ export default async function Home() {
                     Enhance your Spotify experience with educational insights
                     about your favorite tracks.
                   </p>
-                  <div className="pt-4">
+                  <div className="pt-4 flex justify-center">
                     {session ? (
                       <Link
                         href="/playing"
