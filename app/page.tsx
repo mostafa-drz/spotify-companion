@@ -78,8 +78,7 @@ export default async function Home() {
                     Connect Your Spotify
                   </h2>
                   <p className="text-lg text-neutral">
-                    Start by connecting your Spotify account. We&apos;ll sync
-                    with your current playback to provide real-time insights.
+                    Connect your Spotify account to get started.
                   </p>
                 </div>
                 <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center">
@@ -102,9 +101,8 @@ export default async function Home() {
                     Play Your Music
                   </h2>
                   <p className="text-lg text-neutral">
-                    As you listen to your favorite tracks, we&apos;ll
-                    automatically detect what&apos;s playing and prepare
-                    fascinating insights.
+                    Play any track—Spotify Companion will detect what&apos;s
+                    playing and prepare an AI-powered intro for you.
                   </p>
                 </div>
               </div>
@@ -119,9 +117,9 @@ export default async function Home() {
                     Discover Hidden Stories
                   </h2>
                   <p className="text-lg text-neutral">
-                    Get instant access to educational content about the music
-                    you love - from historical context to interesting facts
-                    about the artists and their creative process.
+                    Discover and customize educational intros for your music.
+                    Use templates to personalize what you learn about each
+                    track.
                   </p>
                 </div>
                 <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center">
