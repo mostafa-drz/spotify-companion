@@ -239,13 +239,6 @@ export default function IntroControls({
               aria-label="Loading"
             />
             <span>Generating intro…</span>
-            <button
-              type="button"
-              className="ml-4 px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 text-xs font-medium border border-gray-300"
-              onClick={handleSkipIntro}
-            >
-              Skip Intro
-            </button>
           </div>
         )}
         {introScript && !isLoading && !error && (
