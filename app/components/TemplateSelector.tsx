@@ -236,7 +236,6 @@ export default function TemplateSelector({
           templates={providedTemplates || templates}
           onClose={() => setIsModalOpen(false)}
           onTemplatesChange={mutate}
-          selectedTemplateId={selectedTemplate?.id}
         />
       )}
       {isQuickEditOpen && selectedTemplate && session?.user?.id && (
@@ -244,7 +243,6 @@ export default function TemplateSelector({
           templates={providedTemplates || templates}
           onClose={() => setIsQuickEditOpen(false)}
           onTemplatesChange={mutate}
-          selectedTemplateId={selectedTemplate.id}
           initialEditing={selectedTemplate}
         />
       )}
