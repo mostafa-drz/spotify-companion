@@ -42,11 +42,7 @@ export default function NowPlayingPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<
     PromptTemplate | undefined
   >(undefined);
-  const {
-    templates: userTemplates = [],
-    isLoading: templatesLoading,
-    error: templatesError,
-  } = useUserTemplates();
+  const { templates: userTemplates = [] } = useUserTemplates();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const trackId = currentTrack?.id || undefined;
   const templateId = selectedTemplate?.id || undefined;
@@ -155,76 +151,51 @@ export default function NowPlayingPage() {
           <CreditBalance className="text-sm" />
         </div>
 
-        {/* --- Template Selector (Controls) --- */}
-        <div className="mb-6">
-          {templatesLoading ? (
-            <div
-              className="flex items-center gap-2 text-neutral"
-              role="status"
-              aria-live="polite"
-            >
-              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-              <span>Loading templates…</span>
-            </div>
-          ) : templatesError ? (
-            <div className="text-semantic-error" role="alert">
-              {templatesError}
-            </div>
-          ) : (
-            <>
-              <TemplateSelector
-                onSelect={setSelectedTemplate}
-                selectedTemplate={selectedTemplate}
-                templates={userTemplates}
-              />
-              {/* Minimal inline feedback for template selection */}
-              {userTemplates.length === 0 && (
-                <div className="text-xs text-neutral mt-2" role="status">
-                  No templates found. Create one to get started.
-                </div>
-              )}
-            </>
-          )}
+        {/* Top section: always full width with a max, centered */}
+        <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+          <TemplateSelector
+            onSelect={setSelectedTemplate}
+            selectedTemplate={selectedTemplate}
+            templates={userTemplates}
+          />
+          <IntroControls
+            introsEnabled={introsEnabled}
+            setIntrosEnabled={setIntrosEnabled}
+            selectedTemplate={selectedTemplate}
+            currentTrack={track}
+            audioRef={audioRef}
+            onSkip={togglePlay}
+            onPauseSpotify={() => {
+              if (isPlaying) {
+                togglePlay();
+              }
+            }}
+          />
         </div>
-
-        {/* --- Intro Controls --- */}
-        <IntroControls
-          introsEnabled={introsEnabled}
-          setIntrosEnabled={setIntrosEnabled}
-          selectedTemplate={selectedTemplate}
-          currentTrack={track}
-          audioRef={audioRef}
-          onSkip={togglePlay}
-          onPauseSpotify={() => {
-            if (isPlaying) {
-              togglePlay();
-            }
-          }}
-        />
-
-        {/* --- Now Playing Track Info (Display) --- */}
-        <NowPlayingTrackInfo
-          track={track}
-          position={position}
-          duration={duration}
-          isPlaying={isPlaying}
-          error={typeof error === 'string' ? error : undefined}
-          isReady={isReady}
-          onTransferPlayback={transferPlayback}
-          onPlayPause={togglePlay}
-          onNext={nextTrack}
-          onPrev={previousTrack}
-          controlsDisabled={!isReady || !!error}
-        />
-
-        {/* Hidden audio element for playback logic */}
-        <audio
-          ref={audioRef}
-          src={currentIntro?.audioUrl || undefined}
-          preload="auto"
-          style={{ display: 'none' }}
-        />
+        {/* Content section: full width, left-aligned */}
+        <div className="mt-8">
+          <NowPlayingTrackInfo
+            track={track}
+            position={position}
+            duration={duration}
+            isPlaying={isPlaying}
+            error={typeof error === 'string' ? error : undefined}
+            isReady={isReady}
+            onTransferPlayback={transferPlayback}
+            onPlayPause={togglePlay}
+            onNext={nextTrack}
+            onPrev={previousTrack}
+            controlsDisabled={!isReady || !!error}
+          />
+        </div>
       </div>
+      {/* Hidden audio element for playback logic */}
+      <audio
+        ref={audioRef}
+        src={currentIntro?.audioUrl || undefined}
+        preload="auto"
+        style={{ display: 'none' }}
+      />
     </div>
   );
 }
