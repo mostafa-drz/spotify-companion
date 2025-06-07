@@ -22,12 +22,12 @@ service firebase.storage {
         && request.resource.contentType.matches('image/.*');
     }
 
-    // Playlist cover images
-    match /playlists/{playlistId}/cover/{fileName} {
+    // Track intros audio or files
+    match /users/{userId}/trackIntros/{trackId}/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() 
-        && request.resource.size < 5 * 1024 * 1024 // 5MB
-        && request.resource.contentType.matches('image/.*');
+      allow write: if isOwner(userId)
+        && request.resource.size < 10 * 1024 * 1024 // 10MB
+        && request.resource.contentType.matches('audio/.*');
     }
 
     // Default deny
