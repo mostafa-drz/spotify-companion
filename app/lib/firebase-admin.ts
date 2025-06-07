@@ -56,3 +56,27 @@ export async function verifyAuth() {
     throw new Error('Unauthorized: Invalid user session');
   }
 }
+
+// A utility function to delete user from firebase auth using firebase admin
+export async function deleteUser(uid: string) {
+  try {
+    await adminAuth.deleteUser(uid);
+    console.log('User deleted from firebase auth', uid);
+
+    // Delete all trackIntros subcollection docs
+    const introsSnapshot = await adminDb
+      .collection('users')
+      .doc(uid)
+      .collection('trackIntros')
+      .get();
+    const deletePromises = introsSnapshot.docs.map((doc) => doc.ref.delete());
+    await Promise.all(deletePromises);
+
+    // Then delete the user document
+    await adminDb.collection('users').doc(uid).delete();
+    console.log('User and subcollections deleted from firestore', uid);
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    throw new Error('Failed to delete user');
+  }
+}

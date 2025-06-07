@@ -8,6 +8,7 @@ import {
 import {
   generateCustomToken,
   verifyCustomToken,
+  deleteUser as adminDeleteUser,
 } from '@/app/lib/firebase-admin';
 import { redirect } from 'next/navigation';
 
@@ -84,4 +85,14 @@ export async function signIn() {
 export async function signOut() {
   // This will trigger the NextAuth sign-out flow and redirect to home
   await nextAuthSignOut({ redirectTo: '/' });
+}
+
+// Delete user from both Firebase and NextAuth
+export async function deleteUser(uid: string) {
+  try {
+    await adminDeleteUser(uid);
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    throw error;
+  }
 }

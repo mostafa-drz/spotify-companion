@@ -1,5 +1,5 @@
 import useSWRMutation from 'swr/mutation';
-import { deleteUser } from '@/app/lib/firestore';
+import { deleteUser } from '@/app/actions/auth';
 
 export function useDeleteUser() {
   const { trigger, error, isMutating } = useSWRMutation(
