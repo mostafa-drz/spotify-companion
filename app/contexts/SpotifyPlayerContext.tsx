@@ -11,15 +11,11 @@ import { useSession } from 'next-auth/react';
 import type {
   WebPlaybackTrack,
   WebPlaybackState,
-  SpotifyNamespace,
+  SpotifyPlayer,
 } from '@/app/types/Spotify';
 
-declare global {
-  interface Window {
-    Spotify?: SpotifyNamespace;
-    onSpotifyWebPlaybackSDKReady?: () => void;
-  }
-}
+// If you want to centralize SpotifyError and SpotifyPlayerContextType, import them here as well
+// import { SpotifyError, SpotifyPlayerContextType } from '@/app/types/Spotify';
 
 class SpotifyError extends Error {
   constructor(
@@ -30,19 +26,6 @@ class SpotifyError extends Error {
     super(message);
     this.name = 'SpotifyError';
   }
-}
-
-// Spotify Player types
-interface SpotifyPlayer {
-  connect: () => Promise<boolean>;
-  disconnect: () => void;
-  addListener: (event: string, callback: (payload: unknown) => void) => void;
-  removeListener: (event: string, callback: (payload: unknown) => void) => void;
-  activateElement: () => Promise<void>;
-  togglePlay: () => Promise<void>;
-  nextTrack: () => Promise<void>;
-  previousTrack: () => Promise<void>;
-  seek: (position_ms: number) => Promise<void>;
 }
 
 interface SpotifyPlayerContextType {
@@ -67,6 +50,22 @@ const SpotifyPlayerContext = createContext<
   SpotifyPlayerContextType | undefined
 >(undefined);
 
+// Local extension for activateElement (not in SDK type)
+interface LocalSpotifyPlayer extends SpotifyPlayer {
+  activateElement: () => Promise<void>;
+}
+
+interface WindowWithSpotify extends Window {
+  Spotify?: {
+    Player: new (config: {
+      name: string;
+      getOAuthToken: (cb: (token: string) => void) => void;
+      volume?: number;
+    }) => LocalSpotifyPlayer;
+  };
+  onSpotifyWebPlaybackSDKReady?: () => void;
+}
+
 export function SpotifyPlayerProvider({
   children,
 }: {
@@ -82,28 +81,29 @@ export function SpotifyPlayerProvider({
     null
   );
   const [position, setPosition] = useState(0);
-  const playerRef = useRef<SpotifyPlayer | null>(null);
+  const playerRef = useRef<LocalSpotifyPlayer | null>(null);
 
   useEffect(() => {
     if (!session?.accessToken) return;
     let script: HTMLScriptElement | null = null;
+    const w = window as WindowWithSpotify;
 
-    if (!window.Spotify) {
+    if (!w.Spotify) {
       script = document.createElement('script');
       script.src = 'https://sdk.scdn.co/spotify-player.js';
       script.async = true;
       document.body.appendChild(script);
     }
 
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      if (!window.Spotify) return;
-      const playerInstance = new window.Spotify.Player({
+    w.onSpotifyWebPlaybackSDKReady = () => {
+      if (!w.Spotify) return;
+      const playerInstance = new w.Spotify.Player({
         name: 'Spotify Companion Player',
         getOAuthToken: (cb: (token: string) => void) => {
           cb(session.accessToken as string);
         },
         volume: 0.5,
-      }) as SpotifyPlayer;
+      });
       playerRef.current = playerInstance;
       setPlayer(playerInstance);
 
