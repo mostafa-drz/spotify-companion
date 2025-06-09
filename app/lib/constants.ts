@@ -5,26 +5,34 @@ export const LOW_CREDIT_THRESHOLD = 2; // Warning threshold for low credits
 
 export const DEFAULT_TEMPLATES: PromptTemplate[] = [
   {
-    id: 'about-artist',
-    name: 'About the Artist',
+    id: 'artist-background',
+    name: 'Artist Background',
     prompt:
-      'Provide a brief, engaging background about the artist of this track, focusing on their musical journey and notable achievements.',
+      'Provide a brief, engaging background on the artist—highlighting their musical journey, influences, and major achievements relevant to this track.',
     isSystem: true,
     createdAt: new Date().toISOString(),
   },
   {
-    id: 'track-story',
-    name: 'Track Story',
+    id: 'track-meaning',
+    name: 'Track Meaning & Story',
     prompt:
-      'Share the story or inspiration behind this track, including any interesting facts about its creation or meaning.',
+      'Explore the meaning or story behind this track. Include known inspiration, themes, or speculate thoughtfully based on lyrics and style.',
     isSystem: true,
     createdAt: new Date().toISOString(),
   },
   {
-    id: 'genre-context',
-    name: 'Genre & Context',
+    id: 'genre-explainer',
+    name: 'Genre & Style Explainer',
     prompt:
-      'Explain the genre of this track and its cultural or historical significance, including how it fits into the broader musical landscape.',
+      'Explain the genre of this track, key musical traits, and how it fits into the broader cultural or historical context of that style.',
+    isSystem: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'musical-elements',
+    name: 'Musical Highlights',
+    prompt:
+      'Break down key musical elements—such as instrumentation, rhythm, structure, or production—that make this track stand out.',
     isSystem: true,
     createdAt: new Date().toISOString(),
   },
