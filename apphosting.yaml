@@ -9,64 +9,34 @@ runConfig:
 
 env:
   - variable: NEXT_PUBLIC_SITE_URL
-    value: 'https://mostafaxyz.ngrok.app/'
-    availability:
-      - BUILD
-      - RUNTIME
+    value: 'https://spotifycompanion.mostafa.xyz/'
 
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: 'AIzaSyCfisrurRGDtOpbun3_lReWzA9VKBLt9DA'
-    availability:
-      - BUILD
-      - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: 'playlist-companion-458317.firebaseapp.com'
-    availability:
-      - BUILD
-      - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: 'playlist-companion-458317'
-    availability:
-      - BUILD
-      - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: 'playlist-companion-458317.firebasestorage.app'
-    availability:
-      - BUILD
-      - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
     value: '439040750509'
-    availability:
-      - BUILD
-      - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: '1:439040750509:web:ba007aa7f7cbcee274a724'
-    availability:
-      - BUILD
-      - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
     value: 'G-WNWWJKM033'
-    availability:
-      - BUILD
-      - RUNTIME
 
   - variable: FIREBASE_STORAGE_BUCKET_URI
     value: 'gs://playlist-companion-458317.firebasestorage.app'
-    availability:
-      - BUILD
-      - RUNTIME
 
   - variable: AUTH_URL
-    value: 'https://mostafaxyz.ngrok.app/'
-    availability:
-      - BUILD
-      - RUNTIME
+    value: 'https://spotifycompanion.mostafa.xyz/'
 
   - variable: AUTH_SECRET
     secret: AUTH_SECRET
@@ -76,19 +46,9 @@ env:
 
   - variable: SPOTIFY_CLIENT_SECRET
     secret: SPOTIFY_CLIENT_SECRET
+
   - variable: GEMINI_API_KEY
     secret: GEMINI_API_KEY
-  - variable: JWT_SECRET
-    secret: JWT_SECRET
-
-# Secrets (to be added via Cloud Secret Manager)
-# - variable: FIREBASE_STORAGE_BUCKET_URI
-#   secret: FIREBASE_STORAGE_BUCKET_URI_SECRET
-#   availability:
-#     - BUILD
-#     - RUNTIME
-# ... (repeat for each secret)
-
 # Grant access to secrets in Cloud Secret Manager.
 # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
 # - variable: MY_SECRET
