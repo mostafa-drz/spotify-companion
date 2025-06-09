@@ -8,9 +8,21 @@ import Footer from './components/Footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Nowtune AI',
+  title: 'Spotify Companion - Educational Music Insights',
   description:
-    'AI-powered educational intros for your currently playing Spotify track',
+    'Enhance your Spotify experience with AI-generated educational insights about your favorite tracks. Discover hidden stories, artist backgrounds, and musical context while you listen.',
+  keywords:
+    'spotify, music education, AI insights, music companion, educational intros, music learning, spotify integration',
+  authors: [
+    { name: 'Mostafa Darehzereshki', url: 'https://github.com/mostafa-drz' },
+  ],
+  creator: 'Mostafa Darehzereshki',
+  publisher: 'Mostafa Darehzereshki',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+  },
+  themeColor: '#1DB954', // Spotify green
 };
 
 export default function RootLayout({
