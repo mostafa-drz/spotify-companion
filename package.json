@@ -20,11 +20,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mostafaxyz/spotify-companion"
+    "url": "https://github.com/mostafa-drz/spotify-companion"
   },
-  "homepage": "https://github.com/mostafaxyz/spotify-companion#readme",
+  "homepage": "https://spotifycompanion.mostafa.xyz/",
   "bugs": {
-    "url": "https://github.com/mostafaxyz/spotify-companion/issues"
+    "url": "https://github.com/mostafa-drz/spotify-companion/issues"
   },
   "license": "MIT",
   "engines": {
