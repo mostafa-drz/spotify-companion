@@ -219,7 +219,3 @@ GOOGLE_CLOUD_PROJECT=
   - Credit cost per intro generation (includes TTS)
   - Simple email-based support for credit top-ups
   - Low credit warnings and notifications
-
-## 📝 Development Workflow
-
-1. Feature branches from `

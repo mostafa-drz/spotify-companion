@@ -81,9 +81,15 @@ export default async function Home() {
                     Connect your Spotify account to get started.
                   </p>
                 </div>
-                <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center">
-                  {/* Placeholder for illustration */}
-                  <span className="text-4xl">🎧</span>
+                <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center overflow-hidden">
+                  <Image
+                    src="/step-1-connect-spotify.gif"
+                    alt="Connect your Spotify account demonstration"
+                    className="w-full h-full object-cover"
+                    width={640}
+                    height={360}
+                    priority
+                  />
                 </div>
               </div>
 
