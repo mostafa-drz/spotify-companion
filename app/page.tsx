@@ -67,10 +67,10 @@ export default async function Home() {
 
           {/* How It Works Section */}
           <Suspense>
-            <section className="py-16 space-y-24">
+            <section className="py-8 space-y-8">
               {/* Step 1: Connect */}
-              <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="space-y-4">
+              <div className="border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-sm bg-white/80 dark:bg-neutral p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+                <div className="flex-1 space-y-4">
                   <div className="inline-block px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
                     Step 1
                   </div>
@@ -81,7 +81,7 @@ export default async function Home() {
                     Connect your Spotify account to get started.
                   </p>
                 </div>
-                <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center overflow-hidden">
+                <div className="flex-1 relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center overflow-hidden">
                   <Image
                     src="/step-1-connect-spotify.gif"
                     alt="Connect your Spotify account demonstration"
@@ -94,18 +94,8 @@ export default async function Home() {
               </div>
 
               {/* Step 2: Listen */}
-              <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="order-2 md:order-1 relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center overflow-hidden">
-                  <Image
-                    src="/step-2-play-your-music.gif"
-                    alt="Play your music and get AI-powered intros demonstration"
-                    className="w-full h-full object-cover"
-                    width={640}
-                    height={360}
-                    priority
-                  />
-                </div>
-                <div className="order-1 md:order-2 space-y-4">
+              <div className="border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-sm bg-white/80 dark:bg-neutral p-6 md:p-8 flex flex-col md:flex-row-reverse items-center gap-8">
+                <div className="flex-1 space-y-4">
                   <div className="inline-block px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
                     Step 2
                   </div>
@@ -117,11 +107,21 @@ export default async function Home() {
                     playing and prepare an AI-powered intro for you.
                   </p>
                 </div>
+                <div className="flex-1 relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center overflow-hidden">
+                  <Image
+                    src="/step-2-play-your-music.gif"
+                    alt="Play your music and get AI-powered intros demonstration"
+                    className="w-full h-full object-cover"
+                    width={640}
+                    height={360}
+                    priority
+                  />
+                </div>
               </div>
 
               {/* Step 3: Learn */}
-              <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="space-y-4">
+              <div className="border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-sm bg-white/80 dark:bg-neutral p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+                <div className="flex-1 space-y-4">
                   <div className="inline-block px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
                     Step 3
                   </div>
@@ -134,7 +134,7 @@ export default async function Home() {
                     track.
                   </p>
                 </div>
-                <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center overflow-hidden">
+                <div className="flex-1 relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center overflow-hidden">
                   <Image
                     src="/step-3-discover-hidden-stories.gif"
                     alt="Discover and customize educational intros demonstration"
