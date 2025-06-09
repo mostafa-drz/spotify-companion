@@ -48,7 +48,7 @@ export default function NowPlayingPage() {
   const trackId = currentTrack?.id || undefined;
   const templateId = selectedTemplate?.id || undefined;
   const { intro: currentIntro } = useTrackIntro(trackId, templateId);
-  const [introsEnabled, setIntrosEnabled] = useState(true);
+  const [introsEnabled, setIntrosEnabled] = useState(false);
   const { isLow: isLowCredits } = useLowCredits();
 
   // Redirect if not authenticated
