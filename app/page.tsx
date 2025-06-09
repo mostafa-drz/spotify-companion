@@ -95,9 +95,15 @@ export default async function Home() {
 
               {/* Step 2: Listen */}
               <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="order-2 md:order-1 relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center">
-                  {/* Placeholder for illustration */}
-                  <span className="text-4xl">🎼</span>
+                <div className="order-2 md:order-1 relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center overflow-hidden">
+                  <Image
+                    src="/step-2-play-your-music.gif"
+                    alt="Play your music and get AI-powered intros demonstration"
+                    className="w-full h-full object-cover"
+                    width={640}
+                    height={360}
+                    priority
+                  />
                 </div>
                 <div className="order-1 md:order-2 space-y-4">
                   <div className="inline-block px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
