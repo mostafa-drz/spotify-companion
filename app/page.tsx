@@ -134,9 +134,15 @@ export default async function Home() {
                     track.
                   </p>
                 </div>
-                <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center">
-                  {/* Placeholder for illustration */}
-                  <span className="text-4xl">📚</span>
+                <div className="relative aspect-video bg-neutral-light dark:bg-neutral rounded-xl flex items-center justify-center overflow-hidden">
+                  <Image
+                    src="/step-3-discover-hidden-stories.gif"
+                    alt="Discover and customize educational intros demonstration"
+                    className="w-full h-full object-cover"
+                    width={640}
+                    height={360}
+                    priority
+                  />
                 </div>
               </div>
             </section>
