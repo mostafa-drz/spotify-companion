@@ -243,7 +243,6 @@ export default function TemplateManagementModal({
                 value={form.prompt}
                 onChange={handleFormChange}
                 rows={3}
-                maxLength={200}
                 disabled={saving}
                 required
               />
