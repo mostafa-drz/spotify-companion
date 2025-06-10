@@ -36,12 +36,12 @@ export async function hasSufficientCredits(
   const userData = userDoc.data();
 
   if (!userData) {
-    throw new Error('User not found');
+    return false;
   }
 
   const cost = costPerTransaction[transaction];
   if (cost === undefined) {
-    throw new Error(`Invalid transaction type: ${transaction}`);
+    return false;
   }
 
   return userData.availableCredits >= cost;
@@ -52,13 +52,15 @@ export async function hasSufficientCredits(
  */
 export async function getUserCredits(
   userId: string
-): Promise<{ available: number; used: number }> {
+): Promise<{ available: number; used: number } | { error: string }> {
   const userRef = adminDb.collection('users').doc(userId);
   const userDoc = await userRef.get();
   const userData = userDoc.data();
 
   if (!userData) {
-    throw new Error('User not found');
+    return {
+      error: 'User not found',
+    };
   }
 
   return {
@@ -73,10 +75,12 @@ export async function getUserCredits(
 export async function deductCredits(
   userId: string,
   transaction: UserTransaction
-): Promise<void> {
+): Promise<{ error: string } | void> {
   const cost = costPerTransaction[transaction];
   if (cost === undefined) {
-    throw new Error(`Invalid transaction type: ${transaction}`);
+    return {
+      error: `Invalid transaction type: ${transaction}`,
+    };
   }
 
   const userRef = adminDb.collection('users').doc(userId);
@@ -91,6 +95,9 @@ export async function deductCredits(
  * Check if user has low credits
  */
 export async function hasLowCredits(userId: string): Promise<boolean> {
-  const { available } = await getUserCredits(userId);
-  return available <= LOW_CREDIT_THRESHOLD;
+  const userCredits = await getUserCredits(userId);
+  if ('error' in userCredits) {
+    return false;
+  }
+  return userCredits.available <= LOW_CREDIT_THRESHOLD;
 }

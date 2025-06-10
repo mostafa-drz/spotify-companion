@@ -30,7 +30,9 @@ export async function generateIntroText(
     UserTransaction.GENERATE_TRACK_INTRO
   );
   if (!hasCredits) {
-    throw new Error('Insufficient credits to generate intro');
+    return {
+      error: 'Insufficient credits to generate intro',
+    };
   }
 
   // Generate intro using GenKit integration
