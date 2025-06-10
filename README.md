@@ -22,6 +22,12 @@ A minimal web application that enhances your music listening experience by provi
 - Each track can have multiple intros, one per template, and switching templates instantly loads or generates the relevant intro.
 - Enjoy both text and audio versions of the insights
 
+## 🎬 Product Demo
+
+[![Watch the demo](./public/step-2-play-your-music.gif)](https://youtu.be/5wtlfmVnRYg)
+
+[Watch on YouTube](https://youtu.be/5wtlfmVnRYg)
+
 ## 🛠 Tech Stack
 
 - **Frontend**: Next.js 15, TypeScript, TailwindCSS
