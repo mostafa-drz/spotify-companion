@@ -116,23 +116,27 @@ export default function IntroControls({
         lastGen.templateId !== selectedTemplate.id)
     ) {
       setPendingGen(true);
-      generateIntro({
-        trackId: currentTrack.id || '',
-        track: { ...currentTrack },
-        templateId: selectedTemplate.id,
-        templateName: selectedTemplate.name,
-        language: selectedTemplate.language ?? 'en',
-        tone: (selectedTemplate.tone as Tone) ?? Tone.Conversational,
-        length: selectedTemplate.length ?? 60,
-        templatePrompt: selectedTemplate.prompt,
-      }).then(async () => {
-        await mutate();
-        setPendingGen(false);
-        lastGenRef.current = {
+      try {
+        generateIntro({
           trackId: currentTrack.id || '',
+          track: { ...currentTrack },
           templateId: selectedTemplate.id,
-        };
-      });
+          templateName: selectedTemplate.name,
+          language: selectedTemplate.language ?? 'en',
+          tone: (selectedTemplate.tone as Tone) ?? Tone.Conversational,
+          length: selectedTemplate.length ?? 60,
+          templatePrompt: selectedTemplate.prompt,
+        }).then(async () => {
+          await mutate();
+          setPendingGen(false);
+          lastGenRef.current = {
+            trackId: currentTrack.id || '',
+            templateId: selectedTemplate.id,
+          };
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
   }, [
     selectedTemplate?.id,

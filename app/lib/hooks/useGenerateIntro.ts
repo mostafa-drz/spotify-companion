@@ -22,26 +22,33 @@ export function useGenerateIntro() {
     'generate-intro',
     async (_key, { arg }: { arg: GenerateIntroParams }) => {
       if (!userId) throw new Error('User not authenticated');
-      const intro = await generateIntroText(
-        userId,
-        arg.trackId,
-        arg.track,
-        arg.templateId,
-        arg.templateName,
-        arg.templatePrompt,
-        arg.language || 'en',
-        arg.tone || Tone.Conversational,
-        arg.length || 60
-      );
+      try {
+        const intro = await generateIntroText(
+          userId,
+          arg.trackId,
+          arg.track,
+          arg.templateId,
+          arg.templateName,
+          arg.templatePrompt,
+          arg.language || 'en',
+          arg.tone || Tone.Conversational,
+          arg.length || 60
+        );
 
-      const audioUrl = await generateIntroAudio(
-        userId,
-        arg.trackId,
-        arg.templateId,
-        intro.markdown
-      );
+        const audioUrl = await generateIntroAudio(
+          userId,
+          arg.trackId,
+          arg.templateId,
+          intro.markdown
+        );
 
-      return { ...intro, audioUrl };
+        return { ...intro, audioUrl };
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          throw err;
+        }
+        throw new Error('Failed to generate intro.');
+      }
     }
   );
   return {
