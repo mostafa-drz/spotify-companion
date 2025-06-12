@@ -16,8 +16,10 @@ export async function initializeUserCredits(userId: string): Promise<void> {
   const userRef = adminDb.collection('users').doc(userId);
   await userRef.set(
     {
-      availableCredits: INITIAL_CREDITS,
-      usedCredits: 0,
+      admin: {
+        availableCredits: INITIAL_CREDITS,
+        usedCredits: 0,
+      },
       updatedAt: FieldValue.serverTimestamp(),
     },
     { merge: true }
@@ -44,7 +46,7 @@ export async function hasSufficientCredits(
     return false;
   }
 
-  return userData.availableCredits >= cost;
+  return userData.admin.availableCredits >= cost;
 }
 
 /**
@@ -63,9 +65,15 @@ export async function getUserCredits(
     };
   }
 
+  if (!userData.admin) {
+    return {
+      error: 'User admin data not found',
+    };
+  }
+
   return {
-    available: userData.availableCredits || 0,
-    used: userData.usedCredits || 0,
+    available: userData.admin.availableCredits,
+    used: userData.admin.usedCredits,
   };
 }
 
@@ -84,11 +92,37 @@ export async function deductCredits(
   }
 
   const userRef = adminDb.collection('users').doc(userId);
-  await userRef.update({
-    availableCredits: FieldValue.increment(-cost),
-    usedCredits: FieldValue.increment(cost),
-    updatedAt: FieldValue.serverTimestamp(),
-  });
+  const userDoc = await userRef.get();
+  const userData = userDoc.data();
+
+  if (!userData) {
+    return {
+      error: 'User not found',
+    };
+  }
+
+  if (!userData.admin) {
+    return {
+      error: 'User admin data not found',
+    };
+  }
+
+  if (userData.admin.availableCredits < cost) {
+    return {
+      error: 'Insufficient credits',
+    };
+  }
+
+  await userRef.set(
+    {
+      admin: {
+        availableCredits: userData.admin.availableCredits - cost,
+        usedCredits: userData.admin.usedCredits + cost,
+      },
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
 }
 
 /**

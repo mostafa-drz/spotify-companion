@@ -26,7 +26,14 @@ export default function ClientProviders({
 }) {
   return (
     <ErrorBoundary>
-      <SWRConfig value={{ fetcher }}>
+      <SWRConfig
+        value={{
+          fetcher,
+          onError: (error) => {
+            console.error(error);
+          },
+        }}
+      >
         <SessionProvider>
           <FirebaseAuthProvider>
             <SpotifyPlayerProvider>{children}</SpotifyPlayerProvider>

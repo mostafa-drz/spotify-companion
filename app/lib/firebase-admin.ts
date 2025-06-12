@@ -3,6 +3,8 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { auth } from '@/app/auth';
+import { DEFAULT_TEMPLATES, INITIAL_CREDITS } from '@/app/lib/constants';
+import { User } from '@/app/types/User';
 
 // Firebase Admin SDK initialization
 if (!getApps().length) {
@@ -79,4 +81,81 @@ export async function deleteUser(uid: string) {
     console.error('Error deleting user:', error);
     throw new Error('Failed to delete user');
   }
+}
+
+// Helper for track intro doc IDs
+function getIntroDocId(trackId: string, templateId: string) {
+  return `${trackId}_${templateId}`;
+}
+
+// Server-side Firestore helpers for track intros
+import type { TrackIntro } from '@/app/types/Prompt';
+
+export async function getTrackIntro(
+  userId: string,
+  trackId: string,
+  templateId: string
+): Promise<TrackIntro | null> {
+  const docId = getIntroDocId(trackId, templateId);
+  const docRef = adminDb
+    .collection('users')
+    .doc(userId)
+    .collection('trackIntros')
+    .doc(docId);
+  const document = await docRef.get();
+  if (!document.exists) return null;
+  const data = document.data();
+  return data as TrackIntro;
+}
+
+export async function saveTrackIntro(
+  userId: string,
+  trackId: string,
+  templateId: string,
+  intro: TrackIntro
+): Promise<void> {
+  const docId = getIntroDocId(trackId, templateId);
+  const docRef = adminDb
+    .collection('users')
+    .doc(userId)
+    .collection('trackIntros')
+    .doc(docId);
+  await docRef.set(intro, { merge: true });
+}
+
+export async function userExists(userId: string): Promise<boolean> {
+  const userRef = adminDb.collection('users').doc(userId);
+  const userDoc = await userRef.get();
+  return userDoc.exists;
+}
+
+export async function initializeNewUser(
+  userId: string,
+  userData: Partial<User> = {}
+): Promise<void> {
+  const userRef = adminDb.collection('users').doc(userId);
+  const userDoc = await userRef.get();
+
+  if (userDoc.exists) {
+    throw new Error('User already exists');
+  }
+
+  // Initialize with default values
+  const newUserData: User = {
+    id: userId,
+    email: userId, // Since we're using email as userId
+    displayName: '',
+    photoURL: '',
+    admin: {
+      availableCredits: INITIAL_CREDITS, // Initial credits
+      usedCredits: 0,
+    },
+    defaultPrompt: null,
+    templates: DEFAULT_TEMPLATES,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    ...userData,
+  };
+
+  await userRef.set(newUserData);
 }

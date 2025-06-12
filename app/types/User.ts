@@ -7,8 +7,10 @@ export interface User extends UserPromptSettings {
   photoURL: string;
   createdAt: string;
   updatedAt: string;
-  availableCredits: number;
-  usedCredits: number;
+  admin: {
+    availableCredits: number;
+    usedCredits: number;
+  };
 }
 
 export enum UserTransaction {

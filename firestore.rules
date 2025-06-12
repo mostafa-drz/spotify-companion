@@ -12,14 +12,9 @@ service cloud.firestore {
     }
 
     // Users collection
-    match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
-
-      // trackIntros subcollection
-      match /trackIntros/{trackId} {
-        allow read, write: if isOwner(userId);
-      }
+    match /users/{userId}/{document=**} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && !('admin' in request.resource.data);
     }
 
     // Default deny

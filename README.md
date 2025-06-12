@@ -313,3 +313,23 @@ For more details, see the user story in `docs/userStories/dev-experience-tooling
 - For more, see [Firebase App Hosting docs](https://firebase.google.com/docs/app-hosting/configure#user-defined-environment).
 
 > **Note:** You only need `apphosting.yaml` and Cloud Secret Manager for production deployment. For local development, a `.env.local` file is enough.
+
+## ⚡️ Firebase CLI: Applying Firestore & Storage Rules
+
+To apply your Firestore and Storage security rules using the Firebase CLI, use the following commands:
+
+```bash
+# Deploy Firestore rules
+firebase deploy --only firestore:rules
+
+# Deploy Storage rules
+firebase deploy --only storage
+```
+
+Or, to deploy both at once:
+
+```bash
+firebase deploy --only firestore,storage
+```
+
+Make sure your `firestore.rules` and `storage.rules` files are up to date before running these commands.

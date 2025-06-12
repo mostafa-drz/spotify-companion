@@ -1,8 +1,7 @@
 import NextAuth from 'next-auth';
 import SpotifyProvider from 'next-auth/providers/spotify';
 import type { JWT } from 'next-auth/jwt';
-import { adminAuth } from './lib/firebase-admin';
-import { userExists, initializeNewUser } from './lib/firestore';
+import { adminAuth, userExists, initializeNewUser } from './lib/firebase-admin';
 
 // Extend the built-in session types
 declare module 'next-auth' {

@@ -1,6 +1,6 @@
 import type { PromptTemplate } from '@/app/types/Prompt';
 
-export const INITIAL_CREDITS = 5; // Demo credits for new users
+export const INITIAL_CREDITS = 10; // Demo credits for new users
 export const LOW_CREDIT_THRESHOLD = 2; // Warning threshold for low credits
 
 export const DEFAULT_TEMPLATES: PromptTemplate[] = [
