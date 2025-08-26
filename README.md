@@ -292,44 +292,9 @@ This project uses automated tooling to ensure code quality and consistency:
 
 For more details, see the user story in `docs/userStories/dev-experience-tooling.md`.
 
-## ⚡️ Environment Variables & Deployment
+## ⚡️ Environment Variables
 
 ### Local Development
 
 - Use a `.env.local` file in the root directory to provide all required environment variables (see below for a template).
 - This is sufficient for running the app locally.
-
-### Production Deployment (Firebase App Hosting)
-
-- For production, this project uses **Firebase App Hosting** to deploy the backend (Cloud Run) and serve the frontend.
-- Environment variables for production are managed in `apphosting.yaml`.
-- **Public variables** (those prefixed with `NEXT_PUBLIC_`) are set directly in `apphosting.yaml`.
-- **Secrets** (API keys, client secrets, etc.) are stored securely in **Cloud Secret Manager** and referenced in `apphosting.yaml` as secrets, not plain values.
-- This approach keeps sensitive information out of source control and leverages Google Cloud's security best practices.
-- You can set secrets using the Firebase CLI:
-  ```bash
-  firebase apphosting:secrets:set SECRET_NAME
-  ```
-- For more, see [Firebase App Hosting docs](https://firebase.google.com/docs/app-hosting/configure#user-defined-environment).
-
-> **Note:** You only need `apphosting.yaml` and Cloud Secret Manager for production deployment. For local development, a `.env.local` file is enough.
-
-## ⚡️ Firebase CLI: Applying Firestore & Storage Rules
-
-To apply your Firestore and Storage security rules using the Firebase CLI, use the following commands:
-
-```bash
-# Deploy Firestore rules
-firebase deploy --only firestore:rules
-
-# Deploy Storage rules
-firebase deploy --only storage
-```
-
-Or, to deploy both at once:
-
-```bash
-firebase deploy --only firestore,storage
-```
-
-Make sure your `firestore.rules` and `storage.rules` files are up to date before running these commands.
