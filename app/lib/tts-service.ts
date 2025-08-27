@@ -1,6 +1,8 @@
 import { TextToSpeechClient, protos } from '@google-cloud/text-to-speech';
 import { Storage } from '@google-cloud/storage';
 
+// Initialize Google Cloud clients with application default credentials
+// OIDC authentication is handled automatically by the Google Cloud SDK
 const ttsClient = new TextToSpeechClient();
 const storage = new Storage();
 
