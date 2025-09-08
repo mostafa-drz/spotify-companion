@@ -1,4 +1,4 @@
-import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
@@ -8,8 +8,24 @@ import { User } from '@/app/types/User';
 
 // Firebase Admin SDK initialization
 if (!getApps().length) {
+  const projectId = process.env.GCP_PROJECT_ID;
+  const clientEmail = process.env.GCP_CLIENT_EMAIL;
+  const privateKeyRaw = process.env.GCP_PRIVATE_KEY;
+
+  if (!projectId || !clientEmail || !privateKeyRaw) {
+    throw new Error(
+      'Missing GCP service account envs. Please set GCP_PROJECT_ID, GCP_CLIENT_EMAIL, and GCP_PRIVATE_KEY.'
+    );
+  }
+
+  const privateKey = privateKeyRaw.replace(/\\n/g, '\n');
+
   initializeApp({
-    credential: applicationDefault(),
+    credential: cert({
+      projectId,
+      clientEmail,
+      privateKey,
+    }),
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET_URI,
   });
 }

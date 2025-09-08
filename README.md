@@ -144,9 +144,11 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
    Create a `.env.local` file in the root directory with the following variables:
 
    ```env
-   # Firebase Admin SDK (Local Development)
-   GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/service-account-key.json
-
+   # Google Cloud Service Account (used in all environments)
+   GCP_PROJECT_ID=your-gcp-project-id
+   GCP_CLIENT_EMAIL=service-account@your-gcp-project-id.iam.gserviceaccount.com
+   # If pasting as a single line, keep \n escapes; the code converts them
+   GCP_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBK...\n-----END PRIVATE KEY-----\n
    # Firebase Client Config
    NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
@@ -173,27 +175,13 @@ This project uses [Genkit](https://github.com/firebase/genkit), an open-source f
 
    ### Setting up Firebase Admin SDK
 
-   Choose one of the following authentication methods:
-
-   #### Option 1: Service Account (Recommended for local development)
+   The app uses a single service account across environments via env vars:
 
    1. Go to Firebase Console > Project Settings > Service Accounts
-   2. Click "Generate New Private Key"
-   3. Save the downloaded JSON file securely (e.g., in a `secrets` directory)
-   4. Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to this file
-
-   Note: Add the service account JSON file to `.gitignore` to keep it secure
-
-   #### Option 2: Google Application Default Credentials (ADC)
-
-   For production environments on Google Cloud Platform:
-
-   1. No environment variables needed
-   2. Ensure your GCP project has the necessary IAM roles:
-      - Firebase Admin
-      - Cloud Firestore Admin
-      - Firebase Authentication Admin
-   3. The application will automatically use the service account associated with your GCP project
+   2. Click "Generate New Private Key" and download the JSON
+   3. Set `GCP_PROJECT_ID`, `GCP_CLIENT_EMAIL`, and `GCP_PRIVATE_KEY` in `.env.local`
+      - If you paste the private key in one line, keep `\n` escapes; the code converts them at runtime
+   4. Do not commit secrets; prefer your platform's secret manager for production
 
    ### Setting up Firebase Client
 

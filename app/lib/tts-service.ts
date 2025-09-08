@@ -1,10 +1,34 @@
 import { TextToSpeechClient, protos } from '@google-cloud/text-to-speech';
 import { Storage } from '@google-cloud/storage';
 
-// Initialize Google Cloud clients with application default credentials
-// OIDC authentication is handled automatically by the Google Cloud SDK
-const ttsClient = new TextToSpeechClient();
-const storage = new Storage();
+// Initialize Google Cloud clients using explicit service account credentials from env vars
+const projectId = process.env.GCP_PROJECT_ID;
+const clientEmail = process.env.GCP_CLIENT_EMAIL;
+const privateKeyRaw = process.env.GCP_PRIVATE_KEY;
+
+if (!projectId || !clientEmail || !privateKeyRaw) {
+  throw new Error(
+    'Missing GCP service account envs. Please set GCP_PROJECT_ID, GCP_CLIENT_EMAIL, and GCP_PRIVATE_KEY.'
+  );
+}
+
+const privateKey = privateKeyRaw.replace(/\\n/g, '\n');
+
+const ttsClient = new TextToSpeechClient({
+  projectId,
+  credentials: {
+    client_email: clientEmail,
+    private_key: privateKey,
+  },
+});
+
+const storage = new Storage({
+  projectId,
+  credentials: {
+    client_email: clientEmail,
+    private_key: privateKey,
+  },
+});
 
 interface TTSOptions {
   text: string;
