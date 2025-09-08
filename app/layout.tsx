@@ -4,6 +4,7 @@ import './globals.css';
 import ClientProviders from './ClientProviders';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import EnvLogger from './components/EnvLogger';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,6 +37,7 @@ export default function RootLayout({
         className={`${inter.className} min-h-screen bg-gray-50 dark:bg-[#121212]`}
       >
         <ClientProviders>
+          <EnvLogger />
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-1 container mx-auto px-4 py-8">
